@@ -1,5 +1,5 @@
 {
-  "name": "@ibm/digitalproperty-network",
+  "name": "digitalproperty-network",
   "version": "0.0.22",
   "description": "Digital Property Network",
   "scripts": {
