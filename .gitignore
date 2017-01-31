@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -38,3 +39,9 @@ jspm_packages
 
 # idea
 .idea
+=======
+node_modules/
+dist/
+logs/
+
+>>>>>>> ecbe972b5ae1d00e08e30ed1cfd689b84365d472
