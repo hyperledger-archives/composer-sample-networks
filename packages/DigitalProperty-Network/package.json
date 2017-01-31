@@ -1,9 +1,9 @@
 {
-  "name": "@ibm/digitalproperty-network",
+  "name": "digitalproperty-network",
   "version": "0.0.22",
   "description": "Digital Property Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && concerto archive create -d . -a ./dist/digitalproperty-network.zip",
+    "prepublish": "mkdirp ./dist && composer  archive create -d . -a ./dist/digitalproperty-network.zip",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
@@ -15,22 +15,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.ibm.com/Blockchain-WW-Labs/DigitalProperty-Network.git"
+    "url": "https://github.com/fabric-composer/sample-networks.git"
   },
   "keywords": [
     "land"
   ],
-  "author": "IBM",
-  "license": "ISC",
-  "publishConfig": {
-    "registry": "https://npm-registry.whitewater.ibm.com"
-  },
+  "author": "Fabric Composer",
+  "license": "Apache-2",
   "devDependencies": {
-    "@ibm/concerto-admin": "~0.3.0-0",
-    "@ibm/concerto-cli": "^0.3.0-20170113154116",
-    "@ibm/concerto-client": "~0.3.0-0",
-    "@ibm/concerto-common": "~0.3.2-0",
-    "@ibm/concerto-connector-embedded": "~0.3.0-0",
+    "composer-admin": "~0.4.0-0",
+    "composer-client": "~0.4.0-0",
     "chai": "^3.5.0",
     "eslint": "^3.6.1",
     "ink-docstrap": "^1.3.0",
@@ -42,7 +36,7 @@
     "moment": "^2.17.1"
   },
   "dependencies": {
-    "@ibm/digitalproperty-model": "latest"
+    "digitalproperty-model": "latest"
   },
   "license-check-config": {
     "src": [
