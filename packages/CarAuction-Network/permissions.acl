@@ -1,0 +1,7 @@
+/**
+ * Access Control List for the auction network.
+ */
+Auctioneer | org.acme.vehicle.auction | ALL | org.acme.vehicle.auction.Auctioneer | (true) | ALLOW | Allow the auctioneer full access
+Member | org.acme.vehicle.auction | READ | org.acme.vehicle.auction.Member | (true) | ALLOW | Allow the member read access
+VehicleOwner | org.acme.vehicle.auction.Vehicle:v | ALL | org.acme.vehicle.auction.Member:u | (v.owner.getIdentifier() == u.getIdentifier()) | ALLOW | Allow the owner of a vehicle total access
+VehicleListingOwner | org.acme.vehicle.auction.VehicleListing:v | ALL | org.acme.vehicle.auction.Member:u | (v.vehicle.owner.getIdentifier() == u.getIdentifier()) | ALLOW | Allow the owner of a vehicle total access to their vehicle listing

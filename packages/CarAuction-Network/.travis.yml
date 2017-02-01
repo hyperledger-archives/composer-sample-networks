@@ -1,0 +1,23 @@
+language: node_js
+node_js:
+- '4'
+- '6'
+dist: trusty
+before_install: |
+    set -ev
+    set -o pipefail
+    npm install -g npm
+    npm config set @ibm:registry https://npm-registry.whitewater.ibm.com
+    npm config set //npm-registry.whitewater.ibm.com/:_authToken ${NPM_TOKEN}
+deploy:
+    provider: script
+    script: npm run deploy
+    skip_cleanup: true
+    on:
+        all_branches: true
+cache:
+  directories:
+  - $HOME/.npm
+notifications:
+  slack:
+    secure: SbabRm/ooQcS2VZaXqvjjUK8kFLtyxpQj25GurGYLLLSFaktm+k3siAK+OR9TNkD0elqjqCr3e+Bt1uXV5cYJRGkKlwh/pj+lXiSyVzGRUnKHr/Td05jwd6Fs6erbg6QT/XuXsNpyCXSdWRVL+74yYm2rKGGBqE0WuXH6v8rWPgIIhw/kjMNYdB4hZmXll+jFgo3m2nNfM9ja5LG9Sy3Ya/ndVJRmqTSKyQ6+9GgkTznYVZGqCbenY+8KvP1E/i1uNbk/ilANq1oDZLOUxVHdCxVJbtnmQa5L48cftGnVcR/7RvuW6Nf3tlBVyS+VE9fxquYnsWi8lwKDRpUY7bBxlwl3xl+9UdkvBqXVKGUmqL2ztQTYMQ8svk8Y+MOFyubUC7uy2MMwWd81oqbpatvIblk4Yc3yIWRMozXDWTCriD4IbclnsYm93AHWt54nWjE2zTjm2A7Gr4X/eISqYCOa++YQORlq98cfzPmVkbM4FqXTD/O37wds2QPKhmaSUrc1GRhg4InJMffsTNEewa/mQ5T86s9li9DB1FR7/d90dp1OV4l6xIU2F7PXTLpKiQfFx6Wwjudtt78u9goaC95KT5zXnanzeh/b1UPKRWsVhjj8habw/c/myPhdk6CHGWiDJ1MGanTurQFShbWXTARr01EAS+2bajYq0M3QTc/ofs=
