@@ -4,7 +4,7 @@
   "description": "Animal Tracking network based on UK DEFRA regulations",
   "scripts": {
     "pretest": "npm run lint",
-    "lint": "eslint",
+    "lint": "eslint .",
     "postlint": "npm run licchk",
     "licchk": "license-check",
     "postlicchk": "npm run doc",
@@ -27,7 +27,11 @@
   },
   "license-check-config": {
     "src": [
-      "**/*.js"
+      "**/*.js",
+      "!./coverage/**/*",
+      "!./node_modules/**/*",
+      "!./out/**/*",
+      "!./scripts/**/*"
     ],
     "path": "header.txt",
     "blocking": true,
