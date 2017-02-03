@@ -1,3 +1,6 @@
+# JSDoc
+out
+
 # Logs
 logs
 *.log
@@ -36,15 +39,13 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-# JSDoc
-out
-
 # Mac files.
 **/.DS_Store
 
+chaincode/src/*
+!chaincode/src/concerto
+chaincode/bin
+chaincode/pkg
+
 *.swp
 
-# Build generated files should be ignored by git, but not by npm.
-dist
-
-node_modules
