@@ -14,9 +14,9 @@
 
 'use strict';
 
-const AdminConnection = require('@ibm/concerto-admin').AdminConnection;
-const BusinessNetworkConnection = require('@ibm/concerto-client').BusinessNetworkConnection;
-const BusinessNetworkDefinition = require('@ibm/concerto-common').BusinessNetworkDefinition;
+const AdminConnection = require('composer-admin').AdminConnection;
+const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
+const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
 const path = require('path');
 
 require('chai').should();
@@ -40,7 +40,7 @@ describe('DigitalLandTitle', () => {
             })
             .then(() => {
                 businessNetworkConnection = new BusinessNetworkConnection();
-                return businessNetworkConnection.connect('testprofile', '@ibm/digitalproperty-network', 'WebAppAdmin', 'DJY27pEnl16d');
+                return businessNetworkConnection.connect('testprofile', 'digitalproperty-network', 'WebAppAdmin', 'DJY27pEnl16d');
             });
     });
 
@@ -50,45 +50,50 @@ describe('DigitalLandTitle', () => {
 
             // Create the existing LandTitle asset.
             let factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+
+            let seller = factory.newInstance('net.biz.digitalPropertyNetwork', 'Person', 'P1');
+            seller. firstName = 'Dan';
+            seller.lastName = 'Selman';
+
             let landTitle = factory.newInstance('net.biz.digitalPropertyNetwork', 'LandTitle', 'TITLE_1');
-            let person = factory.newInstance('net.biz.digitalPropertyNetwork', 'Person', 'PERSON_1');
-            person.firstName = 'Test';
-            person.lastName = 'User';
+            let person = factory.newRelationship('net.biz.digitalPropertyNetwork', 'Person', 'P1');
             landTitle.owner = person;
             landTitle.information = 'Some information';
+            landTitle.forSale = false;
 
             // Create the transaction.
             let transaction = factory.newTransaction('net.biz.digitalPropertyNetwork', 'RegisterPropertyForSale');
             transaction.title = factory.newRelationship('net.biz.digitalPropertyNetwork', 'LandTitle', 'TITLE_1');
+            transaction.seller = person;
 
             // Get the asset registry.
-            return businessNetworkConnection.getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle')
+            return businessNetworkConnection.getParticipantRegistry('net.biz.digitalPropertyNetwork.Person')
+                .then((personRegistry) => {
+                    return personRegistry.add(seller);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle');
+                })
                 .then((assetRegistry) => {
-
                     // Add the LandTitle asset to the asset registry.
-                    return assetRegistry.add(landTitle)
-                        .then(() => {
+                    return assetRegistry.add(landTitle);
+                })
+                .then(() => {
+                    // Submit the transaction.
+                    return businessNetworkConnection.submitTransaction(transaction);
 
-                            // Submit the transaction.
-                            return businessNetworkConnection.submitTransaction(transaction);
-
-                        })
-                        .then(() => {
-
-                            // Get the modified land title.
-                            return assetRegistry.get('TITLE_1');
-
-                        })
-                        .then((modifiedLandTitle) => {
-
-                            // Ensure the LandTitle has been modified correctly.
-                            modifiedLandTitle.forSale.should.be.true;
-
-                        });
+                })
+                .then(() => {
+                    return businessNetworkConnection.getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle');
+                })
+                .then((assetRegistry) => {
+                    // Get the modified land title.
+                    return assetRegistry.get('TITLE_1');
+                })
+                .then((modifiedLandTitle) => {
+                    // Ensure the LandTitle has been modified correctly.
+                    modifiedLandTitle.forSale.should.be.true;
                 });
-
         });
-
     });
-
 });
