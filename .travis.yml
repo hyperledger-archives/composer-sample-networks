@@ -9,7 +9,7 @@ before_install: |
     npm install -g npm
 deploy:
     provider: script
-    script: npm run deploy
+    script: ./.travis/deploy.sh
     skip_cleanup: true
     on:
         all_branches: true
