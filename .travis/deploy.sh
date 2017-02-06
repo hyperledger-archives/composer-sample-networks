@@ -20,7 +20,7 @@ if [ "${SYSTEST}" != "" ]; then
 fi
 
 # Check that this is the main repository.
-if [[ "${TRAVIS_REPO_SLUG}" != fabric-composer* ]]; then
+if [[ "${TRAVIS_REPO_SLUG}" != sample-networks* ]]; then
     echo "Skipping deploy; wrong repository slug."
     exit 0
 fi
@@ -45,10 +45,10 @@ if [ -z "${TRAVIS_TAG}" ]; then
 
     # Publish with unstable tag. These are development builds.
     echo "Pushing with tag unstable"
-    lerna exec --ignore 'composer-systests' -- npm publish --tag=unstable 2>&1 | tee
+    npm publish --tag=unstable 2>&1 | tee
 else
 
     # Publish with latest tag (default). These are release builds.
     echo "Pushing with tag latest"
-    lerna exec --ignore 'composer-systests' -- npm publish 2>&1 | tee
+    npm publish 2>&1 | tee
 fi

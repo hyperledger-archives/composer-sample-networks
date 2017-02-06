@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 /**
  * Mozart Domain Model and Business Logic
  *
@@ -54,7 +54,7 @@ enum ProductionType {
 }
 
 /**
- * A Farmer participant
+ * A User participant
  */
 abstract participant User identified by email {
   o String email
