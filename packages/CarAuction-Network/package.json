@@ -1,5 +1,5 @@
 {
-  "name": "org.acme.biznet",
+  "name": "carauction-network",
   "version": "0.0.2",
   "description": "Car Auction Business Network",
   "scripts": {
@@ -23,9 +23,6 @@
   ],
   "author": "IBM",
   "license": "ISC",
-  "publishConfig": {
-    "registry": "https://npm-registry.whitewater.ibm.com"
-  },
   "devDependencies": {
     "composer-admin": "*",
     "composer-cli": "*",
