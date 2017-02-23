@@ -1,0 +1,4 @@
+/**
+ * Sample access control list.
+ */
+Default | org.acme.sample | ALL | ANY | (true) | ALLOW | Allow all participants access to all resources
