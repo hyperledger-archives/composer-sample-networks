@@ -44,7 +44,7 @@ describe('CarAuction', () => {
             })
             .then(() => {
                 businessNetworkConnection = new BusinessNetworkConnection();
-                return businessNetworkConnection.connect('defaultProfile', 'org.acme.biznet', 'WebAppAdmin', 'DJY27pEnl16d');
+                return businessNetworkConnection.connect('defaultProfile', NS, 'WebAppAdmin', 'DJY27pEnl16d');
             });
     });
 
