@@ -21,9 +21,9 @@ const path = require('path');
 
 require('chai').should();
 
-const NS = 'org.acme.vehicle.auction';
+const NS = 'org.acme.bond';
 
-describe('CarAuction', () => {
+describe('Publish Bond', () => {
 
     // let adminConnection;
     let businessNetworkConnection;
@@ -48,7 +48,7 @@ describe('CarAuction', () => {
             });
     });
 
-    describe('#makeOffer', () => {
+    describe('#publish', () => {
 
         it('should add the offer to the offers of a vehicle listing', () => {
 

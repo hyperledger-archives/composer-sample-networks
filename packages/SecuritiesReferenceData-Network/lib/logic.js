@@ -14,13 +14,18 @@
 
 /**
  * Publish a new data item
- * @param {org.acme.securities.PublishDataItem} publishDataItem - the publishDataItem transaction
+ * @param {org.acme.bond.PublishDataItem} publishDataItem - the publishDataItem transaction
  * @transaction
  */
 function publish(publishDataItem) {
 
-    return getAssetRegistry('org.acme.securities.SecurityReferenceData')
-        .then(function(registry) {
-            return registry.exists(publishDataItem.ISINCode);
+    return getAssetRegistry('org.acme.securities.CorporateBondReferenceData')
+        .then(function (registry) {
+            var factory = getFactory();
+            // Create the vehicle.
+            var bond = factory.newResource('org.acme.bond', 'CorporateBondReferenceData', publishDataItem.ISINCode);
+            bond.data = publishDataItem.data;
+            // Add the bond to the registry.
+            return registry.add(bond);
         });
 }

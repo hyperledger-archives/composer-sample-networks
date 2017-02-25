@@ -1,9 +1,9 @@
 {
   "name": "org.acme.vehicle.auction",
   "version": "0.0.1",
-  "description": "Securities Reference Data Business Network",
+  "description": "Corporate Bonds Reference Data Sharing Business Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer archive create -d . -a ./dist/securities-network.bna",
+    "prepublish": "mkdirp ./dist && composer archive create -d . -a ./dist/bonds-network.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
@@ -18,9 +18,9 @@
     "url": "https://github.com/fabric-composer/sample-networks.git"
   },
   "keywords": [
-    "securities",
+    "corporate bonds",
     "reference data",
-    "finance",
+    "finance"
   ],
   "author": "IBM",
   "license": "ISC",

@@ -1,7 +1,7 @@
 /**
- * Securities ReferenceData 
+ * Reference Data for Corporate Bonds
  */
-namespace org.acme.securities
+namespace org.acme.bond
 
 enum CouponType {
   o FIXED
@@ -15,7 +15,7 @@ participant Member identified by memberId {
 participant Issuer extends Member {
 }
 
-concept DataItem {
+concept CorporateBond {
     o String TickerSymbol
     o String InstrumentName
     o String ExchangeCode
@@ -33,12 +33,12 @@ concept DataItem {
     --> Issuer issuer
 }
 
-asset SecurityReferenceData identified by ISINCode {  
-    o DataItem dataItem
+asset CorporateBondReferenceData identified by ISINCode {  
+    o CorporateBond data
     o String ISINCode
 }
 
 transaction PublishDataItem identified by transactionId {
   o String transactionId
-  o DataItem dataItem
+  o CorporateBond dataItem
 }

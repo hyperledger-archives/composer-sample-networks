@@ -1,4 +1,4 @@
 /**
- * Access Control List for the securities reference data
+ * Access Control List for the reference data
  */
-Default | org.acme.securities | ALL | org.acme.securities | (true) | ALLOW | Allow full access
+Default | org.acme.bond | ALL | org.acme.bond | (true) | ALLOW | Allow full access
