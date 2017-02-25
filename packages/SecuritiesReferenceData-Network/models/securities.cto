@@ -1,0 +1,44 @@
+/**
+ * Securities ReferenceData 
+ */
+namespace org.acme.securities
+
+enum CouponType {
+  o FIXED
+  o FLOATING
+}
+
+participant Member identified by memberId {
+  o String memberId
+}
+
+participant Issuer extends Member {
+}
+
+concept DataItem {
+    o String TickerSymbol
+    o String InstrumentName
+    o String ExchangeCode
+    o String ISINCode
+    o String InstrumentCurrencyCode
+    o Double CouponRate
+    o DateTime MaturityDate optional
+    o Integer CouponFrequency
+    o CouponType couponType
+    o Integer DayCount
+    o DateTime IssueDate
+    o String CUSIP
+    o String CountryofIncorporation
+    o String CouponCurrency
+    --> Issuer issuer
+}
+
+asset SecurityReferenceData identified by ISINCode {  
+    o DataItem dataItem
+    o String ISINCode
+}
+
+transaction PublishDataItem identified by transactionId {
+  o String transactionId
+  o DataItem dataItem
+}
