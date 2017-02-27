@@ -1,4 +1,0 @@
-/**
- * Access Control List for the reference data
- */
-Default | org.acme.bond | ALL | org.acme.bond | (true) | ALLOW | Allow full access
