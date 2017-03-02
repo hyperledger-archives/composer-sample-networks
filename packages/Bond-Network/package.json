@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Bond Reference Data Sharing Business Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer archive create -d . -a ./dist/bond-network.bna",
+    "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/bond-network.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
