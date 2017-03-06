@@ -40,7 +40,6 @@
   "dependencies": {
     "digitalproperty-model": "latest"
   },
-  "license": "Apache-2",
   "license-check-config": {
     "src": [
       "**/*.js",
