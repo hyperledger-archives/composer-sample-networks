@@ -3,7 +3,7 @@
   "version": "0.0.22",
   "description": "Digital Property Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer  archive create -d . -a ./dist/digitalproperty-network.zip",
+    "prepublish": "mkdirp ./dist && composer  archive create  --sourceType dir --sourceName . -a ./dist/digitalproperty-network.zip",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
@@ -40,7 +40,6 @@
   "dependencies": {
     "digitalproperty-model": "latest"
   },
-  "license": "Apache-2",
   "license-check-config": {
     "src": [
       "**/*.js",
