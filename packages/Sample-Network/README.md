@@ -1,3 +1,3 @@
 # Fabric Composer Sample Demo
 
-The Fabric Composer team has built a sample network
+The Fabric Composer team has built a simple sample network.

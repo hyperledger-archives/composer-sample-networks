@@ -1,29 +1,29 @@
 # Fabric Composer Car Auction Demo
 
-The Fabric Composer team has built an interactive, distributed, car auction demo, backed by Hyperledger Fabric. Invite participants to join your distributed auction, list assets for sale (setting a reserve price), and watch as assets that have met their reserve price are automatically transferred to the highest bidder at the end of the auction.
+This is an interactive, distributed, car auction demo, backed by Hyperledger Fabric. Invite participants to join your distributed auction, list assets for sale (setting a reserve price), and watch as assets that have met their reserve price are automatically transferred to the highest bidder at the end of the auction.
 
 ## Understanding the Business Network
 
-The easiest way to interact with the demo is using our work-in-progress [Composer web application](http://fabric-composer.mybluemix.net). Composer allows you to define a business network (defining the data model and writing transaction processing logic), manage assets & participants and submit transactions.
+The easiest way to interact with the demo is using our work-in-progress [Composer Playground web application](http://fabric-composer-next.mybluemix.net). Composer allows you to define a business network (defining the data model and writing transaction processing logic), manage assets & participants and submit transactions.
 
-The data model for the auction business network is defined in a CTO model file, managed in GitHub [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction-Network/models/auction.cto).
+The data model for the auction business network is defined in a CTO model file, managed in GitHub [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction2-Network/models/auction.cto).
 
 The data model is very simple (less than 50 lines). It defines the structure of the assets, participants and transactions for a very simple auction.
 
-The business logic is defined in a single Javascript file [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction-Network/lib/logic.js). The logic consists of two Javascript functions that are automatically invoked by the Fabric Composer runtime chain code when transactions are submitted for processing.
+The business logic is defined in a single Javascript file [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction2-Network/lib/logic.js). The logic consists of two Javascript functions that are automatically invoked by the Fabric Composer runtime chain code when transactions are submitted for processing.
 
 The `makeOffer` function is called when an `Offer` transaction is submitted. The logic simply checks that the listing for the offer is still for sale, and then adds the offer to the listing, and then updates the offer in the `VehicleListing` asset registry.
 
 The `closeBidding` function is called when a `CloseBidding` transaction is submitted for processing. The logic checks that the listing is still for sale, sorts the offers by bid price, and then if the reserve has been met, transfers the ownership of the vehicle associated with the listing to the highest bidder. Money is transferred from the buyer's account to the seller's account, and then all the modified assets are updated in their respective registries.
 
-Access control for the business network is defined [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction-Network/permissions.acl).
+Access control for the business network is defined [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction2-Network/permissions.acl).
 
 > ### Developer Unit Testing
 
 > Note that if you `git clone` the [repository](https://github.com/fabric-composer/sample-networks) for the Business Network you can run a unit tests for the logic in the business network using the Fabric Composer embedded runtime which simulates a Hyperledger Fabric using a pure Javascript runtime. Simply run:
 
 > ```
-cd packages/CarAuction-Network
+cd packages/CarAuction2-Network
 npm install
 npm test
 ```
@@ -32,7 +32,7 @@ npm test
 
 ## Connect to Composer
 
-You can connect to Composer [here](http://fabric-composer.mybluemix.net). If you have used Composer before you may need to clear your cached browser data (or use private/incognito mode).
+You can connect to Composer [here](http://fabric-composer-next.mybluemix.net). If you have used Composer before you may need to clear your cached browser data (or use private/incognito mode).
 
 TBD - document how to add connection profiles to an instance of Fabric running on Bluemix.
 
@@ -60,9 +60,10 @@ The JSON representation of the User should be:
 
 Substitute `daniel.selman@uk.ibm.com` with your email address. Congratulations you are now a participant in this business network!
 
-You now need to issue an identity card for this participant. Click the green ID card icon to the right of your participant. Enter an user id, for example `daniel.selman` and select the "Identity can be used to issue other identities?" checkbox so that this user has permission to invite other users into the business network.
+> Playground does not yet support this
+> You now need to issue an identity card for this participant. Click the green ID card icon to the right of your participant. Enter an user id, for example `daniel.selman` and select the "Identity can be used to issue other identities?" checkbox so that this user has permission to invite other users into the business network.
 
-You can switch between identities using the menu option at the top right of the screen.
+> You can switch between identities using the menu option at the top right of the screen.
 
 ### Create Assets
 
@@ -162,7 +163,8 @@ If you click on the Participants tab you can check the balance of each User. You
 
 ## View the Blockchain
 
-You can inspect the blocks and transaction created by Hyperledger during the course of the auction using the Hyperledger Explorer. Details TBD.
+> Not yet supported in Playground
+> You can inspect the blocks and transaction created by Hyperledger during the course of the auction using the Hyperledger Explorer. Details TBD.
 
 ## Reset the Auction
 
