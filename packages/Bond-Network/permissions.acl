@@ -3,10 +3,11 @@
  */
 rule Issuer {
     description: "Allow full access to the issuer of a bond"
-    participant: "org.acme.bond.Issuer:i"
+    participant(i): "org.acme.bond.Issuer"
     operation: ALL
-    resource: "org.acme.bond.BondAsset:a"
-    condition: if(a.bond.issuer.memberId === i.memberId) then ALLOW
+    resource(a): "org.acme.bond.BondAsset"
+    condition: (a.bond.issuer.memberId === i.memberId) 
+    action: ALLOW
 }
 
 rule Default {
