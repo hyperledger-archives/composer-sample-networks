@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-- '4'
 - '6'
 dist: trusty
 before_install: |
@@ -16,3 +15,9 @@ deploy:
 cache:
   directories:
   - $HOME/.npm
+notifications:
+  email:
+    recipients:
+      - whitemat@uk.ibm.com
+    on_success: never # default: change
+    on_failure: always # default: always
