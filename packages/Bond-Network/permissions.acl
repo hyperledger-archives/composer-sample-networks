@@ -1,5 +1,18 @@
 /**
  * Access Control List for the bond data
  */
-Issuer | org.acme.bond.BondAsset:a | ALL | org.acme.bond.Issuer:i | (a.bond.issuer.memberId === i.memberId) | ALLOW | Allow full access to the issuer of a bond
-Default | org.acme.bond | READ | org.acme.bond | (true) | ALLOW | Allow read access
+rule Issuer {
+    description: "Allow full access to the issuer of a bond"
+    participant: "org.acme.bond.Issuer:i"
+    operation: ALL
+    resource: "org.acme.bond.BondAsset:a"
+    condition: if(a.bond.issuer.memberId === i.memberId) then ALLOW
+}
+
+rule Default {
+    description: "Allow read access"
+    participant: "org.acme.bond"
+    operation: ALL
+    resource: "org.acme.bond"
+    action: ALLOW
+}
