@@ -22,6 +22,12 @@ const path = require('path');
 require('chai').should();
 
 const NS = 'org.acme.shipping.perishable';
+let grower;
+let importer;
+let shipper;
+let contract;
+let shipment;
+let factory;
 
 describe('Perishable Shipping Network', () => {
 
@@ -44,57 +50,51 @@ describe('Perishable Shipping Network', () => {
             .then(() => {
                 businessNetworkConnection = new BusinessNetworkConnection();
                 return businessNetworkConnection.connect('defaultProfile', 'org.acme.shipping.perishable.network', 'WebAppAdmin', 'DJY27pEnl16d');
-            });
-    });
+            })
+            .then(() => {
+                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+                // create the grower
+                grower = factory.newResource(NS, 'Grower', 'farmer@email.com');
+                const growerAddress = factory.newConcept(NS, 'Address');
+                growerAddress.country = 'USA';
+                grower.address = growerAddress;
+                grower.accountBalance = 0;
 
-    describe('#shipment', () => {
+                // create the importer
+                importer = factory.newResource(NS, 'Importer', 'supermarket@email.com');
+                const importerAddress = factory.newConcept(NS, 'Address');
+                importerAddress.country = 'UK';
+                importer.address = importerAddress;
+                importer.accountBalance = 0;
 
-        it('should receive base price for a shipment within temperature range', () => {
+                // create the shipper
+                shipper = factory.newResource(NS, 'Shipper', 'shipper@email.com');
+                const shipperAddress = factory.newConcept(NS, 'Address');
+                shipperAddress.country = 'Panama';
+                shipper.address = shipperAddress;
+                shipper.accountBalance = 0;
 
-            const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+                // create the contract
+                contract = factory.newResource(NS, 'Contract', 'CON_001');
+                contract.grower = factory.newRelationship(NS, 'Grower', 'farmer@email.com');
+                contract.importer = factory.newRelationship(NS, 'Importer', 'supermarket@email.com');
+                contract.shipper = factory.newRelationship(NS, 'Shipper', 'shipper@email.com');
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                contract.arrivalDateTime = tomorrow; // the shipment has to arrive tomorrow
+                contract.unitPrice = 0.5; // pay 50 cents per unit
+                contract.minTemperature = 2; // min temperature for the cargo
+                contract.maxTemperature = 10; // max temperature for the cargo
+                contract.minPenaltyFactor = 0.2; // we reduce the price by 20 cents for every degree below the min temp
+                contract.maxPenaltyFactor = 0.1; // we reduce the price by 10 cents for every degree above the max temp
 
-            // create the grower
-            const grower = factory.newResource(NS, 'Grower', 'farmer@email.com');
-            const growerAddress = factory.newConcept(NS, 'Address');
-            growerAddress.country = 'USA';
-            grower.address = growerAddress;
-            grower.accountBalance = 0;
-
-            // create the importer
-            const importer = factory.newResource(NS, 'Importer', 'supermarket@email.com');
-            const importerAddress = factory.newConcept(NS, 'Address');
-            importerAddress.country = 'UK';
-            importer.address = importerAddress;
-            importer.accountBalance = 0;
-
-            // create the shipper
-            const shipper = factory.newResource(NS, 'Shipper', 'shipper@email.com');
-            const shipperAddress = factory.newConcept(NS, 'Address');
-            shipperAddress.country = 'Panama';
-            shipper.address = shipperAddress;
-            shipper.accountBalance = 0;
-
-            // create the contract
-            const contract = factory.newResource(NS, 'Contract', 'CON_001');
-            contract.grower = factory.newRelationship(NS, 'Grower', 'farmer@email.com' );
-            contract.importer = factory.newRelationship(NS, 'Importer', 'supermarket@email.com' );
-            contract.shipper = factory.newRelationship(NS, 'Shipper', 'shipper@email.com' );
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate()+1);
-            contract.arrivalDateTime = tomorrow; // the shipment has to arrive tomorrow
-            contract.unitPrice = 0.5; // pay 50 cents per unit
-            contract.minTemperature = 2; // min temperature for the cargo
-            contract.maxTemperature = 10; // max temperature for the cargo
-            contract.minPenaltyFactor = 0.2; // we reduce the price by 20 cents for every degree below the min temp
-            contract.maxPenaltyFactor = 0.1; // we reduce the price by 10 cents for every degree above the max temp
-
-            // create the shipment
-            const shipment = factory.newResource(NS, 'Shipment', 'SHIP_001');
-            shipment.type = 'BANANAS';
-            shipment.unitCount = 5000;
-            shipment.contract = factory.newRelationship(NS, 'Contract', 'CON_001' );
-
-            return businessNetworkConnection.getParticipantRegistry(NS + '.Grower')
+                // create the shipment
+                shipment = factory.newResource(NS, 'Shipment', 'SHIP_001');
+                shipment.type = 'BANANAS';
+                shipment.unitCount = 5000;
+                shipment.contract = factory.newRelationship(NS, 'Contract', 'CON_001');
+                return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+            })
             .then((growerRegistry) => {
                 // add the growers
                 return growerRegistry.addAll([grower]);
@@ -126,41 +126,151 @@ describe('Perishable Shipping Network', () => {
             .then((shipmentRegistry) => {
                 // add the shipments
                 return shipmentRegistry.addAll([shipment]);
-            })
-            .then(() => {
-                // submit the temperature reading
-                const tempReading = factory.newTransaction(NS, 'TemperatureReading');
-                tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001' );
-                tempReading.centigrade = 4.5;
-                return businessNetworkConnection.submitTransaction(tempReading);
-            })
-            .then(() => {
-                // submit the shipment received
-                const received = factory.newTransaction(NS, 'ShipmentReceived');
-                received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001' );
-                return businessNetworkConnection.submitTransaction(received);
-            })
-            .then(() => {
-                return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
-            })
-            .then((growerRegistry) => {
-                // check the grower's balance
-                return growerRegistry.get(grower.email);
-            })
-            .then((newGrower) => {
-                // console.log(JSON.stringify(businessNetworkConnection.getBusinessNetwork().getSerializer().toJSON(newGrower)));
-                newGrower.accountBalance.should.equal(2500);
-            })
-            .then(() => {
-                return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
-            })
-            .then((importerRegistry) => {
-                // check the importer's balance
-                return importerRegistry.get(importer.email);
-            })
-            .then((newImporter) => {
-                newImporter.accountBalance.should.equal(-2500);
             });
+    });
+
+    describe('#shipment', () => {
+
+        it('should receive base price for a shipment within temperature range', () => {
+            // submit the temperature reading
+            const tempReading = factory.newTransaction(NS, 'TemperatureReading');
+            tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+            tempReading.centigrade = 4.5;
+            return businessNetworkConnection.submitTransaction(tempReading)
+                .then(() => {
+                    // submit the shipment received
+                    const received = factory.newTransaction(NS, 'ShipmentReceived');
+                    received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+                    return businessNetworkConnection.submitTransaction(received);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+                })
+                .then((growerRegistry) => {
+                    // check the grower's balance
+                    return growerRegistry.get(grower.email);
+                })
+                .then((newGrower) => {
+                    // console.log(JSON.stringify(businessNetworkConnection.getBusinessNetwork().getSerializer().toJSON(newGrower)));
+                    newGrower.accountBalance.should.equal(2500);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
+                })
+                .then((importerRegistry) => {
+                    // check the importer's balance
+                    return importerRegistry.get(importer.email);
+                })
+                .then((newImporter) => {
+                    newImporter.accountBalance.should.equal(-2500);
+                });
+        });
+
+        it('should receive nothing for a late shipment', () => {
+            // submit the temperature reading
+            const tempReading = factory.newTransaction(NS, 'TemperatureReading');
+            tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+            tempReading.centigrade = 4.5;
+            return businessNetworkConnection.submitTransaction(tempReading)
+                .then(() => {
+                    // submit the shipment received
+                    const received = factory.newTransaction(NS, 'ShipmentReceived');
+                    received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');                       const late = new Date();
+                    late.setDate(late.getDate() + 2);
+                    received.timestamp = late;
+                    return businessNetworkConnection.submitTransaction(received);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+                })
+                .then((growerRegistry) => {
+                    // check the grower's balance
+                    return growerRegistry.get(grower.email);
+                })
+                .then((newGrower) => {
+                    // console.log(JSON.stringify(businessNetworkConnection.getBusinessNetwork().getSerializer().toJSON(newGrower)));
+                    newGrower.accountBalance.should.equal(2500);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
+                })
+                .then((importerRegistry) => {
+                    // check the importer's balance
+                    return importerRegistry.get(importer.email);
+                })
+                .then((newImporter) => {
+                    newImporter.accountBalance.should.equal(-2500);
+                });
+        });
+
+        it('should apply penalty for min temperature violation', () => {
+            // submit the temperature reading
+            const tempReading = factory.newTransaction(NS, 'TemperatureReading');
+            tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+            tempReading.centigrade = 1;
+            return businessNetworkConnection.submitTransaction(tempReading)
+                .then(() => {
+                    // submit the shipment received
+                    const received = factory.newTransaction(NS, 'ShipmentReceived');
+                    received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+                    return businessNetworkConnection.submitTransaction(received);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+                })
+                .then((growerRegistry) => {
+                    // check the grower's balance
+                    return growerRegistry.get(grower.email);
+                })
+                .then((newGrower) => {
+                    // console.log(JSON.stringify(businessNetworkConnection.getBusinessNetwork().getSerializer().toJSON(newGrower)));
+                    newGrower.accountBalance.should.equal(4000);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
+                })
+                .then((importerRegistry) => {
+                    // check the importer's balance
+                    return importerRegistry.get(importer.email);
+                })
+                .then((newImporter) => {
+                    newImporter.accountBalance.should.equal(-4000);
+                });
+        });
+
+        it('should apply penalty for max temperature violation', () => {
+            // submit the temperature reading
+            const tempReading = factory.newTransaction(NS, 'TemperatureReading');
+            tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+            tempReading.centigrade = 11;
+            return businessNetworkConnection.submitTransaction(tempReading)
+                .then(() => {
+                    // submit the shipment received
+                    const received = factory.newTransaction(NS, 'ShipmentReceived');
+                    received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+                    return businessNetworkConnection.submitTransaction(received);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+                })
+                .then((growerRegistry) => {
+                    // check the grower's balance
+                    return growerRegistry.get(grower.email);
+                })
+                .then((newGrower) => {
+                    // console.log(JSON.stringify(businessNetworkConnection.getBusinessNetwork().getSerializer().toJSON(newGrower)));
+                    newGrower.accountBalance.should.equal(5000);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
+                })
+                .then((importerRegistry) => {
+                    // check the importer's balance
+                    return importerRegistry.get(importer.email);
+                })
+                .then((newImporter) => {
+                    newImporter.accountBalance.should.equal(-5000);
+                });
         });
     });
 });

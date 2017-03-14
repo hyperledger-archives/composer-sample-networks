@@ -22,11 +22,55 @@ function payOut(shipmentReceived) {
     let contract = shipmentReceived.shipment.contract;
     let shipment = shipmentReceived.shipment;
     let payOut = contract.unitPrice * shipment.unitCount;
+
+    console.log( 'Received at: ' + shipmentReceived.timestamp);
+    console.log( 'Contract arrivalDateTime: ' + contract.arrivalDateTime);
+
+    // if the shipment did not arrive on time the payout is zero
+    if(shipmentReceived.timestamp > contract.arrivalDateTime) {
+        payOut = 0;
+        console.log('Late shipment');
+    }
+    else {
+        // find the lowest temperature reading
+        if (shipment.temperatureReadings) {
+            // sort the temperatureReadings by centigrade
+            shipment.temperatureReadings.sort(function(a, b) {
+                return (a.centigrade - b.centigrade);
+            });
+            let lowestReading = shipment.temperatureReadings[0];
+            let highestReading = shipment.temperatureReadings[shipment.temperatureReadings.length-1];
+            let penalty = 0;
+            console.log('Lowest temp reading: ' + lowestReading.centigrade );
+            console.log('Highest temp reading: ' + highestReading.centigrade );
+
+            // does the lowest temperature violate the contract?
+            if(lowestReading.centigrade < contract.minTemperature) {
+                penalty += (contract.minTemperature - lowestReading.centigrade) * contract.minPenaltyFactor;
+                console.log('Min temp penalty: ' + penalty);
+            }
+
+            // does the highest temperature violate the contract?
+            if(highestReading.centigrade > contract.maxTemperature) {
+                penalty += (highestReading.centigrade - contract.maxTemperature) * contract.maxPenaltyFactor;
+                console.log('Max temp penalty: ' + penalty);
+            }
+
+            // apply any penalities
+            payOut -= (penalty * shipment.unitCount);
+
+            if(payOut < 0) {
+                payOut = 0;
+            }
+        }
+    }
+
+    console.log( 'Payout: ' + payOut);
     contract.grower.accountBalance += payOut;
     contract.importer.accountBalance -= payOut;
 
-    // console.log('Grower: ' + contract.grower.$identifier + ' new balance: ' + contract.grower.accountBalance );
-    // console.log('Importer: ' + contract.importer.$identifier + ' new balance: ' + contract.importer.accountBalance );
+    console.log('Grower: ' + contract.grower.$identifier + ' new balance: ' + contract.grower.accountBalance );
+    console.log('Importer: ' + contract.importer.$identifier + ' new balance: ' + contract.importer.accountBalance );
 
     return getParticipantRegistry('org.acme.shipping.perishable.Grower')
         .then(function(growerRegistry) {
@@ -50,6 +94,9 @@ function payOut(shipmentReceived) {
 function temperatureReading(temperatureReading) {
 
     let shipment = temperatureReading.shipment;
+
+    console.log( 'Adding temperature ' + temperatureReading.centigrade + ' to shipment ' + shipment.$identifier);
+
     if(shipment.temperatureReadings) {
         shipment.temperatureReadings.push(temperatureReading);
     }
