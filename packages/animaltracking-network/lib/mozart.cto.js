@@ -17,70 +17,77 @@
 /*eslint-disable no-unused-vars*/
 /*eslint-disable no-undef*/
 
-
+/**
+ *
+ * @param {com.ibm.concerto.mozart.AnimalMovementDeparture} movementDeparture
+ * @transaction
+ */
 function onAnimalMovementDeparture(movementDeparture) {
-    console.log('onAnimalMovementDeparture');
-    if(movementDeparture.animal.movementStatus !== 'IN_FIELD'){
-        throw new Error('Animal is already IN_TRANSIT');
-    }
+  console.log('onAnimalMovementDeparture');
+  if (movementDeparture.animal.movementStatus !== 'IN_FIELD') {
+    throw new Error('Animal is already IN_TRANSIT');
+  }
 
      // set the movement status of the animal
-    movementDeparture.animal.movementStatus = 'IN_TRANSIT';
+  movementDeparture.animal.movementStatus = 'IN_TRANSIT';
 
      // save the animal
-    let ar = getAssetRegistry('com.ibm.concerto.mozart.Animal');
-    ar.update(movementDeparture.animal);
+  var ar = getAssetRegistry('com.ibm.concerto.mozart.Animal');
+  ar.update(movementDeparture.animal);
 
      // add the animal to the incoming animals of the
      // destination business
-    if(movementDeparture.to.incomingAnimals) {
-        movementDeparture.to.incomingAnimals.push(movementDeparture.animal);
-    }
-    else {
-        movementDeparture.to.incomingAnimals = [movementDeparture.animal];
-    }
+  if (movementDeparture.to.incomingAnimals) {
+    movementDeparture.to.incomingAnimals.push(movementDeparture.animal);
+  } else {
+    movementDeparture.to.incomingAnimals = [movementDeparture.animal];
+  }
 
      // save the business
-    let br = getAssetRegistry('com.ibm.concerto.mozart.Business');
-    br.update(movementDeparture.to);
+  var br = getAssetRegistry('com.ibm.concerto.mozart.Business');
+  br.update(movementDeparture.to);
 }
 
-
+/**
+ *
+ * @param {com.ibm.concerto.mozart.AnimalMovementArrival} movementDeparture
+ * @transaction
+ */
 function onAnimalMovementArrival(movementArrival) {
-    console.log('onAnimalMovementArrival');
+  console.log('onAnimalMovementArrival');
 
-    if(movementArrival.animal.movementStatus !== 'IN_TRANSIT'){
-        throw new Error('Animal is not IN_TRANSIT');
-    }
+  if (movementArrival.animal.movementStatus !== 'IN_TRANSIT') {
+    throw new Error('Animal is not IN_TRANSIT');
+  }
 
      // set the movement status of the animal
-    movementArrival.animal.movementStatus = 'IN_FIELD';
+  movementArrival.animal.movementStatus = 'IN_FIELD';
 
      // set the new owner of the animal
      // to the owner of the 'to' business
-    movementArrival.animal.owner = movementArrival.to.owner;
+  movementArrival.animal.owner = movementArrival.to.owner;
 
      // set the new location of the animal
-    movementArrival.animal.location = movementArrival.arrivalField;
+  movementArrival.animal.location = movementArrival.arrivalField;
 
      // save the animal
-    let ar = getAssetRegistry('com.ibm.concerto.mozart.Animal');
-    ar.update(movementArrival.animal);
+  var ar = getAssetRegistry('com.ibm.concerto.mozart.Animal');
+  ar.update(movementArrival.animal);
 
      // remove the animal from the incoming animals
      // of the 'to' business
-    if(!movementArrival.to.incomingAnimals) {
-        throw new Error('Incoming business should have incomingAnimals on AnimalMovementArrival.');
-    }
+  if (!movementArrival.to.incomingAnimals) {
+    throw new Error('Incoming business should have incomingAnimals on AnimalMovementArrival.');
+  }
 
-    movementArrival.to.incomingAnimals = movementArrival.to.incomingAnimals
+  movementArrival.to.incomingAnimals = movementArrival.to.incomingAnimals
       .filter(function(animal) {
-          return animal.animalId !== movementArrival.animal.animalId;
+        return animal.animalId !== movementArrival.animal.animalId;
       });
 
       // save the business
-    let br = getAssetRegistry('com.ibm.concerto.mozart.Business');
-    br.update(movementArrival.to);
+  var br = getAssetRegistry('com.ibm.concerto.mozart.Business');
+  br.update(movementArrival.to);
 }
 
 /**
@@ -90,7 +97,7 @@ function onAnimalMovementArrival(movementArrival) {
  * @returns {Animal[]} - the animals that belong to the farmer
 */
 function findAnimalsByOwnerId(farmerId) {
-    return query('select a from Animal a where a.owner == :farmerId');
+  return query('select a from Animal a where a.owner == :farmerId');
 }
 
 /**
@@ -100,7 +107,7 @@ function findAnimalsByOwnerId(farmerId) {
  * @returns {Animal[]} - the animals that belong to the farmer
 */
 function findAnimalsByOwnerIdWithDetails(farmerId) {
-    return query('select resolve(a, a.location, a.owner) from Animal a where a.owner == :farmerId');
+  return query('select resolve(a, a.location, a.owner) from Animal a where a.owner == :farmerId');
 }
 
 /**
@@ -110,7 +117,7 @@ function findAnimalsByOwnerIdWithDetails(farmerId) {
  * @returns {Animal[]} - the animals that belong to the farmer
 */
 function findIncomingAnimalsByFarmerId(farmerId) {
-    return query('select b.incomingAnimals from Business b where b.owner == :farmerId');
+  return query('select b.incomingAnimals from Business b where b.owner == :farmerId');
 }
 
 /*eslint-enable no-unused-vars*/
