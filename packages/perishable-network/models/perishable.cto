@@ -15,6 +15,16 @@ enum ProductType {
   o APPLES
   o PEARS
   o PEACHES
+  o COFFEE
+}
+
+/**
+ * The status of a shipment
+ */
+enum ShipmentStatus {
+  o CREATED
+  o IN_TRANSIT
+  o ARRIVED
 }
 
 /**
@@ -47,6 +57,7 @@ transaction ShipmentReceived extends ShipmentTransaction {
 asset Shipment identified by shipmentId {
   o String shipmentId
   o ProductType type
+  o ShipmentStatus status
   o Long unitCount
   o TemperatureReading[] temperatureReadings optional
   --> Contract contract
