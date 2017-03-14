@@ -107,3 +107,11 @@ participant Shipper extends Business {
  */
 participant Importer extends Business {
 }
+
+/**
+ * JUST FOR INITIALIZING A DEMO
+ */
+transaction SetupDemo identified by transactionId {
+  o String transactionId
+  o DateTime today
+}
