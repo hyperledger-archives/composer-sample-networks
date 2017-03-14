@@ -1,9 +1,9 @@
 {
-  "name": "org.acme.sample",
-  "version": "0.0.1",
-  "description": "Sample Business Network",
+  "name": "digitalproperty-network",
+  "version": "0.0.2",
+  "description": "Digital Property Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/sample-network.bna",
+    "prepublish": "mkdirp ./dist && composer  archive create  --sourceType dir --sourceName . -a ./dist/digitalproperty-network.zip",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
@@ -18,11 +18,10 @@
     "url": "https://github.com/fabric-composer/sample-networks.git"
   },
   "keywords": [
-    "sample",
-    "network"
+    "land"
   ],
-  "author": "IBM",
-  "license": "ISC",
+  "author": "Fabric Composer",
+  "license": "Apache-2",
   "devDependencies": {
     "composer-admin": "*",
     "composer-cli": "*",
@@ -37,6 +36,9 @@
     "mkdirp": "^0.5.1",
     "mocha": "^3.2.0",
     "moment": "^2.17.1"
+  },
+  "dependencies": {
+    "digitalproperty-model": "latest"
   },
   "license-check-config": {
     "src": [

@@ -1,9 +1,9 @@
 {
-  "name": "digitalproperty-network",
-  "version": "0.0.22",
-  "description": "Digital Property Network",
+  "name": "bond-network",
+  "version": "0.0.2",
+  "description": "Bond Reference Data Sharing Business Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer  archive create  --sourceType dir --sourceName . -a ./dist/digitalproperty-network.zip",
+    "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/bond-network.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
@@ -18,10 +18,12 @@
     "url": "https://github.com/fabric-composer/sample-networks.git"
   },
   "keywords": [
-    "land"
+    "bonds",
+    "reference data",
+    "finance"
   ],
-  "author": "Fabric Composer",
-  "license": "Apache-2",
+  "author": "IBM",
+  "license": "ISC",
   "devDependencies": {
     "composer-admin": "*",
     "composer-cli": "*",
@@ -36,9 +38,6 @@
     "mkdirp": "^0.5.1",
     "mocha": "^3.2.0",
     "moment": "^2.17.1"
-  },
-  "dependencies": {
-    "digitalproperty-model": "latest"
   },
   "license-check-config": {
     "src": [

@@ -1,9 +1,9 @@
 {
-  "name": "org.acme.vehicle.auction",
+  "name": "sample-network",
   "version": "0.0.2",
-  "description": "Car Auction Business Network",
+  "description": "Sample Business Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/carauction-network.bna",
+    "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/sample-network.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
@@ -18,8 +18,8 @@
     "url": "https://github.com/fabric-composer/sample-networks.git"
   },
   "keywords": [
-    "car",
-    "auction"
+    "sample",
+    "network"
   ],
   "author": "IBM",
   "license": "ISC",

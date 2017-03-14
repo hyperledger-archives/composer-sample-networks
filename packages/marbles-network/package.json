@@ -1,9 +1,9 @@
 {
-  "name": "org.acme.bond.network",
-  "version": "0.0.1",
-  "description": "Bond Reference Data Sharing Business Network",
+  "name": "marbles-network",
+  "version": "0.0.2",
+  "description": "Marble Trading Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/bond-network.bna",
+    "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/marbles-network.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
@@ -18,9 +18,9 @@
     "url": "https://github.com/fabric-composer/sample-networks.git"
   },
   "keywords": [
-    "bonds",
-    "reference data",
-    "finance"
+    "marbles",
+    "fabric-composer",
+    "trading"
   ],
   "author": "IBM",
   "license": "ISC",

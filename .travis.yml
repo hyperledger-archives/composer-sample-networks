@@ -6,18 +6,13 @@ before_install: |
     set -ev
     set -o pipefail
     npm install -g npm
+    npm install -g @alrra/travis-scripts
 deploy:
     provider: script
     script: ./.travis/deploy.sh
     skip_cleanup: true
     on:
-        all_branches: true
+        branch: master
 cache:
   directories:
-  - $HOME/.npm
-notifications:
-  email:
-    recipients:
-      - whitemat@uk.ibm.com
-    on_success: never # default: change
-    on_failure: always # default: always
+    - node_modules

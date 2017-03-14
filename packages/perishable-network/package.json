@@ -1,9 +1,9 @@
 {
-  "name": "org.fabric_composer.marbles",
-  "version": "0.0.1",
-  "description": "Marble Trading Network",
+  "name": "perishable-network",
+  "version": "0.0.2",
+  "description": "Shipping Perishable Goods Business Network",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/marbles-network.bna",
+    "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/perishable-network.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
@@ -18,9 +18,10 @@
     "url": "https://github.com/fabric-composer/sample-networks.git"
   },
   "keywords": [
-    "marbles",
-    "fabric-composer",
-    "trading"
+    "shipping",
+    "goods",
+    "perishable",
+    "fabric-composer"
   ],
   "author": "IBM",
   "license": "ISC",

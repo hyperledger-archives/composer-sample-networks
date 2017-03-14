@@ -43,7 +43,7 @@ describe('Publish Bond', () => {
             })
             .then(() => {
                 businessNetworkConnection = new BusinessNetworkConnection();
-                return businessNetworkConnection.connect('defaultProfile', 'org.acme.bond.network', 'WebAppAdmin', 'DJY27pEnl16d');
+                return businessNetworkConnection.connect('defaultProfile', 'bond-network', 'WebAppAdmin', 'DJY27pEnl16d');
             });
     });
 

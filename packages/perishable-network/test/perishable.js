@@ -46,7 +46,7 @@ describe('Perishable Shipping Network', () => {
         })
         .then(() => {
             businessNetworkConnection = new BusinessNetworkConnection();
-            return businessNetworkConnection.connect('defaultProfile', 'org.acme.shipping.perishable.network', 'WebAppAdmin', 'DJY27pEnl16d');
+            return businessNetworkConnection.connect('defaultProfile', 'perishable-network', 'WebAppAdmin', 'DJY27pEnl16d');
         })
         .then(() => {
             // submit the setup demo transaction

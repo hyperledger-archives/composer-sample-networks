@@ -44,7 +44,7 @@ describe('Sample', () => {
         })
         .then(() => {
             businessNetworkConnection = new BusinessNetworkConnection();
-            return businessNetworkConnection.connect('defaultProfile', NS, 'WebAppAdmin', 'DJY27pEnl16d');
+            return businessNetworkConnection.connect('defaultProfile', 'sample-network', 'WebAppAdmin', 'DJY27pEnl16d');
         });
     });
 
