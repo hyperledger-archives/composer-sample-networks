@@ -16,7 +16,7 @@
     "url": "https://github.com/fabric-composer/fabric-composer.git"
   },
   "author": "Fabric Composer",
-  "license": "Apache-2",
+  "license": "Apache-2.0",
   "keywords": [
     "defra",
     "farmer",
