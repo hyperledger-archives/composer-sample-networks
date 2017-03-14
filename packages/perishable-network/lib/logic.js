@@ -85,6 +85,13 @@ function payOut(shipmentReceived) {
         .then(function (importerRegistry) {
             // update the importer's balance
             return importerRegistry.update(contract.importer);
+        })
+        .then(function () {
+            return getAssetRegistry('org.acme.shipping.perishable.Shipment');
+        })
+        .then(function (shipmentRegistry) {
+            // update the state of the shipment
+            return shipmentRegistry.update(shipment);
         });
 }
 

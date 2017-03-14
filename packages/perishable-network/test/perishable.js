@@ -91,6 +91,16 @@ describe('Perishable Shipping Network', () => {
                 })
                 .then((newImporter) => {
                     newImporter.accountBalance.should.equal(-2500);
+                })
+                .then(() => {
+                    return businessNetworkConnection.getAssetRegistry(NS + '.Shipment');
+                })
+                .then((shipmentRegistry) => {
+                    // check the state of the shipment
+                    return shipmentRegistry.get('SHIP_001');
+                })
+                .then((shipment) => {
+                    shipment.status.should.equal('ARRIVED');
                 });
         });
 
