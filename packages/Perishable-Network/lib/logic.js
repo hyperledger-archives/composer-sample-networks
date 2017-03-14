@@ -145,7 +145,7 @@ function setupDemo(setupDemo) {
     contract.grower = factory.newRelationship(NS, 'Grower', 'farmer@email.com');
     contract.importer = factory.newRelationship(NS, 'Importer', 'supermarket@email.com');
     contract.shipper = factory.newRelationship(NS, 'Shipper', 'shipper@email.com');
-    const tomorrow = new Date();
+    const tomorrow = setupDemo.timestamp;
     tomorrow.setDate(tomorrow.getDate() + 1);
     contract.arrivalDateTime = tomorrow; // the shipment has to arrive tomorrow
     contract.unitPrice = 0.5; // pay 50 cents per unit

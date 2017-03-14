@@ -113,5 +113,4 @@ participant Importer extends Business {
  */
 transaction SetupDemo identified by transactionId {
   o String transactionId
-  o DateTime today
 }

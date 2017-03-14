@@ -53,7 +53,6 @@ describe('Perishable Shipping Network', () => {
             // this will create some sample assets and participants
             factory = businessNetworkConnection.getBusinessNetwork().getFactory();
             const setupDemo = factory.newTransaction(NS, 'SetupDemo');
-            setupDemo.today = new Date();
             return businessNetworkConnection.submitTransaction(setupDemo);
         });
     });
