@@ -4,19 +4,19 @@ This is an interactive, distributed, car auction demo, backed by Hyperledger Fab
 
 ## Understanding the Business Network
 
-The easiest way to interact with the demo is using our work-in-progress [Composer Playground web application](http://fabric-composer-next.mybluemix.net). Composer allows you to define a business network (defining the data model and writing transaction processing logic), manage assets & participants and submit transactions.
+The easiest way to interact with the demo is using our work-in-progress [Composer Playground web application](http://composer-playground.mybluemix.net). Composer allows you to define a business network (defining the data model and writing transaction processing logic), manage assets & participants and submit transactions.
 
-The data model for the auction business network is defined in a CTO model file, managed in GitHub [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction2-Network/models/auction.cto).
+The data model for the auction business network is defined in a CTO model file, managed in GitHub [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/models/auction.cto).
 
 The data model is very simple (less than 50 lines). It defines the structure of the assets, participants and transactions for a very simple auction.
 
-The business logic is defined in a single Javascript file [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction2-Network/lib/logic.js). The logic consists of two Javascript functions that are automatically invoked by the Fabric Composer runtime chain code when transactions are submitted for processing.
+The business logic is defined in a single Javascript file [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/lib/logic.js). The logic consists of two Javascript functions that are automatically invoked by the Fabric Composer runtime chain code when transactions are submitted for processing.
 
 The `makeOffer` function is called when an `Offer` transaction is submitted. The logic simply checks that the listing for the offer is still for sale, and then adds the offer to the listing, and then updates the offer in the `VehicleListing` asset registry.
 
 The `closeBidding` function is called when a `CloseBidding` transaction is submitted for processing. The logic checks that the listing is still for sale, sorts the offers by bid price, and then if the reserve has been met, transfers the ownership of the vehicle associated with the listing to the highest bidder. Money is transferred from the buyer's account to the seller's account, and then all the modified assets are updated in their respective registries.
 
-Access control for the business network is defined [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction2-Network/permissions.acl).
+Access control for the business network is defined [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/permissions.acl).
 
 > ### Developer Unit Testing
 
@@ -28,15 +28,15 @@ npm install
 npm test
 ```
 
-> The unit test [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/CarAuction-Network/test/CarAuction.js) simulates an entire auction and checks that the business logic functions as expected.
+> The unit test [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/test/CarAuction.js) simulates an entire auction and checks that the business logic functions as expected.
 
 ## Connect to Composer
 
-You can connect to Composer [here](http://fabric-composer-next.mybluemix.net). If you have used Composer before you may need to clear your cached browser data (or use private/incognito mode).
-
-TBD - document how to add connection profiles to an instance of Fabric running on Bluemix.
+You can connect to Composer [here](http://composer-playground.mybluemix.net). If you have used Composer before you may need to clear your cached browser data (or use private/incognito mode).
 
 After you are connected make sure that Composer is communicating with the **'hyperledger'** connection profile by clicking the network dropdown at the top-right of the menu. The web profile allows you to test in isolation using a simulated hyperledger, storing the ledger in browser local storage. The 'bluemix' connection profile is to a version of Fabric Composer deployed to bluemix.
+
+> Note: Playground currently only supports the web profile.
 
 ## Setting Up the Demo
 
