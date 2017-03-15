@@ -1,6 +1,6 @@
 {
   "name": "bond-network",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Bond Reference Data Sharing Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/bond-network.bna",
