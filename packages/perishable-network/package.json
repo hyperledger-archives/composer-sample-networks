@@ -1,6 +1,6 @@
 {
   "name": "perishable-network",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Shipping Perishable Goods Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/perishable-network.bna",
@@ -9,7 +9,7 @@
     "postlint": "npm run licchk",
     "licchk": "license-check",
     "postlicchk": "npm run doc",
-    "doc": "jsdoc --pedantic --recurse -c jsdoc.conf -t ./node_modules/ink-docstrap/template .",
+    "doc": "jsdoc --pedantic --recurse -c jsdoc.conf .",
     "test": "mocha --recursive",
     "deploy": "./scripts/deploy.sh"
   },
@@ -23,16 +23,15 @@
     "perishable",
     "fabric-composer"
   ],
-  "author": "IBM",
-  "license": "ISC",
+  "author": "Fabric Composer",
+  "license": "Apache-2.0",
   "devDependencies": {
-    "composer-admin": "*",
-    "composer-cli": "*",
-    "composer-client": "*",
-    "composer-connector-embedded": "*",
+    "composer-admin": "latest",
+    "composer-cli": "latest",
+    "composer-client": "latest",
+    "composer-connector-embedded": "latest",
     "chai": "^3.5.0",
     "eslint": "^3.6.1",
-    "ink-docstrap": "^1.3.0",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.4.1",
     "license-check": "^1.1.5",
