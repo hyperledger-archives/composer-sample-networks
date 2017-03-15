@@ -15,19 +15,22 @@
 'use strict';
 
 const AdminConnection = require('composer-admin').AdminConnection;
+const BrowserFS = require('browserfs/dist/node/index');
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
 const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
 const path = require('path');
 
 require('chai').should();
 
+const bfs_fs = BrowserFS.BFSRequire('fs');
 describe('DigitalLandTitle', () => {
 
     let adminConnection;
     let businessNetworkConnection;
 
     before(() => {
-        adminConnection = new AdminConnection();
+        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
+        const adminConnection = new AdminConnection({ fs: bfs_fs });
         return adminConnection.createProfile('testprofile', { type: 'embedded' })
             .then(() => {
                 return adminConnection.connect('testprofile', 'WebAppAdmin', 'DJY27pEnl16d');
@@ -39,7 +42,7 @@ describe('DigitalLandTitle', () => {
                 return adminConnection.deploy(businessNetworkDefinition);
             })
             .then(() => {
-                businessNetworkConnection = new BusinessNetworkConnection();
+                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
                 return businessNetworkConnection.connect('testprofile', 'digitalproperty-network', 'WebAppAdmin', 'DJY27pEnl16d');
             });
     });

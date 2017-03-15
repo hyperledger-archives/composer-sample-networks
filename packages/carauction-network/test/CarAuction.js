@@ -15,12 +15,14 @@
 'use strict';
 
 const AdminConnection = require('composer-admin').AdminConnection;
+const BrowserFS = require('browserfs/dist/node/index');
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
 const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
 const path = require('path');
 
 require('chai').should();
 
+const bfs_fs = BrowserFS.BFSRequire('fs');
 const NS = 'org.acme.vehicle.auction';
 
 describe('CarAuction', () => {
@@ -29,7 +31,8 @@ describe('CarAuction', () => {
     let businessNetworkConnection;
 
     before(() => {
-        const adminConnection = new AdminConnection();
+        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
+        const adminConnection = new AdminConnection({ fs: bfs_fs });
         return adminConnection.createProfile('defaultProfile', {
             type: 'embedded'
         })
@@ -43,7 +46,7 @@ describe('CarAuction', () => {
                 return adminConnection.deploy(businessNetworkDefinition);
             })
             .then(() => {
-                businessNetworkConnection = new BusinessNetworkConnection();
+                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
                 return businessNetworkConnection.connect('defaultProfile', 'carauction-network', 'WebAppAdmin', 'DJY27pEnl16d');
             });
     });
