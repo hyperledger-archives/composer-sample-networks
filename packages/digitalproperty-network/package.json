@@ -1,6 +1,6 @@
 {
   "name": "digitalproperty-network",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Digital Property Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/digitalproperty-network.bna",

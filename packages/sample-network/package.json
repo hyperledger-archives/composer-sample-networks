@@ -1,6 +1,6 @@
 {
   "name": "sample-network",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Sample Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/sample-network.bna",
