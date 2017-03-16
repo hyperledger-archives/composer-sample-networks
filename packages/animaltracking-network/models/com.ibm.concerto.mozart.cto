@@ -130,3 +130,7 @@ transaction AnimalMovementDeparture extends AnimalMovement {
 transaction AnimalMovementArrival extends AnimalMovement {
   --> Field arrivalField
 }
+
+transaction SetupDemo identified by transactionId {
+  o String transactionId
+}
