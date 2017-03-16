@@ -1,6 +1,6 @@
 {
   "name": "perishable-network",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Shipping Perishable Goods Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/perishable-network.bna",
