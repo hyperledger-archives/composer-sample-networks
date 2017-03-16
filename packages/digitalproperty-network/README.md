@@ -1,7 +1,16 @@
 # Digital Property Network
-This defines the transaction implementations, access control lists and other functional aspects. There is a dependency on a version of a Business Network Model. 
 
-With this dependency, this DigitalProperty-Network defines the complete Business Network Definition.  In this specific example, the Digital Property Network. 
+Defines a business network where house sellers can list their properties for sale.
+
+Note that this network **references** the digital property model, via an npm dependency declared in package.json:
+
+```
+"dependencies": {
+    "digitalproperty-model": "latest"
+  }
+```
+
+This allows the model to be shared across different types of business networks, and allows the model to have a lifecycle that is independent of the business network.
 
 ## What should I do with this npm module?
 It is expected that this npm module would be associated with a CI pipeline and tracked as source code in something like GitHub Enterpise. The CI pipeline this would be able to run functional validation on the whole definition, and also be able to published the module to an NPM repository. This allows sharing of the module etc. 
@@ -53,24 +62,23 @@ Create a file to hold the permissions access control inforation - create a `perm
 ## Work with the network
 Once we have the network complete we can create a business network definition arhive. This is the unit will actually be deloyable to the HyperLedger Fabric.
 
-There is a `concerto archive` command that can be used to create and inspect these archives. The `concerto network` command is then used to administer the business network archive on the Hyperledger Fabric.
+There is a `composer archive` command that can be used to create and inspect these archives. The `composer network` command is then used to administer the business network archive on the Hyperledger Fabric.
 
 ### Creating an archive
 
-The `concerto archive create` command is used to create the archive. The `--archiveFile` option is used to specify the name of the archive file to create. If this is not specified then a default name will be used that is based on the identifier of the business network (sanitized to be suitable as a filename). For example `@ibm_digitalPropertyNetwork-0.1.2.bna`.
+The `composer archive create` command is used to create the archive. The `--archiveFile` option is used to specify the name of the archive file to create. If this is not specified then a default name will be used that is based on the identifier of the business network (sanitized to be suitable as a filename). For example `@ibm_digitalPropertyNetwork-0.1.2.bna`.
 
-One of either --inputDir or --moduleName must be specified. --inputDir is the directory that contains the `package.json` file of the Business Network npm module's package.json. 
-
+Please refer to the docs for `composer archive create` for more options.
 
 
 ```bash
-concerto archive create --archiveFile digitialLandTitle.bna --inputDir . --moduleName DigitalLandTitle
+composer archive create --archiveFile digitialLandTitle.bna --inputDir . --sourceType dir --sourceName DigitalLandTitle
 ```
 
 Once you have this archive it can then be deployed to the HLF (which will assuming is all running for the moment)
 
 ```bash
-concerto network deploy --archiveFile  DigitalLandTitle.zip  --enrollId WebAppAdmin --enrollSecret DJY27pEnl16d
+composer network deploy --archiveFile  DigitalLandTitle.zip  --enrollId WebAppAdmin --enrollSecret DJY27pEnl16d
 ```
 
 
