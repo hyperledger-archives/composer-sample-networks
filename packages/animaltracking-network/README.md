@@ -6,4 +6,4 @@ regulations https://www.gov.uk/animal-movement-england
 Farmers can move animals between farms/fields and the UK government farming regulator has
 visibility into the locations of all animals and all animal movements between farms.
 
-![Image of network](https://github.com/fabric-composer/sample-networks/blob/master/packages/animaltracking-network/network.png)
+![Image of network](https://raw.githubusercontent.com/fabric-composer/sample-networks/master/packages/animaltracking-network/network.png)
