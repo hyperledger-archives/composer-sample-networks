@@ -45,8 +45,5 @@
     "blocking": true,
     "logInfo": false,
     "logError": true
-  },
-  "dependencies": {
-    
   }
 }
