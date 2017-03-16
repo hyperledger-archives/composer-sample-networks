@@ -18,21 +18,21 @@ The `closeBidding` function is called when a `CloseBidding` transaction is submi
 
 Access control for the business network is defined [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/permissions.acl).
 
-> ### Developer Unit Testing
+### Developer Unit Testing
 
-> Note that if you `git clone` the [repository](https://github.com/fabric-composer/sample-networks) for the Business Network you can run a unit tests for the logic in the business network using the Fabric Composer embedded runtime which simulates a Hyperledger Fabric using a pure Javascript runtime. Simply run:
+ > Note that if you `git clone` the [repository](https://github.com/fabric-composer/sample-networks) for the Business Network you can run a unit tests for the logic in the business network using the Fabric Composer embedded runtime which simulates a Hyperledger Fabric using a pure Javascript runtime. Simply run:
 
-> ```
-cd packages/CarAuction2-Network
+ ```
+cd packages/carAuction-network
 npm install
 npm test
 ```
 
-> The unit test [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/test/CarAuction.js) simulates an entire auction and checks that the business logic functions as expected.
+The unit test [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/test/CarAuction.js) simulates an entire auction and checks that the business logic functions as expected.
 
 ## Connect to Composer
 
-You can connect to Composer [here](http://composer-playground.mybluemix.net). If you have used Composer before you may need to clear your cached browser data (or use private/incognito mode).
+You can connect to Composer [here](http://composer-playground.mybluemix.net). If you have used Composer before you may need to clear your cached browser data.
 
 After you are connected make sure that Composer is communicating with the **'hyperledger'** connection profile by clicking the network dropdown at the top-right of the menu. The web profile allows you to test in isolation using a simulated hyperledger, storing the ledger in browser local storage. The 'bluemix' connection profile is to a version of Fabric Composer deployed to bluemix.
 
