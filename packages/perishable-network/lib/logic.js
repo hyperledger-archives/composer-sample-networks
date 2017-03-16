@@ -131,21 +131,21 @@ function setupDemo(setupDemo) {
 
     // create the grower
     let grower = factory.newResource(NS, 'Grower', 'farmer@email.com');
-    const growerAddress = factory.newConcept(NS, 'Address');
+    let growerAddress = factory.newConcept(NS, 'Address');
     growerAddress.country = 'USA';
     grower.address = growerAddress;
     grower.accountBalance = 0;
 
     // create the importer
     let importer = factory.newResource(NS, 'Importer', 'supermarket@email.com');
-    const importerAddress = factory.newConcept(NS, 'Address');
+    let importerAddress = factory.newConcept(NS, 'Address');
     importerAddress.country = 'UK';
     importer.address = importerAddress;
     importer.accountBalance = 0;
 
     // create the shipper
     let shipper = factory.newResource(NS, 'Shipper', 'shipper@email.com');
-    const shipperAddress = factory.newConcept(NS, 'Address');
+    let shipperAddress = factory.newConcept(NS, 'Address');
     shipperAddress.country = 'Panama';
     shipper.address = shipperAddress;
     shipper.accountBalance = 0;
@@ -155,7 +155,7 @@ function setupDemo(setupDemo) {
     contract.grower = factory.newRelationship(NS, 'Grower', 'farmer@email.com');
     contract.importer = factory.newRelationship(NS, 'Importer', 'supermarket@email.com');
     contract.shipper = factory.newRelationship(NS, 'Shipper', 'shipper@email.com');
-    const tomorrow = setupDemo.timestamp;
+    let tomorrow = setupDemo.timestamp;
     tomorrow.setDate(tomorrow.getDate() + 1);
     contract.arrivalDateTime = tomorrow; // the shipment has to arrive tomorrow
     contract.unitPrice = 0.5; // pay 50 cents per unit
@@ -171,35 +171,35 @@ function setupDemo(setupDemo) {
     shipment.unitCount = 5000;
     shipment.contract = factory.newRelationship(NS, 'Contract', 'CON_001');
     return getParticipantRegistry(NS + '.Grower')
-        .then((growerRegistry) => {
+        .then(function (growerRegistry) {
             // add the growers
             return growerRegistry.addAll([grower]);
         })
-        .then(() => {
+        .then(function() {
             return getParticipantRegistry(NS + '.Importer');
         })
-        .then((importerRegistry) => {
+        .then(function(importerRegistry) {
             // add the importers
             return importerRegistry.addAll([importer]);
         })
-        .then(() => {
+        .then(function() {
             return getParticipantRegistry(NS + '.Shipper');
         })
-        .then((shipperRegistry) => {
+        .then(function(shipperRegistry) {
             // add the shippers
             return shipperRegistry.addAll([shipper]);
         })
-        .then(() => {
+        .then(function() {
             return getAssetRegistry(NS + '.Contract');
         })
-        .then((contractRegistry) => {
+        .then(function(contractRegistry) {
             // add the contracts
             return contractRegistry.addAll([contract]);
         })
-        .then(() => {
+        .then(function() {
             return getAssetRegistry(NS + '.Shipment');
         })
-        .then((shipmentRegistry) => {
+        .then(function(shipmentRegistry) {
             // add the shipments
             return shipmentRegistry.addAll([shipment]);
         });
