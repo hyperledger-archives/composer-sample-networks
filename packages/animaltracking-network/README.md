@@ -18,3 +18,5 @@ Submit a `SetupDemo` transaction to bootstrap a scenario to get you started.
 You will see the 2 `Farmer` participants have been created, `FARMER_1` and `FARMER_2` as well as 2 `Field`'s, 2 `Business`'s and 8 `Animal`'s. 
 
 Submit a `AnimalMovementDeparture` when you wish to sent an `Animal` to another `Farmer`, then, as the `Animal`'s new owner,  submit an `AnimalMovementArrival` transaction to confirm revceipt. 
+
+![Definiton Diagram](./network.png)

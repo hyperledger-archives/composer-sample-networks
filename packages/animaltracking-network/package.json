@@ -47,6 +47,6 @@
     "logError": true
   },
   "dependencies": {
-    "animaltracking-model": "latest"
+    
   }
 }
