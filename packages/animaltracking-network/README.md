@@ -1,6 +1,8 @@
 # Animal Tracking Network
+Defines an Animal Movement business network based on UK DEFRA government regulations https://www.gov.uk/animal-movement-england.
 
-Defines an Animal Movement business network based on UK DEFRA government regulations https://www.gov.uk/animal-movement-england. It shows how farmers can transfer between each other and their own fields. 
+Farmers can move animals between farms/fields and the UK government farming regulator has
+visibility into the locations of all animals and all animal movements between farms.
 
 - Each Farmer owns a Business that is identified by a Single Business Identifier (SBI)
 - Each Farmer owns a set of Animals

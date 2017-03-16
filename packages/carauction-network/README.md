@@ -18,25 +18,25 @@ The `closeBidding` function is called when a `CloseBidding` transaction is submi
 
 Access control for the business network is defined [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/permissions.acl).
 
-> ### Developer Unit Testing
+### Developer Unit Testing
 
-> Note that if you `git clone` the [repository](https://github.com/fabric-composer/sample-networks) for the Business Network you can run a unit tests for the logic in the business network using the Fabric Composer embedded runtime which simulates a Hyperledger Fabric using a pure Javascript runtime. Simply run:
+ > Note that if you `git clone` the [repository](https://github.com/fabric-composer/sample-networks) for the Business Network you can run a unit tests for the logic in the business network using the Fabric Composer embedded runtime which simulates a Hyperledger Fabric using a pure Javascript runtime. Simply run:
 
-> ```
-cd packages/CarAuction2-Network
+ ```
+cd packages/carAuction-network
 npm install
 npm test
 ```
 
-> The unit test [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/test/CarAuction.js) simulates an entire auction and checks that the business logic functions as expected.
+The unit test [here](https://github.com/fabric-composer/sample-networks/blob/master/packages/carauction-network/test/CarAuction.js) simulates an entire auction and checks that the business logic functions as expected.
 
 ## Connect to Composer
 
-You can connect to Composer [here](http://composer-playground.mybluemix.net). If you have used Composer before you may need to clear your cached browser data (or use private/incognito mode).
+You can connect to Composer [here](http://composer-playground.mybluemix.net). If you have used Composer before you may need to clear your cached browser data.
+
+> Playground currently only supports the web profile.
 
 After you are connected make sure that Composer is communicating with the **'hyperledger'** connection profile by clicking the network dropdown at the top-right of the menu. The web profile allows you to test in isolation using a simulated hyperledger, storing the ledger in browser local storage. The 'bluemix' connection profile is to a version of Fabric Composer deployed to bluemix.
-
-> Note: Playground currently only supports the web profile.
 
 ## Setting Up the Demo
 
@@ -44,7 +44,7 @@ Before you can hold an auction you need to create and invite some participants t
 
 ### Create Your Participant & Issue an Identity Card
 
-Click on the Participants tab, click on the `org.acme.vehicle.auction.User` participant registry, and then click on the `+` icon to create a new instance of a user.
+Switch to the Test tab, then click on the `User` participant registry, then click on the `Create Participant` button to create a new instance of a user.
 
 The JSON representation of the User should be:
 
@@ -60,10 +60,11 @@ The JSON representation of the User should be:
 
 Substitute `daniel.selman@uk.ibm.com` with your email address. Congratulations you are now a participant in this business network!
 
-> Playground does not yet support this
-> You now need to issue an identity card for this participant. Click the green ID card icon to the right of your participant. Enter an user id, for example `daniel.selman` and select the "Identity can be used to issue other identities?" checkbox so that this user has permission to invite other users into the business network.
+> Playground does not yet support issuing and managing Fabric identifies.
 
-> You can switch between identities using the menu option at the top right of the screen.
+You now need to issue an identity card for this participant. Click the green ID card icon to the right of your participant. Enter an user id, for example `daniel.selman` and select the "Identity can be used to issue other identities?" checkbox so that this user has permission to invite other users into the business network.
+
+You can switch between identities using the menu option at the top right of the screen.
 
 ### Create Assets
 
@@ -73,7 +74,7 @@ Now that you are a participant in the business network and have been issued an i
 
 First, let's create a vehicle for auction.
 
-Click on the Assets tab, click on the `org.acme.vehicle.auction.Vehicle` asset registry, and then click on the `+` icon to create a new instance of a vehicle that can be auctioned.
+Click on the `Vehicle` asset registry, and then click on the `Create Asset` button to create a new instance of a vehicle that can be auctioned.
 
 The JSON representation of the Vehicle should be:
 
@@ -91,7 +92,7 @@ Substitute `daniel.selman@uk.ibm.com` for the id of the participant you created 
 
 The `VehicleListing` asset is used to list vehicles that are available for auction.
 
-Click on the Assets tab, click on the `org.acme.vehicle.auction.VehicleListing` asset registry, and then click on the `+` icon to create a new instance of a vehicle listing.
+Click on the click on the `VehicleListing` asset registry, and then click on the `Create Asset` icon to create a new instance of a vehicle listing.
 
 The JSON representation of the `VehicleListing` should be:
 
@@ -110,6 +111,8 @@ Congratulations, you've just listed your Ford Mustang for auction, with a reserv
 
 ### Create Additional Participants
 
+> Playground does not yet support inviting participants via a URL
+
 An auction with one person is not much fun, so you need to either invite people to use Composer to create their own participants and identities, or you can do it for them. To make it easy for participants that you've created to join the business network (auction) when an identity is issued a personalised URL is generated that you can send to allow participants to join the business network in a single click.
 
 You can send this text via email or Slack to give people an easy mechanism to launch Composer and join your business network.
@@ -118,7 +121,7 @@ You can send this text via email or Slack to give people an easy mechanism to la
 
 As soon as a `VehicleListing` has been created (and is in the `FOR_SALE` state) participants can submit `Offer` transactions to bid on a vehicle listing.
 
-Click on the Transactions tab and then click on the `+` icon to submit a new transaction for processing by the business network.
+Click on the Submit Transaction button to submit a new transaction for processing by the business network.
 
 The JSON payload should be:
 
@@ -139,7 +142,7 @@ The `Offer` transaction is processed by the `makeOffer` function described above
 
 To end the auction someone has to submit a `CloseBidding` transaction for the listing.
 
-Click on the Transactions tab and then click on the `+` icon to submit a new transaction for processing by the business network.
+Click on the Submit Transaction button to submit a new transaction for processing by the business network.
 
 The JSON payload should be:
 
@@ -155,20 +158,21 @@ This simply indicates that the auction for `LISTING_001` is now closed, triggeri
 
 ## Check the Results of the Auction
 
-To see if the Vehicle was sold you need to click on the Assets tab, click on the `org.acme.vehicle.auction.Vehicle` asset registry and then check the owner of CAR_001. If the reserve price was met you should see that the owner of the vehicle has been modified.
+To see if the Vehicle was sold you need to click on the `Vehicle` asset registry and then check the owner of CAR_001. If the reserve price was met you should see that the owner of the vehicle has been modified.
 
 If you check the state of the VehicleListing is should either be `SOLD` or `RESERVE_NOT_MET`.
 
-If you click on the Participants tab you can check the balance of each User. You should see that the balance of the buyer has been debited by the amount they bid, whilst the balance of the seller has been credited.
+If you click on the 'User' asset registry you can check the balance of each User. You should see that the balance of the buyer has been debited by the amount they bid, whilst the balance of the seller has been credited.
 
 ## View the Blockchain
 
 > Not yet supported in Playground
-> You can inspect the blocks and transaction created by Hyperledger during the course of the auction using the Hyperledger Explorer. Details TBD.
+
+You can inspect the blocks and transaction created by Hyperledger during the course of the auction using the Hyperledger Explorer. Details TBD.
 
 ## Reset the Auction
 
-To reset the auction you need to edit the VehicleListing to reset its state to `FOR_SALE`. Simply click on the Assets tab, navigate to the VehicleListing registry and then click the pencil icon to update the VehicleListing back to its original state.
+To reset the auction you need to edit the VehicleListing to reset its state to `FOR_SALE`. Simply click on the `VehicleListing` registry and then click the pencil icon to update the VehicleListing back to its original state.
 
 The JSON representation of the `VehicleListing` should be:
 

@@ -1,6 +1,6 @@
 {
   "name": "carauction-network",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Car Auction Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/carauction-network.bna",
