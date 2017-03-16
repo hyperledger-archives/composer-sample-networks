@@ -26,6 +26,9 @@ function payOut(shipmentReceived) {
     console.log('Received at: ' + shipmentReceived.timestamp);
     console.log('Contract arrivalDateTime: ' + contract.arrivalDateTime);
 
+    // set the status of the shipment
+    shipment.status = 'ARRIVED';
+
     // if the shipment did not arrive on time the payout is zero
     if (shipmentReceived.timestamp > contract.arrivalDateTime) {
         payOut = 0;
@@ -82,6 +85,13 @@ function payOut(shipmentReceived) {
         .then(function (importerRegistry) {
             // update the importer's balance
             return importerRegistry.update(contract.importer);
+        })
+        .then(function () {
+            return getAssetRegistry('org.acme.shipping.perishable.Shipment');
+        })
+        .then(function (shipmentRegistry) {
+            // update the state of the shipment
+            return shipmentRegistry.update(shipment);
         });
 }
 
@@ -157,6 +167,7 @@ function setupDemo(setupDemo) {
     // create the shipment
     let shipment = factory.newResource(NS, 'Shipment', 'SHIP_001');
     shipment.type = 'BANANAS';
+    shipment.status = 'IN_TRANSIT';
     shipment.unitCount = 5000;
     shipment.contract = factory.newRelationship(NS, 'Contract', 'CON_001');
     return getParticipantRegistry(NS + '.Grower')
