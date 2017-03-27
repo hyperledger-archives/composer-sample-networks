@@ -1,7 +1,7 @@
 {
-  "name": "sample-network",
+  "name": "basic-sample-network",
   "version": "0.0.7",
-  "description": "Sample Business Network",
+  "description": "The Hello World of Fabric Composer samples",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/sample-network.bna",
     "pretest": "npm run lint",
