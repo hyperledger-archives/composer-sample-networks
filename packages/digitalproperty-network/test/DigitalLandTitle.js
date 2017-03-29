@@ -33,7 +33,7 @@ describe('DigitalLandTitle', () => {
         const adminConnection = new AdminConnection({ fs: bfs_fs });
         return adminConnection.createProfile('testprofile', { type: 'embedded' })
             .then(() => {
-                return adminConnection.connect('testprofile', 'WebAppAdmin', 'DJY27pEnl16d');
+                return adminConnection.connect('testprofile', 'admin', 'Xurw3yU9zI0l');
             })
             .then(() => {
                 return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
@@ -43,7 +43,7 @@ describe('DigitalLandTitle', () => {
             })
             .then(() => {
                 businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-                return businessNetworkConnection.connect('testprofile', 'digitalproperty-network', 'WebAppAdmin', 'DJY27pEnl16d');
+                return businessNetworkConnection.connect('testprofile', 'digitalproperty-network', 'admin', 'Xurw3yU9zI0l');
             });
     });
 
