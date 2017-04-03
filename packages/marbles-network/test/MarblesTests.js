@@ -37,7 +37,7 @@ describe('Marbles', () => {
             type: 'embedded'
         })
             .then(() => {
-                return adminConnection.connect('defaultProfile', 'WebAppAdmin', 'DJY27pEnl16d');
+                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
             })
             .then(() => {
                 return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
@@ -47,7 +47,7 @@ describe('Marbles', () => {
             })
             .then(() => {
                 businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-                return businessNetworkConnection.connect('defaultProfile', 'marbles-network', 'WebAppAdmin', 'DJY27pEnl16d');
+                return businessNetworkConnection.connect('defaultProfile', 'marbles-network', 'admin', 'Xurw3yU9zI0l');
             });
     });
 

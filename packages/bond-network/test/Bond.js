@@ -36,7 +36,7 @@ describe('Publish Bond', () => {
             type: 'embedded'
         })
             .then(() => {
-                return adminConnection.connect('defaultProfile', 'WebAppAdmin', 'DJY27pEnl16d');
+                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
             })
             .then(() => {
                 return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
@@ -46,7 +46,7 @@ describe('Publish Bond', () => {
             })
             .then(() => {
                 businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-                return businessNetworkConnection.connect('defaultProfile', 'bond-network', 'WebAppAdmin', 'DJY27pEnl16d');
+                return businessNetworkConnection.connect('defaultProfile', 'bond-network', 'admin', 'Xurw3yU9zI0l');
             });
     });
 
