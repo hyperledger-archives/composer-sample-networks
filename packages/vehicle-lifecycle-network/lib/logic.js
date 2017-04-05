@@ -13,7 +13,7 @@
  */
 
 /**
- * A shipment has been received by an importer
+ * A transfer from one private owner to another
  * @param {org.acme.vehicle.lifecycle.PrivateTransfer} privateTransfer - the PrivateTransfer transaction
  * @transaction
  */
