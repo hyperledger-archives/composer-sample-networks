@@ -23,10 +23,10 @@ const path = require('path');
 require('chai').should();
 
 const bfs_fs = BrowserFS.BFSRequire('fs');
-// const NS = 'org.acme.vehicle.lifecycle';
-// let factory;
+const NS = 'org.acme.vehicle.lifecycle';
+let factory;
 
-describe('Perishable Shipping Network', () => {
+describe('Vehicle Lifecycle Network', () => {
 
     let businessNetworkConnection;
 
@@ -37,7 +37,7 @@ describe('Perishable Shipping Network', () => {
             type: 'embedded'
         })
         .then(() => {
-            return adminConnection.connect('defaultProfile', 'WebAppAdmin', 'DJY27pEnl16d');
+            return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
         })
         .then(() => {
             return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
@@ -47,7 +47,43 @@ describe('Perishable Shipping Network', () => {
         })
         .then(() => {
             businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-            return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'WebAppAdmin', 'DJY27pEnl16d');
+            return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
+        })
+        .then(() => {
+            // submit the setup demo transaction
+            // this will create some sample assets and participants
+            factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+            const setupDemo = factory.newTransaction(NS, 'SetupDemo');
+            return businessNetworkConnection.submitTransaction(setupDemo);
+        });
+    });
+
+    describe('#manufacture vehicle', () => {
+
+        it('should be able to manufacture a vehicle', () => {
+            // submit the transaction
+            const manufactureVehicle = factory.newTransaction(NS, 'ManufactureVehicle');
+            manufactureVehicle.vin = 'ABC123';
+            manufactureVehicle.manufacturer = factory.newRelationship(NS, 'Manufacturer', 'manufacturer@email.com');
+            const vehicleDetails = factory.newConcept(NS, 'VehicleDetails');
+            vehicleDetails.numberPlate = manufactureVehicle.vin;
+            vehicleDetails.model = 'Mustang';
+            vehicleDetails.make = 'Ford';
+            vehicleDetails.colour = 'Red';
+            vehicleDetails.co2Rating = 10.3;
+            manufactureVehicle.vehicleDetails = vehicleDetails;
+
+            return businessNetworkConnection.submitTransaction(manufactureVehicle)
+                .then(() => {
+                    return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle');
+                })
+                .then((vehicleRegistry) => {
+                    // check the state of the shipment
+                    return vehicleRegistry.get('ABC123');
+                })
+                .then((vehicle) => {
+                    vehicle.vehicleStatus.should.equal('CREATED');
+                });
         });
     });
 });
