@@ -156,6 +156,7 @@ function setupDemo(setupDemo) {
       farmer.address2 = 'Address2';
       farmer.county = 'County';
       farmer.postcode = 'PO57C0D3';
+      farmer.business = factory.newResource(NS, 'Business', sbi);
     });
     return farmerRegistry.addAll(farmers);
   })
