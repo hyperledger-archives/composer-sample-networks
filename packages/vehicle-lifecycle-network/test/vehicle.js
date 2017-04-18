@@ -26,7 +26,7 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
 const NS = 'org.acme.vehicle.lifecycle';
 let factory;
 
-describe('Perishable Shipping Network', () => {
+describe('Vehicle Lifecycle Network', () => {
 
     let businessNetworkConnection;
 
