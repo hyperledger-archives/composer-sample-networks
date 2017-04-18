@@ -79,6 +79,15 @@ describe('Vehicle Lifecycle Network', () => {
                 })
                 .then((vehicle) => {
                     vehicle.vehicleStatus.should.equal('CREATED');
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Manufacturer');
+                })
+                .then((manRegistry) => {
+                    return manRegistry.get('manufacturer');
+                })
+                .then((manufacturer) => {
+                    manufacturer.vehicles.length.should.equal(1);
                 });
         });
     });
@@ -99,6 +108,15 @@ describe('Vehicle Lifecycle Network', () => {
                 })
                 .then((vehicle) => {
                     vehicle.vehicleStatus.should.equal('AUTHORIZED');
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Regulator');
+                })
+                .then((regRegistry) => {
+                    return regRegistry.get('regulator');
+                })
+                .then((regulator) => {
+                    regulator.vehicles.length.should.equal(1);
                 });
         });
     });
@@ -117,7 +135,16 @@ describe('Vehicle Lifecycle Network', () => {
                     return vehicleRegistry.get('VEH_0');
                 })
                 .then((vehicle) => {
-                    vehicle.privateOwner.getIdentifier().should.equal('simon');
+                    return vehicle.privateOwner.getIdentifier().should.equal('simon');
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.PrivateOwner');
+                })
+                .then((ownerRegistry) => {
+                    return ownerRegistry.get('simon');
+                })
+                .then((owner) => {
+                    owner.vehicles.length.should.equal(1);
                 });
         });
     });

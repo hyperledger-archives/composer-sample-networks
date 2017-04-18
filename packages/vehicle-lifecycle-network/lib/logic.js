@@ -38,6 +38,7 @@ function setupDemo(setupDemo) {
     participants.push(scrapMerchant);
 
     let dan = factory.newResource(NS, 'PrivateOwner', 'dan');
+    dan.vehicles = [];
     participants.push(dan);
 
     let simon = factory.newResource(NS, 'PrivateOwner', 'simon');
@@ -58,6 +59,8 @@ function setupDemo(setupDemo) {
         vehicle.vehicleDetails = vehicleDetails;
         vehicle.vehicleStatus = 'CREATED';
         vehicle.manufacturer = factory.newRelationship(NS, 'Manufacturer', manufacturer.$identifier );
+        vehicle.privateOwner = factory.newRelationship(NS, 'PrivateOwner', dan.$identifier );
+        dan.vehicles.push(factory.newRelationship(NS, 'Vehicle', vehicle.$identifier ));
         vehicles.push(vehicle);
     }
 
@@ -66,7 +69,7 @@ function setupDemo(setupDemo) {
     // save all the participants
     for(let n=0; n < participants.length; n++) {
         let participant = participants[n];
-        console.log('Saving ' + participant );
+        //console.log('Saving ' + participant );
         promises.push(
             getParticipantRegistry(participant.getFullyQualifiedType())
                 .then(function (registry) {
@@ -78,7 +81,7 @@ function setupDemo(setupDemo) {
     // save all the assets
     for(let n=0; n < vehicles.length; n++) {
         let asset = vehicles[n];
-        console.log('Saving ' + asset );
+        //console.log('Saving ' + asset );
         promises.push(
             getAssetRegistry(asset.getFullyQualifiedType())
                 .then(function (registry) {
@@ -117,14 +120,14 @@ function manufactureVehicle(manufactureVehicle) {
     return getAssetRegistry(vehicle.getFullyQualifiedType())
         .then(function (registry) {
             return registry.add(vehicle);
-        });
-
-    // save the manufacturer
-    return getParticipantRegistry(manufactureVehicle.manufacturer.getFullyQualifiedType())
+        })
+        .then(function () {
+            return getParticipantRegistry(manufactureVehicle.manufacturer.getFullyQualifiedType());
+        })
         .then(function (registry) {
+            // save the manufacturer
             return registry.update(manufactureVehicle.manufacturer);
         });
-
 }
 
 /**
@@ -152,14 +155,14 @@ function authorise(authorise) {
     return getAssetRegistry(authorise.vehicle.getFullyQualifiedType())
         .then(function (registry) {
             return registry.update(authorise.vehicle);
-        });
-
-    // save the regulator
-    return getParticipantRegistry(authorise.regulator.getFullyQualifiedType())
+        })
+        .then(function () {
+            return getParticipantRegistry(authorise.regulator.getFullyQualifiedType());
+        })
         .then(function (registry) {
+            // save the regulator
             return registry.update(authorise.regulator);
         });
-
 }
 
 /**
@@ -174,10 +177,69 @@ function privateTransfer(privateTransfer) {
         throw new Error('Cannot transfer a vehicle to private ownership if not in AUTHORIZED state.');
     }
 
-    privateTransfer.vehicle.privateOwner = privateTransfer.privateOwner;
+    var oldOwner = privateTransfer.vehicle.privateOwner;
+    var newOwner = privateTransfer.privateOwner
 
+    if(!oldOwner) {
+        throw new Error('Vehicle ' + privateTransfer.vehicle + ' has no prior owner')
+    }
+
+    // remove the vehicle from the previous owner
+    var priorCount = oldOwner.vehicles.length;
+    oldOwner.vehicles = removeVehicle(oldOwner.vehicles, privateTransfer.vehicle);
+    if(oldOwner.vehicles.length !== priorCount-1) {
+        throw new Error('Prior owner ' + oldOwner + ' did not have the vehicle ' + privateTransfer.vehicle + ' in its list of vehicles: ' + oldOwner.vehicles);
+    }
+
+    // add the vehicle to the new owner
+    if(!newOwner.vehicles) {
+        newOwner.vehicles = [];
+    }
+
+    newOwner.vehicles.push(privateTransfer.vehicle)
+
+    // switch owners
+    privateTransfer.vehicle.privateOwner = newOwner;
+
+    // save the vehicle
     return getAssetRegistry(privateTransfer.vehicle.getFullyQualifiedType())
         .then(function (registry) {
             return registry.update(privateTransfer.vehicle);
+        })
+        .then(function () {
+            return getParticipantRegistry(oldOwner.getFullyQualifiedType());
+        })
+        .then(function (registry) {
+            // save the old owner
+            return registry.update(oldOwner);
+        })
+        .then(function () {
+            return getParticipantRegistry(newOwner.getFullyQualifiedType());
+        })
+        .then(function (registry) {
+            // save the new owner
+            return registry.update(newOwner);
         });
+}
+
+/**
+ * Removes a vehicle from the array
+ * @param {org.acme.vehicle.lifecycle.Vehicle[]} vehicles - the vehicle array to filter
+ * @param {org.acme.vehicle.lifecycle.Vehicle} vehicleToRemove - the vehicle to be removed from the array
+ * @return {org.acme.vehicle.lifecycle.Vehicle[]} the array with the vehicleToRemote filtered out
+ */
+function removeVehicle(vehicles, vehicleToRemove) {
+    var resultVehicles = [];
+
+    if(vehicles) {
+        for( var n=0; n < vehicles.length; n++) {
+            var v = vehicles[n];
+
+            if(v.$identifier !== vehicleToRemove.$identifier) {
+                resultVehicles.push(v);
+            }
+        }
+    }
+
+    return resultVehicles;
 }
