@@ -24,7 +24,7 @@
   "author": "Fabric Composer",
   "license": "Apache-2.0",
   "dependencies": {
-    "vehicle.lifecycle": "*"
+    "vehicle.lifecycle": "unstable"
   },
   "devDependencies": {
     "browserfs": "^1.2.0",

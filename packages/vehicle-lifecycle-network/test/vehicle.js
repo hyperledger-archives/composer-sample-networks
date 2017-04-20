@@ -58,31 +58,28 @@ describe('Vehicle Lifecycle Network', () => {
         });
     });
 
-    describe('#manufacture vehicle', () => {
+    describe('#manufacture', () => {
 
-        it('should be able to manufacture a vehicle', () => {
+        it('should be able to place an order for a vehicle', () => {
             // submit the transaction
-            const manufactureVehicle = factory.newTransaction(NS, 'ManufactureVehicle');
-            manufactureVehicle.vin = 'ABC123';
-            manufactureVehicle.manufacturer = factory.newRelationship(NS, 'Manufacturer', 'manufacturer@email.com');
+            const placeOrder = factory.newTransaction(NS, 'PlaceOrder');
+            placeOrder.manufacturer = factory.newRelationship(NS, 'Manufacturer', 'manufacturer@email.com');
             const vehicleDetails = factory.newConcept(NS, 'VehicleDetails');
-            vehicleDetails.numberPlate = manufactureVehicle.vin;
             vehicleDetails.model = 'Mustang';
             vehicleDetails.make = 'Ford';
             vehicleDetails.colour = 'Red';
-            vehicleDetails.co2Rating = 10.3;
-            manufactureVehicle.vehicleDetails = vehicleDetails;
+            placeOrder.vehicleDetails = vehicleDetails;
 
-            return businessNetworkConnection.submitTransaction(manufactureVehicle)
+            return businessNetworkConnection.submitTransaction(placeOrder)
                 .then(() => {
-                    return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle');
+                    return businessNetworkConnection.getAssetRegistry(NS + '.Order');
                 })
-                .then((vehicleRegistry) => {
+                .then((orderRegistry) => {
                     // check the state of the shipment
-                    return vehicleRegistry.get('ABC123');
+                    return orderRegistry.get(placeOrder.transactionId);
                 })
-                .then((vehicle) => {
-                    vehicle.vehicleStatus.should.equal('CREATED');
+                .then((order) => {
+                    order.orderStatus.should.equal('CREATED');
                 });
         });
     });
