@@ -29,9 +29,9 @@
   "devDependencies": {
     "browserfs": "^1.2.0",
     "chai": "^3.5.0",
-    "composer-admin": "latest",
-    "composer-client": "latest",
-    "composer-connector-embedded": "latest",
+    "composer-admin": "unstable",
+    "composer-client": "unstable",
+    "composer-connector-embedded": "unstable",
     "eslint": "^3.6.1",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.4.1",

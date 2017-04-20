@@ -66,7 +66,7 @@ describe('Vehicle Lifecycle Network', () => {
         it('should be able to place an order for a vehicle', () => {
             // submit the transaction
             const placeOrder = factory.newTransaction(NS_M, 'PlaceOrder');
-            placeOrder.manufacturer = factory.newRelationship(NS_M, 'Manufacturer', 'manufacturer@email.com');
+            placeOrder.manufacturer = factory.newRelationship(NS_M, 'Manufacturer', 'manufacturer');
             placeOrder.orderer = factory.newRelationship(NS, 'PrivateOwner', 'dan@email.com');
             const vehicleDetails = factory.newConcept(NS_D, 'VehicleDetails');
             vehicleDetails.modelType = 'Mustang';
