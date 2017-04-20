@@ -68,9 +68,76 @@ describe('Vehicle Lifecycle Network', () => {
             vehicleDetails.model = 'Mustang';
             vehicleDetails.make = 'Ford';
             vehicleDetails.colour = 'Red';
+            vehicleDetails.co2Rating = 15;
             placeOrder.vehicleDetails = vehicleDetails;
+            manufactureVehicle.manufacturer = factory.newRelationship(NS, 'Manufacturer', 'manufacturer');
+            return businessNetworkConnection.submitTransaction(manufactureVehicle)
+                .then(() => {
+                    return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle');
+                })
+                .then((vehicleRegistry) => {
+                    return vehicleRegistry.get('ABC123');
+                })
+                .then((vehicle) => {
+                    vehicle.vehicleStatus.should.equal('CREATED');
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Manufacturer');
+                })
+                .then((manRegistry) => {
+                    return manRegistry.get('manufacturer');
+                })
+                .then((manufacturer) => {
+                    manufacturer.vehicles.length.should.equal(1);
+                });
+        });
+    });
 
+    describe('#authorise', () => {
+
+        it('should be able to authorise a vehicle', () => {
+            const authorise = factory.newTransaction(NS, 'Authorise');
+            authorise.vehicle = factory.newRelationship(NS, 'Vehicle', 'VEH_0');
+            authorise.regulator = factory.newRelationship(NS, 'Regulator', 'regulator');
+            authorise.manufacturer = factory.newRelationship(NS, 'Manufacturer', 'manufacturer');
+            return businessNetworkConnection.submitTransaction(authorise)
+                .then(() => {
+                    return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle');
+                })
+                .then((vehicleRegistry) => {
+                    return vehicleRegistry.get('VEH_0');
+                })
+                .then((vehicle) => {
+                    vehicle.vehicleStatus.should.equal('AUTHORIZED');
+                })
+                .then(() => {
+                    return businessNetworkConnection.getParticipantRegistry(NS + '.Regulator');
+                })
+                .then((regRegistry) => {
+                    return regRegistry.get('regulator');
+                })
+                .then((regulator) => {
+                    regulator.vehicles.length.should.equal(1);
+                });
+        });
+    });
+
+    describe('#privateTransfer', () => {
+
+        it('should be able to transfer a vehicle between two private owners', () => {
+            const privateTransfer = factory.newTransaction(NS, 'PrivateTransfer');
+            privateTransfer.vehicle = factory.newRelationship(NS, 'Vehicle', 'VEH_0');
+            privateTransfer.privateOwner = factory.newRelationship(NS, 'PrivateOwner', 'simon');
             return businessNetworkConnection.submitTransaction(placeOrder)
+                .then(() => {
+                    return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle');
+                })
+                .then((vehicleRegistry) => {
+                    return vehicleRegistry.get('VEH_0');
+                })
+                .then((vehicle) => {
+                    return vehicle.privateOwner.getIdentifier().should.equal('simon');
+                })
                 .then(() => {
                     return businessNetworkConnection.getAssetRegistry(NS + '.Order');
                 })

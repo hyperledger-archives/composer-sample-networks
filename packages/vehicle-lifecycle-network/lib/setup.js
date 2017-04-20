@@ -21,6 +21,7 @@ function setupDemo(setupDemo) {
     console.log('setupDemo');
 
     let factory = getFactory();
+    let NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
     let NS = 'org.acme.vehicle.lifecycle';
 
     // create the participants
@@ -31,7 +32,7 @@ function setupDemo(setupDemo) {
     // let dealership = factory.newResource(NS, 'Dealership', 'dealership');
     // participants.push(dealership);
 
-    let manufacturer = factory.newResource(NS, 'Manufacturer', 'manufacturer');
+    let manufacturer = factory.newResource(NS_M, 'Manufacturer', 'manufacturer');
     participants.push(manufacturer);
 
     // let scrapMerchant = factory.newResource(NS, 'ScrapMerchant', 'scrapmerchant');
