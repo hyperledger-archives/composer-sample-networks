@@ -16,7 +16,7 @@ if [ "${TRAVIS_NODE_VERSION}" != "" -a "${TRAVIS_NODE_VERSION}" != "6" ]; then
 fi
 
 # Check that this is the main repository.
-if [[ "${TRAVIS_REPO_SLUG}" != fabric-composer* ]]; then
+if [[ "${TRAVIS_REPO_SLUG}" != hyperledger* ]]; then
     echo "Skipping deploy; wrong repository slug."
     exit 0
 fi
