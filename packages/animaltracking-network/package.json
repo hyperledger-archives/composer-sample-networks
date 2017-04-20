@@ -49,6 +49,6 @@
     "logError": true
   },
   "dependencies": {
-    "animaltracking-model": "0.0.10"
+    "animaltracking-model": "unstable"
   }
 }
