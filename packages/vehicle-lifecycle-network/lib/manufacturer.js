@@ -61,6 +61,10 @@ function updateOrderStatus(updateOrderStatus) {
                 vehicle.vehicleStatus = 'OFF_THE_ROAD';
                 return registry.add(vehicle);
             } else if(updateOrderStatus.orderStatus === 'OWNER_ASSIGNED') {
+                if (!updateOrderStatus.order.orderer.vehicles) {
+                    updateOrderStatus.order.orderer.vehicles = [];
+                }
+
             	return registry.get(updateOrderStatus.vin)
                     .then(function(vehicle) {
                         vehicle.vehicleStatus = 'ACTIVE';
