@@ -23,37 +23,124 @@ function setupDemo(setupDemo) {
     var factory = getFactory();
     var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
     var NS = 'org.acme.vehicle.lifecycle';
+    var NS_D = 'org.gov.uk.dvla';
 
-    // create the participants
+    var names = ['dan', 'simon', 'jake', 'anastasia', 'matthew', 'mark', 'fenglian', 'sam', 'james', 'nick', 'caroline', 'rachel', 'john', 'rob', 'tom', 'paul', 'ed', 'dave', 'anthony', 'toby', 'ant', 'matt'];
+    var vehicles = {
+        'Arium': {
+            'nova': [
+                {
+                    'vin': '156478954',
+                    'colour': 'white',
+                    'vehicleStatus': 'ACTIVE'
+                }
+            ],
+            'nebula': [
+                {
+                    'vin': '652345894',
+                    'colour': 'blue',
+                    'vehicleStatus': 'ACTIVE'
+                }
+            ]
+        }, 
+        'manufacturer': {
+            'crater': [
+                {
+                    'vin': '6437956437', 
+                    'colour': 'black',
+                    'vehicleStatus': 'OFF_THE_ROAD'
+                },
+                {
+                    'vin': '857642213', 
+                    'colour': 'red',
+                    'vehicleStatus': 'ACTIVE'
+                },
+                {
+                    'vin': '542376495', 
+                    'colour': 'silver',
+                    'vehicleStatus': 'ACTIVE'
+                }
+            ],
+            'exo': [
+                {
+                    'vin': '976431649', 
+                    'colour': 'white',
+                    'vehicleStatus': 'ACTIVE'
+                },
+                {
+                    'vin': '564215468', 
+                    'colour': 'green',
+                    'vehicleStatus': 'OFF_THE_ROAD'
+                },
+                {
+                    'vin': '784512464', 
+                    'colour': 'grey',
+                    'vehicleStatus': 'ACTIVE'
+                }
+            ], 
+            'banshee': [
+                {
+                    'vin': '45789612', 
+                    'colour': 'silver',
+                    'vehicleStatus': 'ACTIVE'
+                },
+                {
+                    'vin': '975467342', 
+                    'colour': 'black',
+                    'vehicleStatus': 'ACTIVE'
+                }
+            ]
+        },
+        'moffat': {
+            'colchester': [
+                {
+                    'vin': '457645764',
+                    'colour': 'red',
+                    'vehicleStatus': 'ACTIVE'
+                },
+                {
+                    'vin': '312457645',
+                    'colour': 'white',
+                    'vehicleStatus': 'ACTIVE'
+                },
+                {
+                    'vin': '65235647',
+                    'colour': 'silver',
+                    'vehicleStatus': 'OFF_THE_ROAD'
+                }
+            ], 
+            'gorman': [
+                {
+                    'vin': '85654575',
+                    'colour': 'blue',
+                    'vehicleStatus': 'ACTIVE'
+                }, 
+                {
+                    'vin': '326548754',
+                    'colour': 'white',
+                    'vehicleStatus': 'ACTIVE'
+                }
+            ]
+        }
+    };
+    
     var manufacturers = [];
     var privateOwners = [];
 
-    // var auctionHouse = factory.newResource(NS, 'AuctionHouse', 'auctionhouse');
-    // participants.push(auctionHouse);
+    for (var name in vehicles) {
+        var manufacturer = factory.newResource(NS_M, 'Manufacturer', name);
+        manufacturers.push(manufacturer);
+    }
 
-    // var dealership = factory.newResource(NS, 'Dealership', 'dealership');
-    // participants.push(dealership);
-
-    var manufacturer = factory.newResource(NS_M, 'Manufacturer', 'manufacturer');
-    manufacturers.push(manufacturer);
-
-    // var scrapMerchant = factory.newResource(NS, 'ScrapMerchant', 'scrapmerchant');
-    // participants.push(scrapMerchant);
-
-    var dan = factory.newResource(NS, 'PrivateOwner', 'dan');
-    dan.vehicles = [];
-    privateOwners.push(dan);
-
-    var simon = factory.newResource(NS, 'PrivateOwner', 'simon');
-    privateOwners.push(simon);
+   for(var i=0; i<names.length; i++) {
+       var name = names[i];
+       var privateOwner = factory.newResource(NS, 'PrivateOwner', name);
+       privateOwners.push(privateOwner);
+   }
 
     var regulator = factory.newResource(NS, 'Regulator', 'regulator');
-    // participants.push(regulator);
 
-    return Promise.resolve()
-        .then(function() {
-            return getParticipantRegistry(NS + '.Regulator');
-        })
+    return getParticipantRegistry(NS + '.Regulator')
         .then(function(regulatorRegistry) {
             return regulatorRegistry.add(regulator);
         })
@@ -68,55 +155,33 @@ function setupDemo(setupDemo) {
         })
         .then(function(privateOwnerRegistry) {
             return privateOwnerRegistry.addAll(privateOwners);
+        })
+        .then(function() {
+            return getAssetRegistry(NS_D + '.Vehicle');
+        })
+        .then(function(vehicleRegistry) {
+            var vs = [];
+            var carCount = 0;
+            for (var mName in vehicles) {
+                var manufacturer = vehicles[mName];
+                for (var mModel in manufacturer) {
+                    var model = manufacturer[mModel];
+                    for(var i=0; i<model.length; i++) {
+                        var vehicleTemplate = model[i];
+                        var vehicle = factory.newResource(NS_D, 'Vehicle', vehicleTemplate.vin);
+                        vehicle.owner = factory.newRelationship(NS, 'PrivateOwner', names[carCount]);
+                        vehicle.vehicleStatus = vehicleTemplate.vehicleStatus;
+                        vehicle.vehicleDetails = factory.newConcept(NS_D, 'VehicleDetails');
+                        vehicle.vehicleDetails.make = mName; 
+                        vehicle.vehicleDetails.modelType = mModel; 
+                        vehicle.vehicleDetails.colour = vehicleTemplate.colour; 
+                        vehicle.vehicleDetails.vin = vehicleTemplate.vin;
+
+                        vs.push(vehicle);
+                        carCount++;
+                    }
+                }
+            }
+            return vehicleRegistry.addAll(vs);
         });
-
-    // // create the vehicles
-    // var vehicles = [];
-    // for(var n=0; n < 10; n++) {
-    //     var vehicle = factory.newResource(NS, 'Vehicle', 'VEH_' + n);
-    //     var vehicleDetails = factory.newConcept(NS, 'VehicleDetails');
-    //     vehicleDetails.model = 'Mustang';
-    //     vehicleDetails.make = 'Ford';
-    //     vehicleDetails.colour = 'Yellow';
-    //     vehicleDetails.co2Rating = 10;
-    //     vehicle.vehicleDetails = vehicleDetails;
-    //     vehicle.vehicleStatus = 'CREATED';
-    //     vehicle.manufacturer = factory.newRelationship(NS, 'Manufacturer', manufacturer.$identifier );
-    //     vehicle.privateOwner = factory.newRelationship(NS, 'PrivateOwner', dan.$identifier );
-    //     dan.vehicles.push(factory.newRelationship(NS, 'Vehicle', vehicle.$identifier ));
-    //     vehicles.push(vehicle);
-    // // }
-
-    // var promises = [];
-
-    // // save all the participants
-    // for(var n=0; n < participants.length; n++) {
-    //     var participant = participants[n];
-    //     //console.log('Saving ' + participant );
-    //     promises.push(
-    //         getParticipantRegistry(participant.getFullyQualifiedType())
-    //             .then(function (registry) {
-    //                 return registry.add(participant);
-    //             })
-    //             .catch(function(erorr) {
-    //                 console.log('Attempted to add ' + participant.getFullyQualifiedType() + ' with ID ' + participant.getIdentifier())
-    //             })
-    //     );
-    // }
-
-
-
-    // save all the assets
-    // for(var n=0; n < vehicles.length; n++) {
-    //     var asset = vehicles[n];
-    //     //console.log('Saving ' + asset );
-    //     promises.push(
-    //         getAssetRegistry(asset.getFullyQualifiedType())
-    //             .then(function (registry) {
-    //                 return registry.add(asset);
-    //             })
-    //     );
-    // }
-
-    // return Promise.all(promises);
 }
