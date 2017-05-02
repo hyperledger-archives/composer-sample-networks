@@ -24,6 +24,7 @@ function placeOrder(placeOrder) {
     var factory = getFactory();
     var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
     var NS = 'org.acme.vehicle.lifecycle';
+    var NS_D = 'org.vda';
 
     var order = factory.newResource(NS_M, 'Order', placeOrder.transactionID);
     order.vehicleDetails = placeOrder.vehicleDetails;
@@ -47,15 +48,18 @@ function updateOrderStatus(updateOrderStatus) {
     console.log('updateOrderStatus');
 
     var factory = getFactory();
+    var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
+    var NS = 'org.acme.vehicle.lifecycle';
+    var NS_D = 'org.vda';
 
     // save the new status of the order
     updateOrderStatus.order.orderStatus = updateOrderStatus.orderStatus;
 
   	// get vehicle registry
-  	return getAssetRegistry('org.gov.uk.dvla.Vehicle')
+  	return getAssetRegistry(NS_D + '.Vehicle')
   		.then(function(registry) {
       		if (updateOrderStatus.orderStatus === 'VIN_ASSIGNED') {
-            	var vehicle = factory.newResource('org.gov.uk.dvla', 'Vehicle', updateOrderStatus.vin );
+            	var vehicle = factory.newResource(NS_D, 'Vehicle', updateOrderStatus.vin );
                 vehicle.vehicleDetails = updateOrderStatus.order.vehicleDetails;
                 vehicle.vehicleDetails.vin = updateOrderStatus.vin;
                 vehicle.vehicleStatus = 'OFF_THE_ROAD';

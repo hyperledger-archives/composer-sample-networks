@@ -27,7 +27,7 @@ var should = require('chai').should();
 var bfs_fs = BrowserFS.BFSRequire('fs');
 var NS = 'org.acme.vehicle.lifecycle';
 var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
-var NS_D = 'org.gov.uk.dvla';
+var NS_D = 'org.vda';
 
 var factory;
 

@@ -23,7 +23,7 @@ function setupDemo(setupDemo) {
     var factory = getFactory();
     var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
     var NS = 'org.acme.vehicle.lifecycle';
-    var NS_D = 'org.gov.uk.dvla';
+    var NS_D = 'org.vda';
 
     var names = ['dan', 'simon', 'jake', 'anastasia', 'matthew', 'mark', 'fenglian', 'sam', 'james', 'nick', 'caroline', 'rachel', 'john', 'rob', 'tom', 'paul', 'ed', 'dave', 'anthony', 'toby', 'ant', 'matt'];
     var vehicles = {
@@ -139,6 +139,10 @@ function setupDemo(setupDemo) {
    }
 
     var regulator = factory.newResource(NS, 'Regulator', 'regulator');
+
+
+    var privateOwnerRegistry;
+    var vehicleRegistry;
 
     return getParticipantRegistry(NS + '.Regulator')
         .then(function(regulatorRegistry) {
