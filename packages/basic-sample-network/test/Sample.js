@@ -57,7 +57,7 @@ describe('Sample', () => {
             const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
             // create the sample participant
-            const dan = factory.newResource(NS, 'SampleParticipant', 'daniel.selman@uk.ibm.com');
+            const dan = factory.newResource(NS, 'SampleParticipant', 'a.person@example.com');
             dan.firstName = 'Dan';
             dan.lastName = 'Selman';
 

@@ -58,7 +58,7 @@ describe('CarAuction', () => {
             const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
             // create the auctioneer
-            const seller = factory.newResource(NS, 'Member', 'daniel.selman@uk.ibm.com');
+            const seller = factory.newResource(NS, 'Member', 'daniel.selman@example.com');
             seller.firstName = 'Dan';
             seller.lastName = 'Selman';
             seller.balance = 0;
@@ -75,13 +75,13 @@ describe('CarAuction', () => {
             listing.vehicle = factory.newRelationship(NS, 'Vehicle', 'CAR_001');
 
             // create the buyer
-            const buyer = factory.newResource(NS, 'Member', 'sstone1@uk.ibm.com');
+            const buyer = factory.newResource(NS, 'Member', 'sstone1@example.com');
             buyer.firstName = 'Simon';
             buyer.lastName = 'Stone';
             buyer.balance = 1000;
 
             // create another potential buyer
-            const buyer2 = factory.newResource(NS, 'Member', 'whitemat@uk.ibm.com');
+            const buyer2 = factory.newResource(NS, 'Member', 'whitemat@example.com');
             buyer2.firstName = 'Matthew';
             buyer2.lastName = 'White';
             buyer2.balance = 100;

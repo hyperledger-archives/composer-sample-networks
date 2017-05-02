@@ -14,12 +14,12 @@
 
  /**
   * Trade a marble to a new player
-  * @param  {org.fabric_composer.marbles.TradeMarble} tradeMarble - the trade marble transaction
+  * @param  {org.hyperledger_composer.marbles.TradeMarble} tradeMarble - the trade marble transaction
   * @transaction
   */
  function tradeMarble(tradeMarble) {
    tradeMarble.marble.owner = tradeMarble.newOwner;
-   return getAssetRegistry('org.fabric_composer.marbles.Marble')
+   return getAssetRegistry('org.hyperledger_composer.marbles.Marble')
      .then(function (assetRegistry) {
        return assetRegistry.update(tradeMarble.marble);
      });

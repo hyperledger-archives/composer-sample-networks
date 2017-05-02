@@ -60,13 +60,13 @@ Create a file to hold the permissions access control inforation - create a `perm
 
 
 ## Work with the network
-Once we have the network complete we can create a business network definition arhive. This is the unit will actually be deloyable to the HyperLedger Fabric.
+Once we have the network complete we can create a business network definition archive. This is the unit that will actually be deloyable to the HyperLedger Fabric.
 
 There is a `composer archive` command that can be used to create and inspect these archives. The `composer network` command is then used to administer the business network archive on the Hyperledger Fabric.
 
 ### Creating an archive
 
-The `composer archive create` command is used to create the archive. The `--archiveFile` option is used to specify the name of the archive file to create. If this is not specified then a default name will be used that is based on the identifier of the business network (sanitized to be suitable as a filename). For example `@ibm_digitalPropertyNetwork-0.1.2.bna`.
+The `composer archive create` command is used to create the archive. The `--archiveFile` option is used to specify the name of the archive file to create. If this is not specified then a default name will be used that is based on the identifier of the business network (sanitized to be suitable as a filename). For example `@example_digitalPropertyNetwork-0.1.2.bna`.
 
 Please refer to the docs for `composer archive create` for more options.
 

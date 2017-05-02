@@ -23,7 +23,7 @@ const path = require('path');
 require('chai').should();
 
 const bfs_fs = BrowserFS.BFSRequire('fs');
-const NS = 'org.fabric_composer.marbles';
+const NS = 'org.hyperledger_composer.marbles';
 
 describe('Marbles', () => {
 
@@ -58,7 +58,7 @@ describe('Marbles', () => {
             const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
             // create the first player
-            const dan = factory.newResource(NS, 'Player', 'daniel.selman@uk.ibm.com');
+            const dan = factory.newResource(NS, 'Player', 'daniel.selman@example.com');
             dan.firstName = 'Dan';
             dan.lastName = 'Selman';
 
@@ -69,7 +69,7 @@ describe('Marbles', () => {
             marble.owner = factory.newRelationship(NS, 'Player', dan.$identifier);
 
             // create the second player
-            const simon = factory.newResource(NS, 'Player', 'sstone1@uk.ibm.com');
+            const simon = factory.newResource(NS, 'Player', 'sstone1@example.com');
             simon.firstName = 'Simon';
             simon.lastName = 'Stone';
 
@@ -103,7 +103,7 @@ describe('Marbles', () => {
                         })
                         .then((newMarble) => {
                             // simon should now own the marble
-                            newMarble.owner.getIdentifier().should.equal('sstone1@uk.ibm.com');
+                            newMarble.owner.getIdentifier().should.equal('sstone1@example.com');
                         });
                 });
         });

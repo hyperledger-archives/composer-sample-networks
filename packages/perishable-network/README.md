@@ -1,4 +1,4 @@
-# Fabric Composer Perishable Goods Demo
+# Hyperledger Composer Perishable Goods Demo
 
 Example business network that shows growers, shippers and importers defining contracts for the price
 of perishable goods, based on temperature readings received for shipping containers.
@@ -15,9 +15,9 @@ that:
 
 `git clone` the repository for the sample, `cd` into its directory and then run `npm install` followed by `npm test`. The unit test will run and should pass.
 
-### Demo inside Playground
+### Demo inside Hyperledger Composer
 
-Import the sample into Playground using the `Import/Replace` button.
+Import the sample into Hyperledger Composer using the `Import/Replace` button.
 
 Submit a `SetupDemo` transaction
  

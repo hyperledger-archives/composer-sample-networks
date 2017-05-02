@@ -14,12 +14,12 @@
     },
     "repository":{
         "type":"git",
-        "url":"https://github.com/fabric-composer/sample-networks.git"
+        "url":"https://github.com/hyperledger/composer-sample-networks.git"
     },
     "keywords":[
         "vehicle","lifecycle","composer-network"
     ],
-    "author":"Fabric Composer",
+    "author":"Hyperledger Composer",
     "license":"Apache-2.0",
     "dependencies":{
         "vehicle-lifecycle-model":"unstable"

@@ -19,7 +19,7 @@
 
 /**
  *
- * @param {com.ibm.concerto.mozart.AnimalMovementDeparture} movementDeparture
+ * @param {com.biz.AnimalMovementDeparture} movementDeparture
  * @transaction
  */
 function onAnimalMovementDeparture(movementDeparture) {
@@ -32,7 +32,7 @@ function onAnimalMovementDeparture(movementDeparture) {
   movementDeparture.animal.movementStatus = 'IN_TRANSIT';
 
      // save the animal
-  return getAssetRegistry('com.ibm.concerto.mozart.Animal')
+  return getAssetRegistry('com.biz.Animal')
   .then(function(ar) {
     return ar.update(movementDeparture.animal);
   })
@@ -46,7 +46,7 @@ function onAnimalMovementDeparture(movementDeparture) {
     }
     
       // save the business
-     return getAssetRegistry('com.ibm.concerto.mozart.Business')
+     return getAssetRegistry('com.biz.Business')
   })
   .then(function(br) {
     return br.update(movementDeparture.to);
@@ -55,7 +55,7 @@ function onAnimalMovementDeparture(movementDeparture) {
 
 /**
  *
- * @param {com.ibm.concerto.mozart.AnimalMovementArrival} movementArrival
+ * @param {com.biz.AnimalMovementArrival} movementArrival
  * @transaction
  */
 function onAnimalMovementArrival(movementArrival) {
@@ -76,7 +76,7 @@ function onAnimalMovementArrival(movementArrival) {
   movementArrival.animal.location = movementArrival.arrivalField;
 
      // save the animal
-  return getAssetRegistry('com.ibm.concerto.mozart.Animal')
+  return getAssetRegistry('com.biz.Animal')
   .then(function(ar) {
     return ar.update(movementArrival.animal);
   })
@@ -93,7 +93,7 @@ function onAnimalMovementArrival(movementArrival) {
     });
 
       // save the business
-    return getAssetRegistry('com.ibm.concerto.mozart.Business');
+    return getAssetRegistry('com.biz.Business');
   })
   .then(function(br) {
     return br.update(movementArrival.to);
@@ -102,12 +102,12 @@ function onAnimalMovementArrival(movementArrival) {
 
 /**
  *
- * @param {com.ibm.concerto.mozart.SetupDemo} setupDemo
+ * @param {com.biz.SetupDemo} setupDemo
  * @transaction
  */
 function setupDemo(setupDemo) {
   var factory = getFactory();
-  var NS = 'com.ibm.concerto.mozart';
+  var NS = 'com.biz';
 
   var farmers = [
     factory.newResource(NS, 'Farmer', 'FARMER_1'),
