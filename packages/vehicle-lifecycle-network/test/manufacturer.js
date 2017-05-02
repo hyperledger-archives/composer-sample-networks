@@ -21,13 +21,13 @@ var BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefini
 var path = require('path');
 
 var should = require('chai').should();
-
+var Util = require('./util');
 
 
 var bfs_fs = BrowserFS.BFSRequire('fs');
 var NS = 'org.acme.vehicle.lifecycle';
 var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
-var NS_D = 'org.gov.uk.dvla';
+var NS_D = 'org.vda';
 
 var factory;
 
@@ -55,11 +55,8 @@ describe('Vehicle Lifecycle Network', function() {
             return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
         })
         .then(function() {
-            // submit the setup demo transaction
-            // this will create some sample assets and participants
             factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-            var setupDemo = factory.newTransaction(NS, 'SetupDemo');
-            return businessNetworkConnection.submitTransaction(setupDemo);
+            return Util.setup(businessNetworkConnection);
         });
     });
 
@@ -69,6 +66,7 @@ describe('Vehicle Lifecycle Network', function() {
             // submit the transaction
             var placeOrder = factory.newTransaction(NS_M, 'PlaceOrder');
             placeOrder.manufacturer = factory.newRelationship(NS_M, 'Manufacturer', 'manufacturer');
+            placeOrder.orderID = '1000-1000-1000-1000';
             placeOrder.orderer = factory.newRelationship(NS, 'PrivateOwner', 'dan');
             var vehicleDetails = factory.newConcept(NS_D, 'VehicleDetails');
             vehicleDetails.modelType = 'Mustang';
@@ -110,7 +108,7 @@ describe('Vehicle Lifecycle Network', function() {
                     return businessNetworkConnection.submitTransaction(updateOrderStatus);
                 })
                 .then(function() {
-                    return getAssetRegistry('org.gov.uk.dvla.Vehicle');
+                    return getAssetRegistry(NS_D + '.Vehicle');
                 })
                 .then(function(vehicleRegistry) {
                     return vehicleRegistry.get('VIN_NUMBER');
@@ -143,7 +141,7 @@ describe('Vehicle Lifecycle Network', function() {
                 return businessNetworkConnection.submitTransaction(updateOrderStatus);
             })
             .then(function() {
-                return businessNetworkConnection.getAssetRegistry('org.gov.uk.dvla.Vehicle');
+                return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
             })
             .then(function(vehicleRegistry) {
                 return vehicleRegistry.get('VIN_NUMBER');

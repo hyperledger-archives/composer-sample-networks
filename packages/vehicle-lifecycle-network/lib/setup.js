@@ -23,7 +23,7 @@ function setupDemo(setupDemo) {
     var factory = getFactory();
     var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
     var NS = 'org.acme.vehicle.lifecycle';
-    var NS_D = 'org.gov.uk.dvla';
+    var NS_D = 'org.vda';
 
     var names = ['dan', 'simon', 'jake', 'anastasia', 'matthew', 'mark', 'fenglian', 'sam', 'james', 'nick', 'caroline', 'rachel', 'john', 'rob', 'tom', 'paul', 'ed', 'dave', 'anthony', 'toby', 'ant', 'matt'];
     var vehicles = {
@@ -43,7 +43,7 @@ function setupDemo(setupDemo) {
                 }
             ]
         }, 
-        'manufacturer': {
+        'manufacturer': { // TODO: Change this to an actual car brand... 
             'crater': [
                 {
                     'vin': '6437956437', 
@@ -140,6 +140,10 @@ function setupDemo(setupDemo) {
 
     var regulator = factory.newResource(NS, 'Regulator', 'regulator');
 
+
+    var privateOwnerRegistry;
+    var vehicleRegistry;
+
     return getParticipantRegistry(NS + '.Regulator')
         .then(function(regulatorRegistry) {
             return regulatorRegistry.add(regulator);
@@ -159,7 +163,8 @@ function setupDemo(setupDemo) {
         .then(function() {
             return getAssetRegistry(NS_D + '.Vehicle');
         })
-        .then(function(vehicleRegistry) {
+        .then(function(vr) {
+            vehicleRegistry = vr;
             var vs = [];
             var carCount = 0;
             for (var mName in vehicles) {
@@ -176,7 +181,6 @@ function setupDemo(setupDemo) {
                         vehicle.vehicleDetails.modelType = mModel; 
                         vehicle.vehicleDetails.colour = vehicleTemplate.colour; 
                         vehicle.vehicleDetails.vin = vehicleTemplate.vin;
-
                         vs.push(vehicle);
                         carCount++;
                     }
