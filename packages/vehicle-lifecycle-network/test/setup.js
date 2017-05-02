@@ -27,7 +27,11 @@ var should = require('chai').should();
 var bfs_fs = BrowserFS.BFSRequire('fs');
 var NS = 'org.acme.vehicle.lifecycle';
 var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
+<<<<<<< HEAD
 var NS_D = 'org.vda';
+=======
+var NS_D = 'org.gov.uk.dvla';
+>>>>>>> a0fc2dab4e74a232382d9b57fd73e301e7d50e9f
 
 var factory;
 
@@ -99,6 +103,13 @@ describe('Vehicle Lifecycle Network', function() {
                 })
                 .then(function(privateOwners) {
                     privateOwners.length.should.be.above(14);
+                })
+                .then(function() {
+                    // (assets) get vehicles registry
+                    return getAllFromRegistry('Asset', NS_D + '.Vehicle');
+                })
+                .then(function(vehicles) {
+                    vehicles.length.should.be.above(14);
                 });
         });
     });
