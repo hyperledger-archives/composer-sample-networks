@@ -23,11 +23,7 @@ function setupDemo(setupDemo) {
     var factory = getFactory();
     var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
     var NS = 'org.acme.vehicle.lifecycle';
-<<<<<<< HEAD
     var NS_D = 'org.vda';
-=======
-    var NS_D = 'org.gov.uk.dvla';
->>>>>>> a0fc2dab4e74a232382d9b57fd73e301e7d50e9f
 
     var names = ['dan', 'simon', 'jake', 'anastasia', 'matthew', 'mark', 'fenglian', 'sam', 'james', 'nick', 'caroline', 'rachel', 'john', 'rob', 'tom', 'paul', 'ed', 'dave', 'anthony', 'toby', 'ant', 'matt'];
     var vehicles = {
@@ -47,11 +43,7 @@ function setupDemo(setupDemo) {
                 }
             ]
         }, 
-<<<<<<< HEAD
-        'manufacturer': { // TODO: Change this to an actual car brand... 
-=======
         'manufacturer': {
->>>>>>> a0fc2dab4e74a232382d9b57fd73e301e7d50e9f
             'crater': [
                 {
                     'vin': '6437956437', 
@@ -139,7 +131,6 @@ function setupDemo(setupDemo) {
         var manufacturer = factory.newResource(NS_M, 'Manufacturer', name);
         manufacturers.push(manufacturer);
     }
-<<<<<<< HEAD
 
    for(var i=0; i<names.length; i++) {
        var name = names[i];
@@ -152,16 +143,6 @@ function setupDemo(setupDemo) {
 
     var privateOwnerRegistry;
     var vehicleRegistry;
-=======
-
-   for(var i=0; i<names.length; i++) {
-       var name = names[i];
-       var privateOwner = factory.newResource(NS, 'PrivateOwner', name);
-       privateOwners.push(privateOwner);
-   }
-
-    var regulator = factory.newResource(NS, 'Regulator', 'regulator');
->>>>>>> a0fc2dab4e74a232382d9b57fd73e301e7d50e9f
 
     return getParticipantRegistry(NS + '.Regulator')
         .then(function(regulatorRegistry) {
@@ -182,12 +163,7 @@ function setupDemo(setupDemo) {
         .then(function() {
             return getAssetRegistry(NS_D + '.Vehicle');
         })
-<<<<<<< HEAD
-        .then(function(vr) {
-            vehicleRegistry = vr;
-=======
         .then(function(vehicleRegistry) {
->>>>>>> a0fc2dab4e74a232382d9b57fd73e301e7d50e9f
             var vs = [];
             var carCount = 0;
             for (var mName in vehicles) {
@@ -204,10 +180,7 @@ function setupDemo(setupDemo) {
                         vehicle.vehicleDetails.modelType = mModel; 
                         vehicle.vehicleDetails.colour = vehicleTemplate.colour; 
                         vehicle.vehicleDetails.vin = vehicleTemplate.vin;
-<<<<<<< HEAD
-=======
 
->>>>>>> a0fc2dab4e74a232382d9b57fd73e301e7d50e9f
                         vs.push(vehicle);
                         carCount++;
                     }
