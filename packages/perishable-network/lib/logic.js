@@ -19,9 +19,9 @@
  */
 function payOut(shipmentReceived) {
 
-    let contract = shipmentReceived.shipment.contract;
-    let shipment = shipmentReceived.shipment;
-    let payOut = contract.unitPrice * shipment.unitCount;
+    var contract = shipmentReceived.shipment.contract;
+    var shipment = shipmentReceived.shipment;
+    var payOut = contract.unitPrice * shipment.unitCount;
 
     console.log('Received at: ' + shipmentReceived.timestamp);
     console.log('Contract arrivalDateTime: ' + contract.arrivalDateTime);
@@ -40,9 +40,9 @@ function payOut(shipmentReceived) {
             shipment.temperatureReadings.sort(function (a, b) {
                 return (a.centigrade - b.centigrade);
             });
-            let lowestReading = shipment.temperatureReadings[0];
-            let highestReading = shipment.temperatureReadings[shipment.temperatureReadings.length - 1];
-            let penalty = 0;
+            var lowestReading = shipment.temperatureReadings[0];
+            var highestReading = shipment.temperatureReadings[shipment.temperatureReadings.length - 1];
+            var penalty = 0;
             console.log('Lowest temp reading: ' + lowestReading.centigrade);
             console.log('Highest temp reading: ' + highestReading.centigrade);
 
@@ -102,7 +102,7 @@ function payOut(shipmentReceived) {
  */
 function temperatureReading(temperatureReading) {
 
-    let shipment = temperatureReading.shipment;
+    var shipment = temperatureReading.shipment;
 
     console.log('Adding temperature ' + temperatureReading.centigrade + ' to shipment ' + shipment.$identifier);
 
@@ -126,36 +126,36 @@ function temperatureReading(temperatureReading) {
  */
 function setupDemo(setupDemo) {
 
-    let factory = getFactory();
-    let NS = 'org.acme.shipping.perishable';
+    var factory = getFactory();
+    var NS = 'org.acme.shipping.perishable';
 
     // create the grower
-    let grower = factory.newResource(NS, 'Grower', 'farmer@email.com');
-    let growerAddress = factory.newConcept(NS, 'Address');
+    var grower = factory.newResource(NS, 'Grower', 'farmer@email.com');
+    var growerAddress = factory.newConcept(NS, 'Address');
     growerAddress.country = 'USA';
     grower.address = growerAddress;
     grower.accountBalance = 0;
 
     // create the importer
-    let importer = factory.newResource(NS, 'Importer', 'supermarket@email.com');
-    let importerAddress = factory.newConcept(NS, 'Address');
+    var importer = factory.newResource(NS, 'Importer', 'supermarket@email.com');
+    var importerAddress = factory.newConcept(NS, 'Address');
     importerAddress.country = 'UK';
     importer.address = importerAddress;
     importer.accountBalance = 0;
 
     // create the shipper
-    let shipper = factory.newResource(NS, 'Shipper', 'shipper@email.com');
-    let shipperAddress = factory.newConcept(NS, 'Address');
+    var shipper = factory.newResource(NS, 'Shipper', 'shipper@email.com');
+    var shipperAddress = factory.newConcept(NS, 'Address');
     shipperAddress.country = 'Panama';
     shipper.address = shipperAddress;
     shipper.accountBalance = 0;
 
     // create the contract
-    let contract = factory.newResource(NS, 'Contract', 'CON_001');
+    var contract = factory.newResource(NS, 'Contract', 'CON_001');
     contract.grower = factory.newRelationship(NS, 'Grower', 'farmer@email.com');
     contract.importer = factory.newRelationship(NS, 'Importer', 'supermarket@email.com');
     contract.shipper = factory.newRelationship(NS, 'Shipper', 'shipper@email.com');
-    let tomorrow = setupDemo.timestamp;
+    var tomorrow = setupDemo.timestamp;
     tomorrow.setDate(tomorrow.getDate() + 1);
     contract.arrivalDateTime = tomorrow; // the shipment has to arrive tomorrow
     contract.unitPrice = 0.5; // pay 50 cents per unit
@@ -165,7 +165,7 @@ function setupDemo(setupDemo) {
     contract.maxPenaltyFactor = 0.1; // we reduce the price by 10 cents for every degree above the max temp
 
     // create the shipment
-    let shipment = factory.newResource(NS, 'Shipment', 'SHIP_001');
+    var shipment = factory.newResource(NS, 'Shipment', 'SHIP_001');
     shipment.type = 'BANANAS';
     shipment.status = 'IN_TRANSIT';
     shipment.unitCount = 5000;
