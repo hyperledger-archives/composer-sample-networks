@@ -10,8 +10,8 @@ visibility into the locations of all animals and all animal movements between fa
 - Each Field contains a set of Animals owned by the Farmer
 - Animals can be transfered between Farmers or between Fields
 
-## Demo inside Playground
-Import the sample into Playground using the `Import/Replace` button.
+## Demo inside Hyperledger Composer
+Import the sample into Hyperledger Composer using the `Import/Replace` button.
 
 Submit a `SetupDemo` transaction to bootstrap a scenario to get you started. 
 

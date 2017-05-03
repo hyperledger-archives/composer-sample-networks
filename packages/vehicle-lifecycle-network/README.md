@@ -1,3 +1,3 @@
-# Fabric Composer Vehicle Lifecycle Demo
+# Hyperledger Composer Vehicle Lifecycle Demo
 
 Vehicle Lifecycle demo.

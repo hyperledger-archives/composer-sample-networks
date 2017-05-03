@@ -57,7 +57,7 @@ describe('Publish Bond', () => {
             const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
             // create the issuer
-            const issuer = factory.newResource(NS, 'Issuer', 'daniel.selman@uk.ibm.com');
+            const issuer = factory.newResource(NS, 'Issuer', 'daniel.selman@example.com');
             issuer.name = 'Dan Selman Holdings';
 
             // create the bond
@@ -65,7 +65,7 @@ describe('Publish Bond', () => {
             paymentFrequency.periodMultiplier = 6;
             paymentFrequency.period = 'MONTH';
             const bond = factory.newConcept(NS, 'Bond');
-            bond.instrumentId = ['IBM'];
+            bond.instrumentId = ['ACME'];
             bond.exchangeId = ['NYSE'];
             bond.maturity = new Date('2018-02-27T21:03:52+00:00');
             bond.parValue = 1000;
