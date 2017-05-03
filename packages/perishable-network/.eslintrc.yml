@@ -1,5 +1,5 @@
 env:
-    es6: true
+    es6: false
     node: true
     mocha: true
 extends: 'eslint:recommended'
@@ -28,7 +28,6 @@ rules:
     eqeqeq: error
     no-throw-literal: error
     strict: error
-    no-var: error
     dot-notation: error
     no-tabs: error
     no-trailing-spaces: error
