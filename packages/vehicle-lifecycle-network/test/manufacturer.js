@@ -66,7 +66,7 @@ describe('Vehicle Lifecycle Network', function() {
             // submit the transaction
             var placeOrder = factory.newTransaction(NS_M, 'PlaceOrder');
             placeOrder.manufacturer = factory.newRelationship(NS_M, 'Manufacturer', 'manufacturer');
-            placeOrder.orderID = '1000-1000-1000-1000';
+            placeOrder.orderId = '1000-1000-1000-1000';
             placeOrder.orderer = factory.newRelationship(NS, 'PrivateOwner', 'dan');
             var vehicleDetails = factory.newConcept(NS_D, 'VehicleDetails');
             vehicleDetails.modelType = 'Mustang';
@@ -79,7 +79,7 @@ describe('Vehicle Lifecycle Network', function() {
                     return businessNetworkConnection.getAssetRegistry(NS_M + '.Order');
                 })
                 .then(function(orderRegistry) {
-                    return orderRegistry.get(placeOrder.getIdentifier());
+                    return orderRegistry.get(placeOrder.orderId);
                 })
                 .then(function(order) {
                     order.orderStatus.should.equal('PLACED');
