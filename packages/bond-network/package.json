@@ -1,6 +1,6 @@
 {
   "name": "bond-network",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Bond Reference Data Sharing Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/bond-network.bna",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/fabric-composer/sample-networks.git"
+    "url": "https://github.com/hyperledger/composer-sample-networks.git"
   },
   "keywords": [
     "bonds",
     "reference data",
     "finance"
   ],
-  "author": "Fabric Composer",
+  "author": "Hyperledger Composer",
   "license": "Apache-2.0",
   "devDependencies": {
     "browserfs": "^1.2.0",

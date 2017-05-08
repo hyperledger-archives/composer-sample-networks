@@ -1,4 +1,4 @@
-# Sample Fabric Composer Business Network Definitions
+# Sample Hyperledger Composer Business Network Definitions
 
 You must install [Lerna](https://lernajs.io) to build this multi-package repository.
 

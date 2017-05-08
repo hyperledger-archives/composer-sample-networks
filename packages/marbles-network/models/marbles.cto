@@ -1,7 +1,7 @@
 /**
  * Defines a data model for a marble trading network
  */
-namespace org.fabric_composer.marbles
+namespace org.hyperledger_composer.marbles
 
 enum MarbleColor {
   o RED

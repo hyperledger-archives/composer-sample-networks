@@ -1,6 +1,6 @@
 {
   "name": "animaltracking-network",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Animal Tracking network based on UK DEFRA regulations",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/animaltracking-network.bna",
@@ -14,9 +14,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/fabric-composer/fabric-composer.git"
+    "url": "https://github.com/hyperledger/composer"
   },
-  "author": "Fabric Composer",
+  "author": "Hyperledger Composer",
   "license": "Apache-2.0",
   "keywords": [
     "defra",
