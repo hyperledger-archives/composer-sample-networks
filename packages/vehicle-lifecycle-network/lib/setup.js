@@ -25,17 +25,17 @@ function setupDemo(setupDemo) {
     var NS = 'org.acme.vehicle.lifecycle';
     var NS_D = 'org.vda';
 
-    var names = ['dan', 'simon', 'jake', 'anastasia', 'matthew', 'mark', 'fenglian', 'sam', 'james', 'nick', 'caroline', 'rachel', 'john', 'rob', 'tom', 'paul', 'ed', 'dave', 'anthony', 'toby', 'ant', 'matt'];
+    var names = ['dan', 'simon', 'jake', 'anastasia', 'matthew', 'mark', 'fenglian', 'sam', 'james', 'nick', 'caroline', 'rachel', 'john', 'rob', 'tom', 'paul', 'ed', 'dave', 'anthony', 'toby', 'ant', 'matt', 'anna'];
     var vehicles = {
         'Arium': {
-            'nova': [
+            'Nova': [
                 {
                     'vin': '156478954',
                     'colour': 'white',
                     'vehicleStatus': 'ACTIVE'
                 }
             ],
-            'nebula': [
+            'Nebula': [
                 {
                     'vin': '652345894',
                     'colour': 'blue',
@@ -43,12 +43,13 @@ function setupDemo(setupDemo) {
                 }
             ]
         }, 
-        'manufacturer': {
-            'crater': [
+        'Morde': {
+            'Putt': [
                 {
                     'vin': '6437956437', 
                     'colour': 'black',
-                    'vehicleStatus': 'OFF_THE_ROAD'
+                    'vehicleStatus': 'OFF_THE_ROAD', 
+                    'suspiciousMessage': 'Owner transfer suspicion'
                 },
                 {
                     'vin': '857642213', 
@@ -61,7 +62,7 @@ function setupDemo(setupDemo) {
                     'vehicleStatus': 'ACTIVE'
                 }
             ],
-            'exo': [
+            'Pluto': [
                 {
                     'vin': '976431649', 
                     'colour': 'white',
@@ -70,29 +71,18 @@ function setupDemo(setupDemo) {
                 {
                     'vin': '564215468', 
                     'colour': 'green',
-                    'vehicleStatus': 'OFF_THE_ROAD'
+                    'vehicleStatus': 'OFF_THE_ROAD', 
+                    'suspiciousMessage': 'Owner transfer suspicion'
                 },
                 {
                     'vin': '784512464', 
                     'colour': 'grey',
                     'vehicleStatus': 'ACTIVE'
                 }
-            ], 
-            'banshee': [
-                {
-                    'vin': '45789612', 
-                    'colour': 'silver',
-                    'vehicleStatus': 'ACTIVE'
-                },
-                {
-                    'vin': '975467342', 
-                    'colour': 'black',
-                    'vehicleStatus': 'ACTIVE'
-                }
             ]
         },
-        'moffat': {
-            'colchester': [
+        'Ridge': {
+            'Cannon': [
                 {
                     'vin': '457645764',
                     'colour': 'red',
@@ -101,15 +91,17 @@ function setupDemo(setupDemo) {
                 {
                     'vin': '312457645',
                     'colour': 'white',
-                    'vehicleStatus': 'ACTIVE'
+                    'vehicleStatus': 'ACTIVE', 
+                    'suspiciousMessage': 'Owner transfer suspicion'
                 },
                 {
                     'vin': '65235647',
                     'colour': 'silver',
-                    'vehicleStatus': 'OFF_THE_ROAD'
+                    'vehicleStatus': 'OFF_THE_ROAD', 
+                    'suspiciousMessage': 'Owner transfer suspicion'
                 }
             ], 
-            'gorman': [
+            'Rancher': [
                 {
                     'vin': '85654575',
                     'colour': 'blue',
@@ -118,7 +110,8 @@ function setupDemo(setupDemo) {
                 {
                     'vin': '326548754',
                     'colour': 'white',
-                    'vehicleStatus': 'ACTIVE'
+                    'vehicleStatus': 'ACTIVE', 
+                    'suspiciousMessage': 'Owner transfer suspicion'
                 }
             ]
         }
@@ -180,6 +173,21 @@ function setupDemo(setupDemo) {
                         vehicle.vehicleDetails.modelType = mModel; 
                         vehicle.vehicleDetails.colour = vehicleTemplate.colour; 
                         vehicle.vehicleDetails.vin = vehicleTemplate.vin;
+
+                        if (vehicleTemplate.suspiciousMessage) {
+                            vehicle.suspiciousMessage = vehicleTemplate.suspiciousMessage;
+                        }
+
+                        if (!vehicle.logEntries) {
+                            vehicle.logEntries = [];
+                        }
+
+                        var logEntry = factory.newConcept(NS_D, 'VehicleTransferLogEntry');
+                        logEntry.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicleTemplate.vin);
+                        logEntry.buyer = factory.newRelationship(NS, 'PrivateOwner', names[carCount]);
+                        logEntry.timestamp = setupDemo.timestamp
+
+                        vehicle.logEntries.push(logEntry);
 
                         vs.push(vehicle);
                         carCount++;

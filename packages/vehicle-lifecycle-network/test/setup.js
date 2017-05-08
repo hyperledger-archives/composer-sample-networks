@@ -98,14 +98,14 @@ describe('Vehicle Lifecycle Network', function() {
                     return getAllFromRegistry('Participant', NS + '.PrivateOwner');
                 })
                 .then(function(privateOwners) {
-                    privateOwners.length.should.be.above(14);
+                    privateOwners.length.should.be.above(10);
                 })
                 .then(function() {
                     // (assets) get vehicles registry
                     return getAllFromRegistry('Asset', NS_D + '.Vehicle');
                 })
                 .then(function(vehicles) {
-                    vehicles.length.should.be.above(14);
+                    vehicles.length.should.be.above(10);
                 });
         });
     });

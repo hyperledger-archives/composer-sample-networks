@@ -42,7 +42,7 @@ function privateVehicleTransfer(privateVehicleTransfer) {
     vehicleTransferLogEntry.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicle.getIdentifier());
     vehicleTransferLogEntry.seller = factory.newRelationship(NS, 'PrivateOwner', seller.getIdentifier());
     vehicleTransferLogEntry.buyer = factory.newRelationship(NS, 'PrivateOwner', buyer.getIdentifier());
-
+    vehicleTransferLogEntry.timestamp = privateVehicleTransfer.timestamp;
     if (!vehicle.logEntries) {
         vehicle.logEntries = [];
     }

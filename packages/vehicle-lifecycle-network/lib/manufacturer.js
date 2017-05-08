@@ -26,7 +26,7 @@ function placeOrder(placeOrder) {
     var NS = 'org.acme.vehicle.lifecycle';
     var NS_D = 'org.vda';
 
-    var order = factory.newResource(NS_M, 'Order', placeOrder.transactionID);
+    var order = factory.newResource(NS_M, 'Order', placeOrder.orderId);
     order.vehicleDetails = placeOrder.vehicleDetails;
     order.orderStatus = 'PLACED';
     order.manufacturer = placeOrder.manufacturer;
@@ -76,6 +76,14 @@ function updateOrderStatus(updateOrderStatus) {
                         vehicle.numberPlate = updateOrderStatus.numberPlate || '';
                         vehicle.vehicleDetails.numberPlate = updateOrderStatus.numberPlate || '';
                         vehicle.v5c = updateOrderStatus.v5c || '';
+                        if (!vehicle.logEntries) {
+                            vehicle.logEntries = [];
+                        }
+                        var logEntry = factory.newConcept(NS_D, 'VehicleTransferLogEntry');
+                        logEntry.vehicle = factory.newRelationship(NS_D, 'Vehicle', updateOrderStatus.vin);
+                        logEntry.buyer = factory.newRelationship(NS, 'PrivateOwner', updateOrderStatus.order.orderer.email);
+                        logEntry.timestamp = updateOrderStatus.timestamp;
+                        vehicle.logEntries.push(logEntry);
                         return registry.update(vehicle);
                     });
             }
@@ -87,6 +95,13 @@ function updateOrderStatus(updateOrderStatus) {
   		.then(function(registry) {
       		// update order status
             updateOrderStatus.order.vehicleDetails.vin = updateOrderStatus.vin || '';
+            
+            if (!updateOrderStatus.order.statusUpdates) {
+                updateOrderStatus.order.statusUpdates = [];
+            }
+
+            updateOrderStatus.order.statusUpdates.push(updateOrderStatus);
+
       		return registry.update(updateOrderStatus.order);
     	});
 }
