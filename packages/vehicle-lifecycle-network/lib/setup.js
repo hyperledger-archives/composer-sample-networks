@@ -48,8 +48,8 @@ function setupDemo(setupDemo) {
                 {
                     'vin': '6437956437', 
                     'colour': 'black',
-                    'vehicleStatus': 'OFF_THE_ROAD', 
-                    'suspiciousMessage': 'Owner transfer suspicion'
+                    'vehicleStatus': 'ACTIVE', 
+                    'suspiciousMessage': 'Mileage anomaly'
                 },
                 {
                     'vin': '857642213', 
@@ -71,8 +71,8 @@ function setupDemo(setupDemo) {
                 {
                     'vin': '564215468', 
                     'colour': 'green',
-                    'vehicleStatus': 'OFF_THE_ROAD', 
-                    'suspiciousMessage': 'Owner transfer suspicion'
+                    'vehicleStatus': 'ACTIVE', 
+                    'suspiciousMessage': 'Insurance write-off but still active'
                 },
                 {
                     'vin': '784512464', 
@@ -92,13 +92,13 @@ function setupDemo(setupDemo) {
                     'vin': '312457645',
                     'colour': 'white',
                     'vehicleStatus': 'ACTIVE', 
-                    'suspiciousMessage': 'Owner transfer suspicion'
+                    'suspiciousMessage': 'Suspicious ownership sequence'
                 },
                 {
                     'vin': '65235647',
                     'colour': 'silver',
-                    'vehicleStatus': 'OFF_THE_ROAD', 
-                    'suspiciousMessage': 'Owner transfer suspicion'
+                    'vehicleStatus': 'ACTIVE', 
+                    'suspiciousMessage': 'Untaxed vehicle'
                 }
             ], 
             'Rancher': [
@@ -111,7 +111,7 @@ function setupDemo(setupDemo) {
                     'vin': '326548754',
                     'colour': 'white',
                     'vehicleStatus': 'ACTIVE', 
-                    'suspiciousMessage': 'Owner transfer suspicion'
+                    'suspiciousMessage': 'Uninsured vehicle'
                 }
             ]
         }
