@@ -49,7 +49,7 @@ function setupDemo(setupDemo) {
                     'vin': '6437956437', 
                     'colour': 'black',
                     'vehicleStatus': 'ACTIVE', 
-                    'suspiciousMessage': 'Mileage anomally'
+                    'suspiciousMessage': 'Mileage anomaly'
                 },
                 {
                     'vin': '857642213', 
