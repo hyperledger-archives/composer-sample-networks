@@ -1,6 +1,6 @@
 {
   "name": "vehicle-lifecycle-network",
-  "version": "0.0.9",
+  "version": "0.0.8",
   "description": "Vehicle Lifecycle Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/vehicle-lifecycle-network.bna",
