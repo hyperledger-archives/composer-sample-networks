@@ -1,6 +1,6 @@
 {
   "name": "marbles-network",
-  "version": "0.0.9",
+  "version": "0.0.8",
   "description": "Marble Trading Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/marbles-network.bna",
