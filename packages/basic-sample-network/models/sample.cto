@@ -20,3 +20,10 @@ transaction SampleTransaction identified by transactionId {
   --> SampleAsset asset
   o String newValue
 }
+
+event SampleEvent identified by eventId {
+  o String eventId
+  --> SampleAsset asset
+  o String oldValue
+  o String newValue
+}
