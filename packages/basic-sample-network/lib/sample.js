@@ -16,9 +16,17 @@
  * Sample transaction processor function.
  */
 function onSampleTransaction(sampleTransaction) {
+    var oldValue = sampleTransaction.asset.value;
     sampleTransaction.asset.value = sampleTransaction.newValue;
     return getAssetRegistry('org.acme.sample.SampleAsset')
-      .then(function (assetRegistry) {
-          return assetRegistry.update(sampleTransaction.asset);
-      });
+        .then(function (assetRegistry) {
+            return assetRegistry.update(sampleTransaction.asset);
+        })
+        .then(function () {
+            var event = getFactory().newEvent('org.acme.sample', 'SampleEvent');
+            event.asset = sampleTransaction.asset;
+            event.oldValue = oldValue;
+            event.newValue = sampleTransaction.newValue;
+            emit(event);
+        });
 }
