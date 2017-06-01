@@ -20,85 +20,592 @@ const BusinessNetworkConnection = require('composer-client').BusinessNetworkConn
 const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
 const path = require('path');
 
-require('chai').should();
+const chai = require('chai');
+chai.should();
+chai.use(require('chai-as-promised'));
 
 const bfs_fs = BrowserFS.BFSRequire('fs');
-const NS = 'org.acme.sample';
 
 describe('Sample', () => {
 
-  // let adminConnection;
+    // This is the business network connection the tests will use.
     let businessNetworkConnection;
 
-    before(() => {
+    // This is the factory for creating instances of types.
+    let factory;
+
+    // These are the identities for Alice and Bob.
+    let aliceIdentity;
+    let bobIdentity;
+
+    // These are a list of receieved events.
+    let events;
+
+    // This is called before each test is executed.
+    beforeEach(() => {
+
+        // Initialize an in-memory file system, so we do not write any files to the actual file system.
         BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
+
+        // Create a new admin connection.
         const adminConnection = new AdminConnection({ fs: bfs_fs });
-        return adminConnection.createProfile('defaultProfile', {
-            type : 'embedded'
-        })
-        .then(() => {
-            return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(() => {
-            return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-        })
-        .then((businessNetworkDefinition) => {
-            return adminConnection.deploy(businessNetworkDefinition);
-        })
-        .then(() => {
-            businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-            return businessNetworkConnection.connect('defaultProfile', 'basic-sample-network', 'admin', 'Xurw3yU9zI0l');
-        });
-    });
 
-    describe('#sampleTransaction', () => {
+        // Create a new connection profile that uses the embedded (in-memory) runtime.
+        return adminConnection.createProfile('defaultProfile', { type : 'embedded' })
+            .then(() => {
 
-        it('should be able to update asset value', () => {
-            const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+                // Establish an admin connection. The user ID must be admin. The user secret is
+                // ignored, but only when the tests are executed using the embedded (in-memory)
+                // runtime.
+                return adminConnection.connect('defaultProfile', 'admin', 'adminpw');
 
-            // create the sample participant
-            const dan = factory.newResource(NS, 'SampleParticipant', 'a.person@example.com');
-            dan.firstName = 'Dan';
-            dan.lastName = 'Selman';
+            })
+            .then(() => {
 
-             // create the sample asset
-            const sampleAsset = factory.newResource(NS, 'SampleAsset', 'ASSET_001');
-            sampleAsset.value = 'my asset';
-            sampleAsset.owner = factory.newRelationship(NS, 'SampleParticipant', dan.$identifier);
+                // Generate a business network definition from the project directory.
+                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
-            const sampleTransaction = factory.newTransaction(NS, 'SampleTransaction');
-            sampleTransaction.newValue = 'changed asset';
-            sampleTransaction.asset = factory.newRelationship(NS, 'SampleAsset', sampleAsset.$identifier);
+            })
+            .then((businessNetworkDefinition) => {
 
-            // Get the asset registry.
-            return businessNetworkConnection.getAssetRegistry(NS + '.SampleAsset')
-            .then((assetRegistry) => {
+                // Deploy and start the business network defined by the business network definition.
+                return adminConnection.deploy(businessNetworkDefinition);
 
-                // Add the Marble to the asset registry.
-                return assetRegistry.add(sampleAsset)
-                .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.SampleParticipant');
-                })
-                .then((participantRegistry) => {
-                    // add the participant
-                    return participantRegistry.add(dan);
-                })
-                .then(() => {
-                   // submit the transaction
-                    return businessNetworkConnection.submitTransaction(sampleTransaction);
-                })
-                .then(() => {
-                    return businessNetworkConnection.getAssetRegistry(NS + '.SampleAsset');
-                })
-                .then((assetRegistry) => {
-                    // get the listing
-                    return assetRegistry.get(sampleAsset.$identifier);
-                })
-                .then((newAsset) => {
-                     // the value should have change
-                    newAsset.value.should.equal('changed asset');
+            })
+            .then(() => {
+
+                // Create and establish a business network connection
+                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
+                events = [];
+                businessNetworkConnection.on('event', (event) => {
+                    events.push(event);
                 });
+                return businessNetworkConnection.connect('defaultProfile', 'basic-sample-network', 'admin', 'adminpw');
+
+            })
+            .then(() => {
+
+                // Get the factory for the business network.
+                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+
+                // Create the participants.
+                const alice = factory.newResource('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+                alice.firstName = 'Alice';
+                alice.lastName = 'A';
+                const bob = factory.newResource('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+                bob.firstName = 'Bob';
+                bob.lastName = 'B';
+                return businessNetworkConnection.getParticipantRegistry('org.acme.sample.SampleParticipant')
+                    .then((participantRegistry) => {
+                        participantRegistry.addAll([alice, bob]);
+                    });
+
+            })
+            .then(() => {
+
+                // Create the assets.
+                const asset1 = factory.newResource('org.acme.sample', 'SampleAsset', '1');
+                asset1.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+                asset1.value = '10';
+                const asset2 = factory.newResource('org.acme.sample', 'SampleAsset', '2');
+                asset2.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+                asset2.value = '20';
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        assetRegistry.addAll([asset1, asset2]);
+                    });
+            })
+            .then(() => {
+
+                // Issue the identities.
+                return businessNetworkConnection.issueIdentity('org.acme.sample.SampleParticipant#alice@email.com', 'alice1')
+                    .then((identity) => {
+                        aliceIdentity = identity;
+                        return businessNetworkConnection.issueIdentity('org.acme.sample.SampleParticipant#bob@email.com', 'bob1');
+                    })
+                    .then((identity) => {
+                        bobIdentity = identity;
+                    });
+
             });
-        });
+
     });
+
+    /**
+     * Reconnect using a different identity.
+     * @param {Object} identity The identity to use.
+     * @return {Promise} A promise that will be resolved when complete.
+     */
+    function useIdentity(identity) {
+        return businessNetworkConnection.disconnect()
+            .then(() => {
+                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
+                events = [];
+                businessNetworkConnection.on('event', (event) => {
+                    events.push(event);
+                });
+                return businessNetworkConnection.connect('defaultProfile', 'basic-sample-network', identity.userID, identity.userSecret);
+            });
+    }
+
+    it('Alice can read all of the assets', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Get the assets.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.getAll();
+
+                    });
+
+            })
+            .then((assets) => {
+
+                // Validate the assets.
+                assets.should.have.lengthOf(2);
+                const asset1 = assets[0];
+                asset1.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+                asset1.value.should.equal('10');
+                const asset2 = assets[1];
+                asset2.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+                asset2.value.should.equal('20');
+
+            });
+
+    });
+
+    it('Bob can read all of the assets', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Get the assets.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.getAll();
+
+                    });
+
+            })
+            .then((assets) => {
+
+                // Validate the assets.
+                assets.should.have.lengthOf(2);
+                const asset1 = assets[0];
+                asset1.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+                asset1.value.should.equal('10');
+                const asset2 = assets[1];
+                asset2.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+                asset2.value.should.equal('20');
+
+            });
+
+    });
+
+    it('Alice can add assets that she owns', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Create the asset.
+                const asset3 = factory.newResource('org.acme.sample', 'SampleAsset', '3');
+                asset3.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+                asset3.value = '30';
+
+                // Add the asset, then get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.add(asset3)
+                            .then(() => {
+                                return assetRegistry.get('3');
+                            });
+                    });
+
+            })
+            .then((asset3) => {
+
+                // Validate the asset.
+                asset3.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+                asset3.value.should.equal('30');
+
+            });
+
+    });
+
+    it('Alice cannot add assets that Bob owns', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Create the asset.
+                const asset3 = factory.newResource('org.acme.sample', 'SampleAsset', '3');
+                asset3.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+                asset3.value = '30';
+
+                // Add the asset, then get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.add(asset3);
+                    });
+
+            })
+            .should.be.rejectedWith(/does not have .* access to resource/);
+
+    });
+
+    it('Bob can add assets that he owns', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Create the asset.
+                const asset4 = factory.newResource('org.acme.sample', 'SampleAsset', '4');
+                asset4.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+                asset4.value = '40';
+
+                // Add the asset, then get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.add(asset4)
+                            .then(() => {
+                                return assetRegistry.get('4');
+                            });
+                    });
+
+            })
+            .then((asset4) => {
+
+                // Validate the asset.
+                asset4.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+                asset4.value.should.equal('40');
+
+            });
+
+    });
+
+    it('Bob cannot add assets that Alice owns', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Create the asset.
+                const asset4 = factory.newResource('org.acme.sample', 'SampleAsset', '4');
+                asset4.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+                asset4.value = '40';
+
+                // Add the asset, then get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.add(asset4);
+                    });
+
+            })
+            .should.be.rejectedWith(/does not have .* access to resource/);
+
+    });
+
+    it('Alice can update her assets', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Create the asset.
+                const asset1 = factory.newResource('org.acme.sample', 'SampleAsset', '1');
+                asset1.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+                asset1.value = '50';
+
+                // Update the asset, then get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.update(asset1)
+                            .then(() => {
+                                return assetRegistry.get('1');
+                            });
+                    });
+
+            })
+            .then((asset1) => {
+
+                // Validate the asset.
+                asset1.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+                asset1.value.should.equal('50');
+
+            });
+
+    });
+
+    it('Alice cannot update Bob\'s assets', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Create the asset.
+                const asset2 = factory.newResource('org.acme.sample', 'SampleAsset', '2');
+                asset2.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+                asset2.value = '50';
+
+                // Update the asset, then get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.update(asset2);
+                    });
+
+            })
+            .should.be.rejectedWith(/does not have .* access to resource/);
+
+    });
+
+    it('Bob can update his assets', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Create the asset.
+                const asset2 = factory.newResource('org.acme.sample', 'SampleAsset', '2');
+                asset2.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+                asset2.value = '60';
+
+                // Update the asset, then get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.update(asset2)
+                            .then(() => {
+                                return assetRegistry.get('2');
+                            });
+                    });
+
+            })
+            .then((asset2) => {
+
+                // Validate the asset.
+                asset2.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+                asset2.value.should.equal('60');
+
+            });
+
+    });
+
+    it('Bob cannot update Alice\'s assets', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Create the asset.
+                const asset1 = factory.newResource('org.acme.sample', 'SampleAsset', '1');
+                asset1.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+                asset1.value = '60';
+
+                // Update the asset, then get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.update(asset1);
+                    });
+
+            })
+            .should.be.rejectedWith(/does not have .* access to resource/);
+
+    });
+
+    it('Alice can remove her assets', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Remove the asset, then test the asset exists.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.remove('1')
+                            .then(() => {
+                                return assetRegistry.exists('1');
+                            });
+                    });
+
+            })
+            .should.eventually.be.false;
+
+    });
+
+    it('Alice cannot remove Bob\'s assets', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Remove the asset, then test the asset exists.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.remove('2');
+                    });
+
+            })
+            .should.be.rejectedWith(/does not have .* access to resource/);
+
+    });
+
+    it('Bob can remove his assets', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Remove the asset, then test the asset exists.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.remove('2')
+                            .then(() => {
+                                return assetRegistry.exists('2');
+                            });
+                    });
+
+            })
+            .should.eventually.be.false;
+
+    });
+
+    it('Bob cannot remove Alice\'s assets', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Remove the asset, then test the asset exists.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.remove('1');
+                    });
+
+            })
+            .should.be.rejectedWith(/does not have .* access to resource/);
+
+    });
+
+    it('Alice can submit a transaction for her assets', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Submit the transaction.
+                const transaction = factory.newTransaction('org.acme.sample', 'SampleTransaction');
+                transaction.asset = factory.newRelationship('org.acme.sample', 'SampleAsset', '1');
+                transaction.newValue = '50';
+                return businessNetworkConnection.submitTransaction(transaction);
+
+            })
+            .then(() => {
+
+                // Get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.get('1');
+                    });
+
+            })
+            .then((asset1) => {
+
+                // Validate the asset.
+                asset1.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+                asset1.value.should.equal('50');
+
+                // Validate the events.
+                events.should.have.lengthOf(1);
+                const event = events[0];
+                event.eventId.should.be.a('string');
+                event.timestamp.should.be.an.instanceOf(Date);
+                event.asset.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleAsset#1');
+                event.oldValue.should.equal('10');
+                event.newValue.should.equal('50');
+
+            });
+
+    });
+
+    it('Alice cannot submit a transaction for Bob\'s assets', () => {
+
+        // Use the identity for Alice.
+        return useIdentity(aliceIdentity)
+            .then(() => {
+
+                // Submit the transaction.
+                const transaction = factory.newTransaction('org.acme.sample', 'SampleTransaction');
+                transaction.asset = factory.newRelationship('org.acme.sample', 'SampleAsset', '2');
+                transaction.newValue = '50';
+                return businessNetworkConnection.submitTransaction(transaction);
+
+            })
+            .should.be.rejectedWith(/does not have .* access to resource/);
+
+    });
+
+    it('Bob can submit a transaction for his assets', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Submit the transaction.
+                const transaction = factory.newTransaction('org.acme.sample', 'SampleTransaction');
+                transaction.asset = factory.newRelationship('org.acme.sample', 'SampleAsset', '2');
+                transaction.newValue = '60';
+                return businessNetworkConnection.submitTransaction(transaction);
+
+            })
+            .then(() => {
+
+                // Get the asset.
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
+                    .then((assetRegistry) => {
+                        return assetRegistry.get('2');
+                    });
+
+            })
+            .then((asset2) => {
+
+                // Validate the asset.
+                asset2.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+                asset2.value.should.equal('60');
+
+                // Validate the events.
+                events.should.have.lengthOf(1);
+                const event = events[0];
+                event.eventId.should.be.a('string');
+                event.timestamp.should.be.an.instanceOf(Date);
+                event.asset.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleAsset#2');
+                event.oldValue.should.equal('20');
+                event.newValue.should.equal('60');
+
+            });
+
+    });
+
+    it('Bob cannot submit a transaction for Alice\'s assets', () => {
+
+        // Use the identity for Bob.
+        return useIdentity(bobIdentity)
+            .then(() => {
+
+                // Submit the transaction.
+                const transaction = factory.newTransaction('org.acme.sample', 'SampleTransaction');
+                transaction.asset = factory.newRelationship('org.acme.sample', 'SampleAsset', '1');
+                transaction.newValue = '60';
+                return businessNetworkConnection.submitTransaction(transaction);
+
+            })
+            .should.be.rejectedWith(/does not have .* access to resource/);
+
+    });
+
 });
