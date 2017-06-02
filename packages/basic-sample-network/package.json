@@ -10,7 +10,7 @@
     "licchk": "license-check",
     "postlicchk": "npm run doc",
     "doc": "jsdoc --pedantic --recurse -c jsdoc.conf",
-    "test": "mocha --recursive && cucumber-js"
+    "test": "mocha -t 0 --recursive && cucumber-js"
   },
   "repository": {
     "type": "git",
