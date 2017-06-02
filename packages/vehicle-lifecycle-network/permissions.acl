@@ -5,6 +5,10 @@ rule Default {
     description: "Allow all participants access to all resources"
     participant: "ANY"
     operation: ALL
+<<<<<<< HEAD
+    resource: "org.acme.sample"
+=======
     resource: "org.acme.vehicle.lifecycle"
+>>>>>>> 8ca25d67b6c8bf7ecadd92083c7475be263f9e04
     action: ALLOW
 }
