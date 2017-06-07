@@ -1,6 +1,6 @@
 {
   "name": "basic-sample-network",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "The Hello World of Hyperledger Composer samples",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/basic-sample-network.bna",
