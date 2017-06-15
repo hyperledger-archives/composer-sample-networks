@@ -36,7 +36,13 @@ function placeOrder(placeOrder) {
     return getAssetRegistry(order.getFullyQualifiedType())
         .then(function (registry) {
             return registry.add(order);
-        });
+        })
+        .then(function(){
+    		var placeOrderEvent = factory.newEvent(NS_M, 'PlaceOrderEvent');
+      		placeOrderEvent.orderId = order.orderId;
+      		placeOrderEvent.vehicleDetails = order.vehicleDetails;
+    		emit(placeOrderEvent);
+    	});
 }
 
 /**
@@ -103,5 +109,12 @@ function updateOrderStatus(updateOrderStatus) {
             updateOrderStatus.order.statusUpdates.push(updateOrderStatus);
 
       		return registry.update(updateOrderStatus.order);
+    	})
+        .then(function(){
+    		var updateOrderStatusEvent = factory.newEvent(NS_M, 'UpdateOrderStatusEvent');
+      		updateOrderStatusEvent.orderStatus = updateOrderStatus.order.orderStatus;
+      		updateOrderStatusEvent.order = updateOrderStatus.order;
+    		emit(updateOrderStatusEvent);
     	});
+        
 }
