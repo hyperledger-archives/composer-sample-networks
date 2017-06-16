@@ -42,23 +42,23 @@ describe('Vehicle Lifecycle Network', function() {
         return adminConnection.createProfile('defaultProfile', {
             type: 'embedded'
         })
-        .then(function() {
-            return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(function() {
-            return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-        })
-        .then(function(businessNetworkDefinition) {
-            return adminConnection.deploy(businessNetworkDefinition);
-        })
-        .then(function() {
-            businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-            return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(function() {
-            factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-            return Util.setup(businessNetworkConnection);
-        });
+            .then(function() {
+                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
+            })
+            .then(function() {
+                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
+            })
+            .then(function(businessNetworkDefinition) {
+                return adminConnection.deploy(businessNetworkDefinition);
+            })
+            .then(function() {
+                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
+                return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
+            })
+            .then(function() {
+                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+                return Util.setup(businessNetworkConnection);
+            });
     });
 
     describe('#privateVehicleTransfer', function() {
