@@ -30,7 +30,7 @@ describe('CarAuction', () => {
     // let adminConnection;
     let businessNetworkConnection;
 
-    before(() => {
+    beforeEach(() => {
         BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
         const adminConnection = new AdminConnection({ fs: bfs_fs });
         return adminConnection.createProfile('defaultProfile', {
@@ -209,6 +209,63 @@ describe('CarAuction', () => {
                             newVehicle.owner.getIdentifier().should.equal(buyer.$identifier);
                         });
                 });
+        });
+
+        describe('#closeBidding', function() {
+            it('with no bids should result in RESERVE_NOT_MET', function() {
+                const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+
+                const seller = factory.newResource(NS, 'Member', 'daniel.selman@example.com');
+                seller.firstName = 'Dan';
+                seller.lastName = 'Selman';
+                seller.balance = 0;
+
+                // create the vehicle
+                const vehicle = factory.newResource(NS, 'Vehicle', 'CAR_001');
+                vehicle.owner = factory.newRelationship(NS, 'Member', seller.$identifier);
+
+                // create the vehicle listing
+                const listing = factory.newResource(NS, 'VehicleListing', 'LISTING_001');
+                listing.reservePrice = 100;
+                listing.description = 'My nice car';
+                listing.state = 'FOR_SALE';
+                listing.vehicle = factory.newRelationship(NS, 'Vehicle', vehicle.$identifier);
+
+                // Get the asset registry.
+                return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle')
+                    .then((vehicleRegistry) => {
+                        // Add the Vehicle to the asset registry.
+                        return vehicleRegistry.add(vehicle);
+                    })
+                    .then(() => {
+                        return businessNetworkConnection.getParticipantRegistry(NS + '.Member');
+                    })
+                    .then((userRegistry) => {
+                        return userRegistry.add(seller);
+                    })
+                    .then(() => {
+                        return businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
+                    })
+                    .then((vehicleListingRegistry) => {
+                        // add the vehicle listing
+                        return vehicleListingRegistry.add(listing);
+                    })
+                    .then(() => {
+                        // close the bidding
+                        const closeBidding = factory.newTransaction(NS, 'CloseBidding');
+                        closeBidding.listing = factory.newRelationship(NS, 'VehicleListing', listing.$identifier);
+                        return businessNetworkConnection.submitTransaction(closeBidding);
+                    })
+                    .then(() => {
+                        return businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
+                    })
+                    .then((vehicleListingRegistry) => {
+                        return vehicleListingRegistry.get(listing.$identifier);
+                    })
+                    .then((vehicleListing) => {
+                        vehicleListing.state.should.equal('RESERVE_NOT_MET');
+                    });
+            });
         });
     });
 });

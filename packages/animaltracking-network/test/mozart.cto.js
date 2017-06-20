@@ -20,7 +20,6 @@ let BusinessNetworkConnection = require('composer-client').BusinessNetworkConnec
 let BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
 let path = require('path');
 
-let should = require('chai').should();
 let Util = require('./util');
 
 
@@ -28,6 +27,8 @@ let bfs_fs = BrowserFS.BFSRequire('fs');
 let NS = 'com.biz';
 
 let factory;
+
+require('chai').should();
 
 describe('Animal Tracking Network', function() {
 
@@ -54,15 +55,14 @@ describe('Animal Tracking Network', function() {
             })
             .then(function() {
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+                return Util.setupDemo(businessNetworkConnection);
             });
     });
 
     describe('#setupDemo', () => {
         it('should create the correct number of resources in the network', () => {
-            return Util.setupDemo(businessNetworkConnection)
-                .then(() => {
-                    return businessNetworkConnection.getAssetRegistry(NS + '.Animal');
-                })
+            // Transaction is run in before
+            return businessNetworkConnection.getAssetRegistry(NS + '.Animal')
                 .then((ar) => {
                     return ar.getAll();
                 })
