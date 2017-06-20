@@ -28,7 +28,7 @@ function closeBidding(closeBidding) {
     var highestOffer = null;
     var buyer = null;
     var seller = null;
-    if (listing.offers) {
+    if (listing.offers && listing.offers.length > 0) {
         // sort the bids by bidPrice
         listing.offers.sort(function(a, b) {
             return (b.bidPrice - a.bidPrice);
