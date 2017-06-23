@@ -1,6 +1,6 @@
 {
   "name": "marbles-network",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Marble Trading Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/marbles-network.bna",
@@ -27,10 +27,10 @@
   "devDependencies": {
     "browserfs": "^1.2.0",
     "chai": "^3.5.0",
-    "composer-admin": "latest",
-    "composer-cli": "latest",
-    "composer-client": "latest",
-    "composer-connector-embedded": "latest",
+    "composer-admin": "^0.9.0",
+    "composer-cli": "^0.9.0",
+    "composer-client": "^0.9.0",
+    "composer-connector-embedded": "^0.9.0",
     "eslint": "^3.6.1",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.4.1",
