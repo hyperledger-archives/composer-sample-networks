@@ -28,7 +28,7 @@
   "devDependencies": {
     "browserfs": "^1.2.0",
     "chai": "^3.5.0",
-    "composer-cli": "latest",
+    "composer-cli": "unstable",
     "eslint": "^3.6.1",
     "jsdoc": "^3.4.1",
     "license-check": "^1.1.5",
