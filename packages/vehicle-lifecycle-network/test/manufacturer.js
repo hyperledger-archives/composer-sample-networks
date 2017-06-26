@@ -108,7 +108,7 @@ describe('Vehicle Lifecycle Network', function() {
                     return businessNetworkConnection.submitTransaction(updateOrderStatus);
                 })
                 .then(function() {
-                    return getAssetRegistry(NS_D + '.Vehicle');
+                    return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
                 })
                 .then(function(vehicleRegistry) {
                     return vehicleRegistry.get('VIN_NUMBER');
