@@ -36,14 +36,13 @@ participant Member extends User {
 participant Auctioneer extends User {
 }
 
-transaction Offer identified by transactionId {
-  o String transactionId
+transaction Offer {
   o Double bidPrice
   --> VehicleListing listing
   --> Member member
 }
 
-transaction CloseBidding identified by transactionId {
+transaction CloseBidding {
   o String transactionId
   --> VehicleListing listing
 }
