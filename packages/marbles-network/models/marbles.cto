@@ -30,8 +30,7 @@ participant Player identified by email {
   o String lastName
 }
 
-transaction TradeMarble identified by transactionId {
-  o String transactionId
+transaction TradeMarble {
   --> Marble marble
   --> Player newOwner
 }
