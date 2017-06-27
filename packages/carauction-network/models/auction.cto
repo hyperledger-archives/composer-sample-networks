@@ -43,6 +43,5 @@ transaction Offer {
 }
 
 transaction CloseBidding {
-  o String transactionId
   --> VehicleListing listing
 }
