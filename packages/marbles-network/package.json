@@ -3,7 +3,7 @@
     "composer": "^0.9.0"
   },
   "name": "marbles-network",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Marble Trading Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/marbles-network.bna",
