@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "animaltracking-network",
   "version": "0.0.10",
   "description": "Animal Tracking network based on UK DEFRA regulations",
@@ -24,7 +27,9 @@
     "farmer",
     "compliance",
     "animal",
-    "movement"
+    "movement",
+    "composer",
+    "composer-network"
   ],
   "devDependencies": {
     "browserfs": "^1.2.0",

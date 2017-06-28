@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "perishable-network",
   "version": "0.0.10",
   "description": "Shipping Perishable Goods Business Network",
@@ -21,7 +24,8 @@
     "shipping",
     "goods",
     "perishable",
-    "hyperledger-composer"
+    "composer",
+    "composer-network"
   ],
   "author": "Hyperledger Composer",
   "license": "Apache-2.0",

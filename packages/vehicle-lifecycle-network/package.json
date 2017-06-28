@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "vehicle-lifecycle-network",
   "version": "0.0.10",
   "description": "Vehicle Lifecycle Network",
@@ -20,6 +23,7 @@
   "keywords": [
     "vehicle",
     "lifecycle",
+    "composer",
     "composer-network"
   ],
   "author": "Hyperledger Composer",
