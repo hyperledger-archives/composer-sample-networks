@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "basic-sample-network",
   "version": "0.0.10",
   "description": "The Hello World of Hyperledger Composer samples",
@@ -20,7 +23,8 @@
   },
   "keywords": [
     "sample",
-    "network"
+    "composer",
+    "composer-network"
   ],
   "author": "Hyperledger Composer",
   "license": "Apache-2.0",
