@@ -8,7 +8,7 @@
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/animaltracking-network.bna",
     "pretest": "npm run lint",
-    "test": "mocha --recursive",
+    "test": "mocha -t 0 --recursive",
     "lint": "eslint .",
     "postlint": "npm run licchk",
     "licchk": "license-check",
