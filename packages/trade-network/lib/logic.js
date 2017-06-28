@@ -46,6 +46,8 @@ function removeHighQuantityCommodities(remove) {
             return query('selectCommoditiesWithHighQuantity')
                     .then(function (results) {
 
+                        var promises = [];
+
                         for (var n = 0; n < results.length; n++) {
                             var trade = results[n];
 
@@ -55,8 +57,11 @@ function removeHighQuantityCommodities(remove) {
                             emit(removeNotification);
 
                             // remove the commodity
-                            return assetRegistry.remove(trade);
+                            promises.push(assetRegistry.remove(trade));
                         }
+
+                        // we have to return all the promises
+                        return Promise.all(promises);
                     });
         });
 }

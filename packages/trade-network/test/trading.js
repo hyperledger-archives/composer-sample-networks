@@ -89,7 +89,7 @@ describe('Commodity Trading', () => {
 
             // register for events from the business network
             businessNetworkConnection.on('event', (event) => {
-                console.log( businessNetworkConnection.getBusinessNetwork().getSerializer().toJSON(event));
+                console.log( 'Received event: ' + event.getFullyQualifiedIdentifier() + ' for commodity ' + event.commodity.getIdentifier() );
             });
 
             // Get the asset registry.
@@ -131,7 +131,6 @@ describe('Commodity Trading', () => {
                         })
                         .then(() => {
                             // use another query
-                            console.log('id: ' + simon.getFullyQualifiedIdentifier() );
                             return businessNetworkConnection.query('selectCommoditiesByOwner', {owner : 'resource:' + simon.getFullyQualifiedIdentifier()});
                         })
                         .then((results) => {

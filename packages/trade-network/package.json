@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "trade-network",
   "version": "0.0.8",
   "description": "Commodities Trading Business Network",
@@ -19,7 +22,9 @@
   },
   "keywords": [
     "commodities",
-    "trading"
+    "trading",
+    "composer",
+    "composer-network"
   ],
   "author": "Hyperledger Composer",
   "license": "Apache-2.0",
