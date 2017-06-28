@@ -76,3 +76,50 @@ function scrapVehicle(scrapVehicle) {
             return assetRegistry.update(vehicle);
         });
 }
+
+/**
+ * Scrap a vehicle
+ * @param {org.vda.ScrapAllVehiclesByColour} scrapAllVehicles - the ScrapAllVehicles transaction
+ * @transaction
+ */
+function scrapAllVehiclesByColour(scrapAllVehicles) {
+    console.log('scrapVehicle');
+
+    var NS_D = 'org.vda';
+    var assetRegistry;
+
+    // create the query
+    var q = {
+        selector: {
+            'vehicleDetails.colour': scrapAllVehicles.colour
+        }
+    };
+
+    return getAssetRegistry(NS_D + '.Vehicle')
+        .then(function (ar){
+            assetRegistry = ar;
+            return queryNative(JSON.stringify(q));
+        })
+        .then(function (resultArray) {
+            console.log('TP function received query result: ', JSON.stringify(resultArray));
+            if (resultArray.length < 1 ) {
+                throw new Error('No vehicles found with ' + scrapAllVehicles.colour, resultArray.length);
+            }
+
+            var factory = getFactory();
+            var promises =[];
+            var serializer = getSerializer();
+            for (var x = 0; x < resultArray.length; x++) {
+                var currentResult = resultArray[x];
+                var vehicle = serializer.fromJSON(currentResult.Record);
+
+                vehicle.vehicleStatus = 'SCRAPPED';
+                var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
+                scrapVehicleEvent.vehicle = vehicle;
+                emit(scrapVehicleEvent);
+                promises.push(assetRegistry.update(vehicle));
+
+            }
+            return Promise.all(promises);
+        });
+}

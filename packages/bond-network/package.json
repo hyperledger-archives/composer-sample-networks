@@ -1,6 +1,9 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "bond-network",
-  "version": "0.0.8",
+  "version": "0.0.11",
   "description": "Bond Reference Data Sharing Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/bond-network.bna",
@@ -10,7 +13,7 @@
     "licchk": "license-check",
     "postlicchk": "npm run doc",
     "doc": "jsdoc --pedantic --recurse -c jsdoc.conf",
-    "test": "mocha --recursive",
+    "test": "mocha -t 0 --recursive",
     "deploy": "./scripts/deploy.sh"
   },
   "repository": {
@@ -20,7 +23,9 @@
   "keywords": [
     "bonds",
     "reference data",
-    "finance"
+    "finance",
+    "composer",
+    "composer-network"
   ],
   "author": "Hyperledger Composer",
   "license": "Apache-2.0",

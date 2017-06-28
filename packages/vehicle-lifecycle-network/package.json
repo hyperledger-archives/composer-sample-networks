@@ -1,15 +1,19 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "vehicle-lifecycle-network",
-  "version": "0.0.8",
+  "version": "0.0.11",
   "description": "Vehicle Lifecycle Network",
   "scripts": {
+    "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/vehicle-lifecycle-network.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "postlint": "npm run licchk",
     "licchk": "license-check",
     "postlicchk": "npm run doc",
     "doc": "jsdoc --pedantic --recurse -c jsdoc.conf",
-    "test": "mocha -t 100000 --recursive",
+    "test": "mocha -t 0 --recursive",
     "deploy": "./scripts/deploy.sh"
   },
   "repository": {
@@ -19,6 +23,7 @@
   "keywords": [
     "vehicle",
     "lifecycle",
+    "composer",
     "composer-network"
   ],
   "author": "Hyperledger Composer",
@@ -29,9 +34,10 @@
   "devDependencies": {
     "browserfs": "^1.2.0",
     "chai": "^3.5.0",
-    "composer-admin": "^0.7.0",
-    "composer-client": "^0.7.0",
-    "composer-connector-embedded": "^0.7.0",
+    "composer-admin": "latest",
+    "composer-cli": "latest",
+    "composer-client": "latest",
+    "composer-connector-embedded": "latest",
     "eslint": "^3.6.1",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.4.1",

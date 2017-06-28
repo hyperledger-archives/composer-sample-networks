@@ -1,6 +1,9 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "digitalproperty-network",
-  "version": "0.0.8",
+  "version": "0.0.11",
   "description": "Digital Property Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/digitalproperty-network.bna",
@@ -10,7 +13,7 @@
     "licchk": "license-check",
     "postlicchk": "npm run doc",
     "doc": "jsdoc --pedantic --recurse -c jsdoc.conf",
-    "test": "mocha --recursive",
+    "test": "mocha -t 0 --recursive",
     "deploy": "./scripts/deploy.sh"
   },
   "repository": {
@@ -18,7 +21,9 @@
     "url": "https://github.com/hyperledger/composer-sample-networks.git"
   },
   "keywords": [
-    "land"
+    "land",
+    "composer",
+    "composer-network"
   ],
   "author": "Hyperledger Composer",
   "license": "Apache-2.0",
