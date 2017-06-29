@@ -1,10 +1,14 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "animaltracking-network",
   "version": "0.1.0",
   "description": "Animal Tracking network based on UK DEFRA regulations",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/animaltracking-network.bna",
     "pretest": "npm run lint",
+    "test": "mocha -t 0 --recursive",
     "lint": "eslint .",
     "postlint": "npm run licchk",
     "licchk": "license-check",
@@ -23,7 +27,9 @@
     "farmer",
     "compliance",
     "animal",
-    "movement"
+    "movement",
+    "composer",
+    "composer-network"
   ],
   "devDependencies": {
     "browserfs": "^1.2.0",

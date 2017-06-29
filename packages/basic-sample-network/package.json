@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "composer": "^0.9.0"
+  },
   "name": "basic-sample-network",
   "version": "0.1.0",
   "description": "The Hello World of Hyperledger Composer samples",
@@ -10,7 +13,7 @@
     "licchk": "license-check",
     "postlicchk": "npm run doc",
     "doc": "jsdoc --pedantic --recurse -c jsdoc.conf",
-    "test-inner": "mocha --recursive && cucumber-js",
+    "test-inner": "mocha -t 0 --recursive && cucumber-js",
     "test-cover": "nyc npm run test-inner",
     "test": "npm run test-inner"
   },
@@ -20,7 +23,8 @@
   },
   "keywords": [
     "sample",
-    "network"
+    "composer",
+    "composer-network"
   ],
   "author": "Hyperledger Composer",
   "license": "Apache-2.0",

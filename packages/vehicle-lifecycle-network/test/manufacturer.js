@@ -41,23 +41,23 @@ describe('Vehicle Lifecycle Network', function() {
         return adminConnection.createProfile('defaultProfile', {
             type: 'embedded'
         })
-        .then(function() {
-            return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(function() {
-            return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-        })
-        .then(function(businessNetworkDefinition) {
-            return adminConnection.deploy(businessNetworkDefinition);
-        })
-        .then(function() {
-            businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-            return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(function() {
-            factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-            return Util.setup(businessNetworkConnection);
-        });
+            .then(function() {
+                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
+            })
+            .then(function() {
+                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
+            })
+            .then(function(businessNetworkDefinition) {
+                return adminConnection.deploy(businessNetworkDefinition);
+            })
+            .then(function() {
+                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
+                return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
+            })
+            .then(function() {
+                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+                return Util.setup(businessNetworkConnection);
+            });
     });
 
     describe('#placeOrder', function() {
@@ -128,30 +128,30 @@ describe('Vehicle Lifecycle Network', function() {
             updateOrderStatus.v5c = 'V5C';
 
             return businessNetworkConnection.getAssetRegistry(NS_M + '.Order')
-            .then(function(orderRegistry) {
-                return orderRegistry.getAll();
-            })
-            .then(function(orders) {
-                return orders[0]; // Get the order added in the previous test
-            })
-            .then(function(order) {
-                updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
-            })
-            .then(function() {
-                return businessNetworkConnection.submitTransaction(updateOrderStatus);
-            })
-            .then(function() {
-                return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
-            })
-            .then(function(vehicleRegistry) {
-                return vehicleRegistry.get('VIN_NUMBER');
-            })
-            .then(function(vehicle) {
-                should.exist(vehicle);
-                vehicle.vehicleStatus.should.equal('ACTIVE');
-                vehicle.vehicleDetails.vin.should.equal(updateOrderStatus.vin);
-                vehicle.owner.getIdentifier().should.equal('dan');
-            });
+                .then(function(orderRegistry) {
+                    return orderRegistry.getAll();
+                })
+                .then(function(orders) {
+                    return orders[0]; // Get the order added in the previous test
+                })
+                .then(function(order) {
+                    updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
+                })
+                .then(function() {
+                    return businessNetworkConnection.submitTransaction(updateOrderStatus);
+                })
+                .then(function() {
+                    return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
+                })
+                .then(function(vehicleRegistry) {
+                    return vehicleRegistry.get('VIN_NUMBER');
+                })
+                .then(function(vehicle) {
+                    should.exist(vehicle);
+                    vehicle.vehicleStatus.should.equal('ACTIVE');
+                    vehicle.vehicleDetails.vin.should.equal(updateOrderStatus.vin);
+                    vehicle.owner.getIdentifier().should.equal('dan');
+                });
         });
     });
 });
