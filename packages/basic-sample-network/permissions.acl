@@ -5,7 +5,7 @@ rule EverybodyCanReadEverything {
     description: "Allow all participants read access to all resources"
     participant: "org.acme.sample.SampleParticipant"
     operation: READ
-    resource: "org.acme.sample"
+    resource: "org.acme.sample.*"
     action: ALLOW
 }
 
