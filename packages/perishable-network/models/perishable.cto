@@ -1,6 +1,6 @@
 /**
   * A business network for shipping perishable goods
-  * The cargo is temperature controlled and contracts 
+  * The cargo is temperature controlled and contracts
   * can be negociated based on the temperature
   * readings received for the cargo
   */
@@ -30,8 +30,7 @@ enum ShipmentStatus {
 /**
  * An abstract transaction that is related to a Shipment
  */
-abstract transaction ShipmentTransaction identified by transactionId {
-    o String transactionId
+abstract transaction ShipmentTransaction {
     --> Shipment shipment
 }
 
@@ -65,7 +64,7 @@ asset Shipment identified by shipmentId {
 
 /**
  * Defines a contract between a Grower and an Importer to ship using
- * a Shipper, paying a set unit price. The unit price is multiplied by 
+ * a Shipper, paying a set unit price. The unit price is multiplied by
  * a penality factor proportional to the deviation from the min and max
  * negociated temperatures for the shipment.
  */
@@ -122,6 +121,5 @@ participant Importer extends Business {
 /**
  * JUST FOR INITIALIZING A DEMO
  */
-transaction SetupDemo identified by transactionId {
-  o String transactionId
+transaction SetupDemo {
 }
