@@ -29,7 +29,7 @@
   "author": "Hyperledger Composer",
   "license": "Apache-2.0",
   "dependencies": {
-    "vehicle-lifecycle-model": "^0.1.0"
+    "vehicle-lifecycle-model": "^0.1.0-0"
   },
   "devDependencies": {
     "browserfs": "^1.2.0",

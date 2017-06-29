@@ -55,6 +55,6 @@
     "logError": true
   },
   "dependencies": {
-    "animaltracking-model": "^0.1.0"
+    "animaltracking-model": "^0.1.0-0"
   }
 }
