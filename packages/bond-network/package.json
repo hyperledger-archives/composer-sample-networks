@@ -3,7 +3,7 @@
     "composer": "^0.9.0"
   },
   "name": "bond-network",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Bond Reference Data Sharing Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/bond-network.bna",

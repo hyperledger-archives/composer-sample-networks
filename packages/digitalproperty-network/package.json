@@ -3,7 +3,7 @@
     "composer": "^0.9.0"
   },
   "name": "digitalproperty-network",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Digital Property Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/digitalproperty-network.bna",

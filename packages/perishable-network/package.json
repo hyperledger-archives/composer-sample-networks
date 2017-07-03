@@ -3,7 +3,7 @@
     "composer": "^0.9.0"
   },
   "name": "perishable-network",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shipping Perishable Goods Business Network",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/perishable-network.bna",
