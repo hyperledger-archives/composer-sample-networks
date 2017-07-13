@@ -1,14 +1,14 @@
-# Car Auction Business Network
+# Car Auction Network
 
 > This is an interactive, distributed, car auction demo. List assets for sale (setting a reserve price), and watch as assets that have met their reserve price are automatically transferred to the highest bidder at the end of the auction.
 
 In the **Define** tab for this network there is defined:
 
-**Assets:**
-`Vehicle` `VehicleListing`
-
 **Participants:**
 `Member` `Auctioneer`
+
+**Assets:**
+`Vehicle` `VehicleListing`
 
 **Transactions:**
 `Offer` `CloseBidding`

@@ -1,34 +1,57 @@
-# Hyperledger Composer Perishable Goods Demo
+# Perishable Goods Network
 
-Example business network that shows growers, shippers and importers defining contracts for the price
-of perishable goods, based on temperature readings received for shipping containers.
+> Example business network that shows growers, shippers and importers defining contracts for the price of perishable goods, based on temperature readings received for shipping containers.
 
-The business network defines a parameterizable contract between growers and importers. The contract stipulates
-that:
+_The business network defines a parameterizable contract between growers and importers. The contract stipulates that: On receipts of the shipment the importer pays the grower the unit price x the number of units in the shipment. Shipments that arrive late are free. Shipments that have breached the low temperate threshold have a penalty applied proportional to the magnitude of the breach x a penalty factory. Shipments that have breached the high temperate threshold have a penalty applied proportional to the magnitude of the breach x a penalty factory._
 
-1. On receipts of the shipment the importer pays the grower the unit price x the number of units in the shipment
-2. Shipments that arrive late are free
-3. Shipments that have breached the low temperate threshold have a penalty applied proportional to the magnitude of the breach x a penalty factory
-4. Shipments that have breached the high temperate threshold have a penalty applied proportional to the magnitude of the breach x a penalty factory
+In the **Define** tab this in Business Network defines:
 
-### Running Locally (Unit Test)
+**Participants**
+`Grower` `Importer` `Shipper`
 
-`git clone` the repository for the sample, `cd` into its directory and then run `npm install` followed by `npm test`. The unit test will run and should pass.
+**Assets**
+`Contract` `Shipment`
 
-### Demo inside Hyperledger Composer
+**Transactions**
+`TemperatureReading` `ShipmentReceived` `SetupDemo`
 
-Import the sample into Hyperledger Composer using the `Import/Replace` button.
+Summarise how the elements of the Business Network interact!
 
-Submit a `SetupDemo` transaction
- 
-You will see the 3 participants have been created (a grower, an importer and a shipper) along with 2 assets (a shipment `SHIP_001` and a contract `CON_001`).
+To test this Business Network Definition in the **Test** tab:
 
-Inspect the details of `SHIP_001` and `CON_001`.
+Submit a `SetupDemo` transaction:
 
-Submit a `TemperatureReading` for the shipment `SHIP_001`. If the temperature reading falls outside the min/max range of the contract then the price received by the grower will be reduced. You may submit several readings if you wish. Each reading will be aggregated within `SHIP_001`.
+```
+{
+  "$class": "org.acme.shipping.perishable.SetupDemo"
+}
+```
 
-Submit a `ShipmentReceived` transaction for the shipment `SHIP_001` to trigger the payout to the grower, based on the parameters of the `CON_001` contract. If the date-time of the `ShipmentReceived` transaction is after the `arrivalDateTime` on `CON_001` then the grower will no receive any payment for the shipment.
+This transaction populates the Participant Registries with a `Grower`, an `Importer` and a `Shipper`. The Asset Registries will have a `Contract` asset and a `Shipment` asset.
 
+Submit a `TemperatureReading` transaction:
 
+```
+{
+  "$class": "org.acme.shipping.perishable.TemperatureReading",
+  "centigrade": 18,
+  "shipment": "resource:org.acme.shipping.perishable.Shipment#SHIP_001"
+}
+```
 
+If the temperature reading falls outside the min/max range of the contract, the price received by the grower will be reduced. You may submit several readings if you wish. Each reading will be aggregated within `SHIP_001` Shipment Asset Registry.
 
+Submit a `ShipmentReceived` transaction for `SHIP_001` to trigger the payout to the grower, based on the parameters of the `CON_001` contract:
+
+```
+{
+  "$class": "org.acme.shipping.perishable.ShipmentReceived",
+  "shipment": "resource:org.acme.shipping.perishable.Shipment#SHIP_001"
+}
+```
+
+If the date-time of the `ShipmentReceived` transaction is after the `arrivalDateTime` on `CON_001` then the grower will no receive any payment for the shipment.
+
+Summarise the the result of the test tab!
+
+Congratulations!
