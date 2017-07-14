@@ -2,7 +2,7 @@
 
 > This Defines a business network where house sellers can list their properties for sale.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participant**
 `Person`

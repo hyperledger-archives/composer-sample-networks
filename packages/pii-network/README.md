@@ -2,15 +2,13 @@
 
 > A business network where members can grant/revoke access to their personal information to other members.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participant**
 `Member`
 
 **Transaction**
 `AuthorizeAccess` `RevokeAccess`
-
-Summarise how the elements of the Business Network interact!
 
 To test this Business Network Definition in the **Test** tab:
 

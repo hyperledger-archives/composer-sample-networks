@@ -2,7 +2,7 @@
 
 > This is an interactive and distributed, marble trading demo. List marbles for sale and exchange marbles between participants.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participant**
 `Player`

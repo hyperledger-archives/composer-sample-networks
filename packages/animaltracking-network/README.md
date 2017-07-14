@@ -2,7 +2,7 @@
 
 > This is an Animal Tracking Business Network based on UK DEFRA government regulations (https://www.gov.uk/animal-movement-england). Farmers can move animals between farms/fields and the UK government farming regulator has visibility into the locations of all animals and all animal movements between farms.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participants**
 `Farmer` `Regulator`

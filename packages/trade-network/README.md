@@ -2,7 +2,7 @@
 
 > This Business Network illustrates commodity trading.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participant**
 `Trader`
@@ -15,8 +15,6 @@ In the **Define** tab this in Business Network defines:
 
 **Event**
 `TradeNotification `
-
-Summarise how the elements of the Business Network interact!
 
 To test this Business Network Definition in the **Test** tab:
 

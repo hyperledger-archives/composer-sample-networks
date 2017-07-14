@@ -2,9 +2,9 @@
 
 > Example business network that shows growers, shippers and importers defining contracts for the price of perishable goods, based on temperature readings received for shipping containers.
 
-The business network defines a contract between growers and importers. The contract stipulates that: On receipts of the shipment the importer pays the grower the unit price x the number of units in the shipment. Shipments that arrive late are free. Shipments that have breached the low temperate threshold have a penalty applied proportional to the magnitude of the breach x a penalty factory. Shipments that have breached the high temperate threshold have a penalty applied proportional to the magnitude of the breach x a penalty factory.
+The business network defines a contract between growers and importers. The contract stipulates that: On receipt of the shipment the importer pays the grower the unit price x the number of units in the shipment. Shipments that arrive late are free. Shipments that have breached the low temperate threshold have a penalty applied proportional to the magnitude of the breach x a penalty factor. Shipments that have breached the high temperate threshold have a penalty applied proportional to the magnitude of the breach x a penalty factor.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participants**
 `Grower` `Importer` `Shipper`
@@ -14,8 +14,6 @@ In the **Define** tab this in Business Network defines:
 
 **Transactions**
 `TemperatureReading` `ShipmentReceived` `SetupDemo`
-
-Summarise how the elements of the Business Network interact!
 
 To test this Business Network Definition in the **Test** tab:
 

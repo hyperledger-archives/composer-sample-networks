@@ -2,7 +2,7 @@
 
 > This is the "Hello World" of Hyperledger Composer samples, which demonstrates the core functionality of Hyperledger Composer by changing the value of an asset.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participant**
 `SampleParticipant`

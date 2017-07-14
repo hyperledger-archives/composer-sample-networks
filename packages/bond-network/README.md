@@ -2,7 +2,7 @@
 
 > The Bond Network allows the issuer of a bond to update the bond information whilst other members of the business network can only read the bond data.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participants**
 `Issuer` `Member`

@@ -2,7 +2,7 @@
 
 > This network tracks the Lifecycle of Vehicles from manufacture to being scrapped involving private owners, manufacturers and scrap merchants. A regulator is able to provide oversight throughout this whole process.
 
-In the **Define** tab this in Business Network defines:
+This business network defines:
 
 **Participants**
 `AuctionHouse` `Company` `Manufacturer` `PrivateOwner` `Regulator` `ScrapMerchant`
