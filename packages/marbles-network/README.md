@@ -59,6 +59,6 @@ Submit a `Transaction` transaction:
 }
 ```
 
-This transaction traded `marbleId:1234` from `memberA@acme.org` to `memberB@acme.org`.
+This transaction has transferred `marbleId:1234` from `memberA@acme.org` to `memberB@acme.org`.
 
 Congratulations!

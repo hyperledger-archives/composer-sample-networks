@@ -39,7 +39,7 @@ Submit a `AuthorizeAccess` transaction:
 ```
 {
   "$class": "org.acme.pii.AuthorizeAccess",
-  "memberId": ""
+  "memberId": "org.acme.pii.Member#memberA@acme.org"
 }
 ```
 
@@ -50,7 +50,7 @@ Submit a `RevokeAccess` transaction:
 ```
 {
   "$class": "org.acme.pii.RevokeAccess",
-  "memberId": ""
+  "memberId": "org.acme.pii.Member#memberB@acme.org"
 }
 ```
 

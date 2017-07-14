@@ -70,4 +70,6 @@ Submit a `RegisterPropertyForSale` transaction:
 }
 ```
 
+This `RegisterPropertyForSale` transaction will update `titleId:ABCD` `LandTitle` asset to `forSale`.
+
 Congratulations!

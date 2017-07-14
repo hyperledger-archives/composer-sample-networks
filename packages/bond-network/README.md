@@ -23,7 +23,7 @@ Create a `Issuer` participant:
 {
   "$class": "org.acme.bond.Issuer",
   "memberId": "memberId:1",
-  "name": "Tobias Hunter"
+  "name": "Billy Thompson"
 }
 ```
 

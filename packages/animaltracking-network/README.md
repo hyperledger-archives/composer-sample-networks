@@ -13,7 +13,7 @@ In the **Define** tab this in Business Network defines:
 **Transactions**
 `AnimalMovementDeparture` `AnimalMovementArrival` `SetupDemo`
 
-Each Farmer owns a Business that is identified by a Single Business Identifier (SBI). Each Farmer owns a set of Animals. Each Business owns a set of Fields. Each Field contains a set of Animals owned by the Farmer. Animals can be transfered between Farmers or between Fields
+Each Farmer owns a Business that is identified by a Single Business Identifier (SBI). A Farmer owns a set of Animals. A Business owns a set of Fields. A Field contains a set of Animals owned by the Farmer. Animals can be transferred between Farmers or between Fields.
 
 To test this Business Network Definition in the **Test** tab:
 
