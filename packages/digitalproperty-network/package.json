@@ -43,7 +43,10 @@
     "moment": "^2.17.1"
   },
   "dependencies": {
+
     "digitalproperty-model": "^0.1.0"
+
+
   },
   "license-check-config": {
     "src": [
