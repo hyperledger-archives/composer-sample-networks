@@ -3,7 +3,7 @@
     "composer": "^0.9.0"
   },
   "name": "basic-sample-network",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The Hello World of Hyperledger Composer samples",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/basic-sample-network.bna",
