@@ -5,6 +5,7 @@
   "name": "bond-network",
   "version": "0.1.2",
   "description": "Bond Reference Data Sharing Business Network",
+  "networkImage": "https://github.com/hyperledger/composer-sample-networks/tree/master/packages/bond-network/5@2x.png",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/bond-network.bna",
     "pretest": "npm run lint",

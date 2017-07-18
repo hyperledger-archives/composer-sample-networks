@@ -5,6 +5,7 @@
   "name": "basic-sample-network",
   "version": "0.1.2",
   "description": "The Hello World of Hyperledger Composer samples",
+  "networkImage": "https://github.com/Tobias-Hunter/composer-sample-networks/tree/master/packages/basic-sample-network/8@2x.png",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/basic-sample-network.bna",
     "pretest": "npm run lint",
