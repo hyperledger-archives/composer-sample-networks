@@ -5,6 +5,7 @@
   "name": "carauction-network",
   "version": "0.1.2",
   "description": "Car Auction Business Network",
+  "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/carauction-network/networkimage.png",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/carauction-network.bna",
     "pretest": "npm run lint",

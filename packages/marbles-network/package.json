@@ -5,6 +5,7 @@
   "name": "marbles-network",
   "version": "0.1.2",
   "description": "Marble Trading Network",
+  "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/marbles-network/networkimage.png",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/marbles-network.bna",
     "pretest": "npm run lint",
