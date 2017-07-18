@@ -1,6 +1,6 @@
 {
   "engines": {
-    "composer": "^0.9.0"
+    "composer": "^0.10.0"
   },
   "name": "pii-network",
   "version": "0.1.2",
