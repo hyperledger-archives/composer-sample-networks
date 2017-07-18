@@ -2,7 +2,7 @@
 
 > This is the "Hello World" of Hyperledger Composer samples, which demonstrates the core functionality of Hyperledger Composer by changing the value of an asset.
 
-![image](https://github.com/Tobias-Hunter/composer-sample-networks/tree/master/packages/basic-sample-network/8.png)
+![image](https://github.com/Tobias-Hunter/composer-sample-networks/blob/readme/packages/basic-sample-network/8.png)
 
 This business network defines:
 
