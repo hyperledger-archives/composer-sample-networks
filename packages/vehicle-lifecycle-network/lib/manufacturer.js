@@ -81,7 +81,7 @@ function updateOrderStatus(updateOrderStatus) {
                         vehicle.owner = factory.newRelationship('org.acme.vehicle.lifecycle', 'PrivateOwner', updateOrderStatus.order.orderer.email);
                         vehicle.numberPlate = updateOrderStatus.numberPlate || '';
                         vehicle.vehicleDetails.numberPlate = updateOrderStatus.numberPlate || '';
-                        vehicle.v5c = updateOrderStatus.v5c || '';
+                        vehicle.vehicleDetails.v5c = updateOrderStatus.v5c || '';
                         if (!vehicle.logEntries) {
                             vehicle.logEntries = [];
                         }

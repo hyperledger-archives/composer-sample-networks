@@ -22,7 +22,7 @@ function privateVehicleTransfer(privateVehicleTransfer) {
     console.log('privateVehicleTransfer');
 
     var currentParticipant = getCurrentParticipant();
-    
+
 
     var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
     var NS = 'org.acme.vehicle.lifecycle';
@@ -38,7 +38,6 @@ function privateVehicleTransfer(privateVehicleTransfer) {
 
     //PrivateVehicleTransaction for log
     var vehicleTransferLogEntry = factory.newConcept(NS_D, 'VehicleTransferLogEntry');
-    vehicleTransferLogEntry.transactionId = privateVehicleTransfer.transactionId;
     vehicleTransferLogEntry.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicle.getIdentifier());
     vehicleTransferLogEntry.seller = factory.newRelationship(NS, 'PrivateOwner', seller.getIdentifier());
     vehicleTransferLogEntry.buyer = factory.newRelationship(NS, 'PrivateOwner', buyer.getIdentifier());
@@ -63,10 +62,10 @@ function privateVehicleTransfer(privateVehicleTransfer) {
 function scrapVehicle(scrapVehicle) {
     console.log('scrapVehicle');
 
-     var NS_D = 'org.vda';
-     var assetRegistry;
+    var NS_D = 'org.vda';
+    var assetRegistry;
 
-     return getAssetRegistry(NS_D + '.Vehicle')
+    return getAssetRegistry(NS_D + '.Vehicle')
         .then(function(ar) {
             assetRegistry = ar;
             return assetRegistry.get(scrapVehicle.vehicle.getIdentifier());
