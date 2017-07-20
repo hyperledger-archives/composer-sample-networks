@@ -5,7 +5,7 @@
   "name": "perishable-network",
   "version": "0.1.2",
   "description": "Shipping Perishable Goods Business Network",
-  "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/perishable-network/networkimage.png",
+  "networkImage": "https://raw.githubusercontent.com/hyperledger/composer-sample-networks/master/packages/perishable-network/networkimage.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/perishable-network.bna",
     "pretest": "npm run lint",

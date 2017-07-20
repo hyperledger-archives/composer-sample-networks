@@ -5,7 +5,7 @@
   "name": "digitalproperty-network",
   "version": "0.1.2",
   "description": "Digital Property Network",
-  "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/digitalproperty-network/networkimage.png",
+  "networkImage": "https://raw.githubusercontent.com/hyperledger/composer-sample-networks/master/packages/digitalproperty-network/networkimage.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/digitalproperty-network.bna",
     "pretest": "npm run lint",

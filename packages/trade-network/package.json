@@ -5,7 +5,7 @@
   "name": "trade-network",
   "version": "0.1.2",
   "description": "Commodities Trading Business Network",
-  "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/trade-network/networkimage.png",
+  "networkImage": "https://raw.githubusercontent.com/hyperledger/composer-sample-networks/master/packages/trade-network/networkimage.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/trade-network.bna",
     "pretest": "npm run lint",

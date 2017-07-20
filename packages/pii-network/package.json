@@ -5,7 +5,7 @@
   "name": "pii-network",
   "version": "0.1.2",
   "description": "Business Network to illustrate using Access Control over Personally Identifiable Information (PII).",
-  "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/pii-network/networkimage.png",
+  "networkImage": "https://raw.githubusercontent.com/hyperledger/composer-sample-networks/master/packages/pii-network/networkimage.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/pii-network.bna",
     "pretest": "npm run lint",
