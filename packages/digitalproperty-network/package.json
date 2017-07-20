@@ -1,10 +1,11 @@
 {
   "engines": {
-    "composer": "^0.9.0"
+    "composer": "^0.10.0"
   },
   "name": "digitalproperty-network",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Digital Property Network",
+  "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/digitalproperty-network/networkimage.png",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/digitalproperty-network.bna",
     "pretest": "npm run lint",
@@ -43,7 +44,10 @@
     "moment": "^2.17.1"
   },
   "dependencies": {
+
     "digitalproperty-model": "^0.1.0"
+
+
   },
   "license-check-config": {
     "src": [
@@ -54,7 +58,7 @@
       "!./scripts/**/*"
     ],
     "path": "header.txt",
-    "blocking": true,
+   "blocking": true,
     "logInfo": false,
     "logError": true
   }

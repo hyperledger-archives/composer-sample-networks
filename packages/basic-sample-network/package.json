@@ -1,10 +1,11 @@
 {
   "engines": {
-    "composer": "^0.9.0"
+    "composer": "^0.10.0"
   },
   "name": "basic-sample-network",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The Hello World of Hyperledger Composer samples",
+  "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/basic-sample-network/networkimage.png",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/basic-sample-network.bna",
     "pretest": "npm run lint",
