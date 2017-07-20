@@ -1,22 +1,58 @@
 # Animal Tracking Network
-Defines an Animal Movement business network based on UK DEFRA government regulations https://www.gov.uk/animal-movement-england.
 
-Farmers can move animals between farms/fields and the UK government farming regulator has
-visibility into the locations of all animals and all animal movements between farms.
+> This is an Animal Tracking Business Network based on UK DEFRA government regulations (https://www.gov.uk/animal-movement-england). Farmers can move animals between farms/fields and the UK government farming regulator has visibility into the locations of all animals and all animal movements between farms.
 
-- Each Farmer owns a Business that is identified by a Single Business Identifier (SBI)
-- Each Farmer owns a set of Animals
-- Each Business owns a set of Fields
-- Each Field contains a set of Animals owned by the Farmer
-- Animals can be transfered between Farmers or between Fields
+This business network defines:
 
-## Demo inside Hyperledger Composer
-Import the sample into Hyperledger Composer using the `Import/Replace` button.
+**Participants**
+`Farmer` `Regulator`
 
-Submit a `SetupDemo` transaction to bootstrap a scenario to get you started. 
+**Assets**
+`Animal` `Business` `Field`
 
-You will see the 2 `Farmer` participants have been created, `FARMER_1` and `FARMER_2` as well as 2 `Field`'s, 2 `Business`'s and 8 `Animal`'s. 
+**Transactions**
+`AnimalMovementDeparture` `AnimalMovementArrival` `SetupDemo`
 
-Submit a `AnimalMovementDeparture` when you wish to sent an `Animal` to another `Farmer`, then, as the `Animal`'s new owner,  submit an `AnimalMovementArrival` transaction to confirm revceipt. 
+Each Farmer owns a Business that is identified by a Single Business Identifier (SBI). A Farmer owns a set of Animals. A Business owns a set of Fields. A Field contains a set of Animals owned by the Farmer. Animals can be transferred between Farmers or between Fields.
 
-![Definiton Diagram](./network.png)
+To test this Business Network Definition in the **Test** tab:
+
+Submit a `SetupDemo` transaction:
+
+```
+{
+  "$class": "com.biz.SetupDemo"
+}
+```
+
+This transaction populates the Participant Registries with two `Farmer` participants and a `Regulator` participant. The Asset Registries will have eight `Animal` assets, two `Business` assets and four `Field` assets.
+
+Submit a `AnimalMovementDeparture` transaction:
+
+```
+{
+  "$class": "com.biz.AnimalMovementDeparture",
+  "fromField": "resource:com.biz.Field#FIELD_1",
+  "animal": "resource:com.biz.Animal#ANIMAL_1",
+  "from": "resource:com.biz.Business#BUSINESS_1",
+  "to": "resource:com.biz.Business#BUSINESS_2"
+}
+```
+
+This transaction moves `ANIMAL_1` from `FIELD_1` at `BUSINESS_1` to `BUSINESS_2`.
+
+Submit a `AnimalMovementArrival` transaction:
+
+```
+{
+  "$class": "com.biz.AnimalMovementArrival",
+  "arrivalField": "resource:com.biz.Field#FIELD_2",
+  "animal": "resource:com.biz.Animal#ANIMAL_1",
+  "from": "resource:com.biz.Business#BUSINESS_1",
+  "to": "resource:com.biz.Business#BUSINESS_2"
+}
+```
+
+This transaction confirms the receipt of `ANIMAL_1` from `BUSINESS_1` to `FIELD_2` at `BUSINESS_2`.
+
+Congratulations!
