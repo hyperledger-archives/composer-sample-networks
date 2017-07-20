@@ -1,17 +1,57 @@
-# Welcome to Hyperledger Composer!
+# Basic Sample Business Network
 
-This is the "Hello World" of Hyperledger Composer samples.
+> This is the "Hello World" of Hyperledger Composer samples, which demonstrates the core functionality of Hyperledger Composer by changing the value of an asset.
 
-This sample defines a business network composed of a single asset type (`SampleAsset`), a single participant type (`SampleParticipant`), and a single transaction type (`SampleTransaction`).
+This business network defines:
 
-`SampleAssets` are owned by a `SampleParticipant`, and the value property on a `SampleAsset` can be modified by submitting a `SampleTransaction`.
+**Participant**
+`SampleParticipant`
 
-To get started inside Hyperledger Composer you can click the Test tab and create instances of `SampleAsset` and `SampleParticipant`. Make sure that the owner property on the `SampleAsset` refers to a `SampleParticipant` that you have created.
+**Asset**
+`SampleAsset`
 
-You can then submit a `SampleTransaction`, making sure that the asset property refers to an asset that you created earlier. After the transaction has been processed you should see that the value property on the asset has been modified.
+**Transaction**
+`SampleTransaction`
 
-The logic for updating the asset when a `SampleTransaction` is processed is written in `logic.js`.
+**Event**
+`SampleEvent`
 
-Don't forget you can import more advanced samples into Hyperledger Composer using the Import/Replace button.
+SampleAssets are owned by a SampleParticipant, and the value property on a SampleAsset can be modified by submitting a SampleTransaction. The SampleTransaction emits a SampleEvent that notifies applications of the old and new values for each modified SampleAsset.
 
-Have fun learning Hyperledger Composer!
+To test this Business Network Definition in the **Test** tab:
+
+Create a `SampleParticipant` participant:
+
+```
+{
+  "$class": "org.acme.sample.SampleParticipant",
+  "participantId": "Toby",
+  "firstName": "Tobias",
+  "lastName": "Hunter"
+}
+```
+
+Create a `SampleAsset` asset:
+
+```
+{
+  "$class": "org.acme.sample.SampleAsset",
+  "assetId": "assetId:1",
+  "owner": "resource:org.acme.sample.SampleParticipant#Toby",
+  "value": "original value"
+}
+```
+
+Submit a `SampleTransaction` transaction:
+
+```
+{
+  "$class": "org.acme.sample.SampleTransaction",
+  "asset": "resource:org.acme.sample.SampleAsset#assetId:1",
+  "newValue": "new value"
+}
+```
+
+After submitting this transaction, you should now see the transaction in the Transaction Registry and that a `SampleEvent` has been emitted. As a result, the value of the `assetId:1` should now be `new value` in the Asset Registry.
+
+Congratulations!

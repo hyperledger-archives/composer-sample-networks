@@ -22,7 +22,7 @@ function privateVehicleTransfer(privateVehicleTransfer) {
     console.log('privateVehicleTransfer');
 
     var currentParticipant = getCurrentParticipant();
-    
+
 
     var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
     var NS = 'org.acme.vehicle.lifecycle';
@@ -38,7 +38,6 @@ function privateVehicleTransfer(privateVehicleTransfer) {
 
     //PrivateVehicleTransaction for log
     var vehicleTransferLogEntry = factory.newConcept(NS_D, 'VehicleTransferLogEntry');
-    vehicleTransferLogEntry.transactionId = privateVehicleTransfer.transactionId;
     vehicleTransferLogEntry.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicle.getIdentifier());
     vehicleTransferLogEntry.seller = factory.newRelationship(NS, 'PrivateOwner', seller.getIdentifier());
     vehicleTransferLogEntry.buyer = factory.newRelationship(NS, 'PrivateOwner', buyer.getIdentifier());
@@ -63,10 +62,10 @@ function privateVehicleTransfer(privateVehicleTransfer) {
 function scrapVehicle(scrapVehicle) {
     console.log('scrapVehicle');
 
-     var NS_D = 'org.vda';
-     var assetRegistry;
+    var NS_D = 'org.vda';
+    var assetRegistry;
 
-     return getAssetRegistry(NS_D + '.Vehicle')
+    return getAssetRegistry(NS_D + '.Vehicle')
         .then(function(ar) {
             assetRegistry = ar;
             return assetRegistry.get(scrapVehicle.vehicle.getIdentifier());
@@ -74,5 +73,52 @@ function scrapVehicle(scrapVehicle) {
         .then(function(vehicle){
             vehicle.vehicleStatus = 'SCRAPPED';
             return assetRegistry.update(vehicle);
+        });
+}
+
+/**
+ * Scrap a vehicle
+ * @param {org.vda.ScrapAllVehiclesByColour} scrapAllVehicles - the ScrapAllVehicles transaction
+ * @transaction
+ */
+function scrapAllVehiclesByColour(scrapAllVehicles) {
+    console.log('scrapVehicle');
+
+    var NS_D = 'org.vda';
+    var assetRegistry;
+
+    // create the query
+    var q = {
+        selector: {
+            'vehicleDetails.colour': scrapAllVehicles.colour
+        }
+    };
+
+    return getAssetRegistry(NS_D + '.Vehicle')
+        .then(function (ar){
+            assetRegistry = ar;
+            return queryNative(JSON.stringify(q));
+        })
+        .then(function (resultArray) {
+            console.log('TP function received query result: ', JSON.stringify(resultArray));
+            if (resultArray.length < 1 ) {
+                throw new Error('No vehicles found with ' + scrapAllVehicles.colour, resultArray.length);
+            }
+
+            var factory = getFactory();
+            var promises =[];
+            var serializer = getSerializer();
+            for (var x = 0; x < resultArray.length; x++) {
+                var currentResult = resultArray[x];
+                var vehicle = serializer.fromJSON(currentResult.Record);
+
+                vehicle.vehicleStatus = 'SCRAPPED';
+                var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
+                scrapVehicleEvent.vehicle = vehicle;
+                emit(scrapVehicleEvent);
+                promises.push(assetRegistry.update(vehicle));
+
+            }
+            return Promise.all(promises);
         });
 }

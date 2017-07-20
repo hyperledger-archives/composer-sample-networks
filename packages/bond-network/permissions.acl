@@ -12,8 +12,16 @@ rule Issuer {
 
 rule Default {
     description: "Allow read access"
-    participant: "org.acme.bond"
+    participant: "org.acme.bond.*"
     operation: ALL
-    resource: "org.acme.bond"
+    resource: "org.acme.bond.*"
     action: ALLOW
+}
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
 }

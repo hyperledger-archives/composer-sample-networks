@@ -54,11 +54,11 @@ describe('DigitalLandTitle', () => {
             // Create the existing LandTitle asset.
             let factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
-            let seller = factory.newInstance('net.biz.digitalPropertyNetwork', 'Person', 'P1');
+            let seller = factory.newResource('net.biz.digitalPropertyNetwork', 'Person', 'P1');
             seller. firstName = 'Dan';
             seller.lastName = 'Selman';
 
-            let landTitle = factory.newInstance('net.biz.digitalPropertyNetwork', 'LandTitle', 'TITLE_1');
+            let landTitle = factory.newResource('net.biz.digitalPropertyNetwork', 'LandTitle', 'TITLE_1');
             let person = factory.newRelationship('net.biz.digitalPropertyNetwork', 'Person', 'P1');
             landTitle.owner = person;
             landTitle.information = 'Some information';

@@ -41,23 +41,23 @@ describe('Vehicle Lifecycle Network', function() {
         return adminConnection.createProfile('defaultProfile', {
             type: 'embedded'
         })
-        .then(function() {
-            return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(function() {
-            return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-        })
-        .then(function(businessNetworkDefinition) {
-            return adminConnection.deploy(businessNetworkDefinition);
-        })
-        .then(function() {
-            businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-            return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(function() {
+            .then(function() {
+                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
+            })
+            .then(function() {
+                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
+            })
+            .then(function(businessNetworkDefinition) {
+                return adminConnection.deploy(businessNetworkDefinition);
+            })
+            .then(function() {
+                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
+                return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
+            })
+            .then(function() {
             // this will create some sample assets and participants
-            factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-        });
+                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+            });
     });
 
     describe('#setupDemo', function() {

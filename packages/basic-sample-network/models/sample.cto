@@ -15,8 +15,13 @@ participant SampleParticipant identified by participantId {
   o String lastName
 }
 
-transaction SampleTransaction identified by transactionId {
-  o String transactionId
+transaction SampleTransaction {
   --> SampleAsset asset
+  o String newValue
+}
+
+event SampleEvent {
+  --> SampleAsset asset
+  o String oldValue
   o String newValue
 }

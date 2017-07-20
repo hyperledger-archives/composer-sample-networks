@@ -5,7 +5,7 @@ dist: trusty
 before_install: |
     set -ev
     set -o pipefail
-    npm install -g npm
+    npm install -g npm@4
     npm install -g @alrra/travis-scripts
 deploy:
     provider: script

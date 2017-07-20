@@ -12,13 +12,17 @@
  * limitations under the License.
  */
 
-/**
- * Sample transaction processor function.
- */
-function onSampleTransaction(sampleTransaction) {
-    sampleTransaction.asset.value = sampleTransaction.newValue;
-    return getAssetRegistry('org.acme.sample.SampleAsset')
-      .then(function (assetRegistry) {
-          return assetRegistry.update(sampleTransaction.asset);
-      });
+'use strict';
+
+const composerSteps = require('composer-cucumber-steps');
+const cucumber = require('cucumber');
+
+module.exports = function () {
+    composerSteps.call(this);
+};
+
+if (cucumber.defineSupportCode) {
+    cucumber.defineSupportCode((context) => {
+        module.exports.call(context);
+    });
 }

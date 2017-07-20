@@ -1,0 +1,48 @@
+/**
+ * Access control rules. These rules allow anyone to submit AuthorizeAccess
+ * and RevokeAccess transaction as well as granting full access to a member's
+ * own record. A member can access another member's details if the member has
+ * added them to their authorized list.
+ */
+
+rule AuthorizeAccessTransaction {
+    description: "Allow all participants to submit AuthorizeAccess transactions"
+    participant: "ANY"
+    operation: CREATE
+    resource: "org.acme.pii.AuthorizeAccess"
+    action: ALLOW
+}
+
+rule RevokeAccessTransaction {
+    description: "Allow all participants to submit RevokeAccess transactions"
+    participant: "ANY"
+    operation: CREATE
+    resource: "org.acme.pii.RevokeAccess"
+    action: ALLOW
+}
+
+rule OwnRecordFullAccess {
+    description: "Allow all participants full access to their own record"
+    participant(p): "org.acme.pii.Member"
+    operation: ALL
+    resource(r): "org.acme.pii.Member"
+    condition: (r.getIdentifier() === p.getIdentifier())
+    action: ALLOW
+}
+
+rule ForeignRecordConditionalAccess {
+    description: "Allow participants access to other people's records if granted"
+    participant(p): "org.acme.pii.Member"
+    operation: ALL
+    resource(r): "org.acme.pii.Member"
+    condition: (r.authorized && r.authorized.indexOf(p.getIdentifier()) > -1)
+    action: ALLOW
+}
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}

@@ -1,0 +1,36 @@
+/**
+ * A business network where members can grant/revoke access to their personal information to other members
+ */
+namespace org.acme.pii
+
+concept Address {
+    o String street
+    o String house
+    o String city
+    o String county
+    o String country
+    o String zip
+}
+
+participant Member identified by email {
+    o String email
+    o String firstName
+    o String lastName
+    o DateTime dob optional
+    o Address address optional
+    o String[] authorized optional
+}
+
+abstract transaction MemberTransaction {
+    o String memberId    
+}
+
+transaction AuthorizeAccess extends MemberTransaction {
+}
+
+transaction RevokeAccess extends MemberTransaction {
+}
+
+event MemberEvent {
+    o MemberTransaction memberTransaction
+}

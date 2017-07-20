@@ -5,7 +5,7 @@ rule Auctioneer {
     description: "Allow the auctioneer full access"
     participant: "org.acme.vehicle.auction.Auctioneer"
     operation: ALL
-    resource: "org.acme.vehicle.auction"
+    resource: "org.acme.vehicle.auction.*"
     action: ALLOW
 }
 
@@ -13,7 +13,7 @@ rule Member {
     description: "Allow the member read access"
     participant: "org.acme.vehicle.auction.Member"
     operation: READ
-    resource: "org.acme.vehicle.auction"
+    resource: "org.acme.vehicle.auction.*"
     action: ALLOW
 }
 
@@ -33,4 +33,12 @@ rule VehicleListingOwner {
     resource(v): "org.acme.vehicle.auction.VehicleListing"
     condition: (v.vehicle.owner.getIdentifier() == m.getIdentifier())
     action: ALLOW
+}
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW  
 }
