@@ -3,7 +3,7 @@
     "composer": "^0.10.0"
   },
   "name": "basic-sample-network",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "The Hello World of Hyperledger Composer samples",
   "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/basic-sample-network/networkimage.png",
   "scripts": {

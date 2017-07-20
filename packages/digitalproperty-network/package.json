@@ -3,7 +3,7 @@
     "composer": "^0.10.0"
   },
   "name": "digitalproperty-network",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Digital Property Network",
   "networkImage": "https://github.com/hyperledger/composer-sample-networks/blob/master/packages/digitalproperty-network/networkimage.png",
   "scripts": {
@@ -44,10 +44,7 @@
     "moment": "^2.17.1"
   },
   "dependencies": {
-
     "digitalproperty-model": "^0.1.0"
-
-
   },
   "license-check-config": {
     "src": [
@@ -58,7 +55,7 @@
       "!./scripts/**/*"
     ],
     "path": "header.txt",
-   "blocking": true,
+    "blocking": true,
     "logInfo": false,
     "logError": true
   }
