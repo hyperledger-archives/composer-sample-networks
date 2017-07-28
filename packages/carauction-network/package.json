@@ -3,7 +3,7 @@
     "composer": "^0.10.0"
   },
   "name": "carauction-network",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Car Auction Business Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/carauction-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/carauction-network/networkimageanimated.svg",

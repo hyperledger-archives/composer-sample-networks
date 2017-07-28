@@ -3,7 +3,7 @@
     "composer": "^0.10.0"
   },
   "name": "pii-network",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Business Network to illustrate using Access Control over Personally Identifiable Information (PII).",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/pii-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/pii-network/networkimageanimated.svg",
