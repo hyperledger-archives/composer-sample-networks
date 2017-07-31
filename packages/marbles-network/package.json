@@ -5,8 +5,8 @@
   "name": "marbles-network",
   "version": "0.1.4",
   "description": "Marble Trading Network",
-  "networkImage": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/marbles-network/networkimage.svg",
-  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/marbles-network/networkimageanimated.svg",
+  "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/marbles-network/networkimage.svg",
+  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/marbles-network/networkimageanimated.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/marbles-network.bna",
     "pretest": "npm run lint",

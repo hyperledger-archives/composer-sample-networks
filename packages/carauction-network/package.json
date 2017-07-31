@@ -5,8 +5,8 @@
   "name": "carauction-network",
   "version": "0.1.4",
   "description": "Car Auction Business Network",
-  "networkImage": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/carauction-network/networkimage.svg",
-  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/carauction-network/networkimageanimated.svg",
+  "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/carauction-network/networkimage.svg",
+  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/carauction-network/networkimageanimated.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/carauction-network.bna",
     "pretest": "npm run lint",
