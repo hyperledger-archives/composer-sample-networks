@@ -5,8 +5,8 @@
   "name": "vehicle-lifecycle-network",
   "version": "0.1.4",
   "description": "Vehicle Lifecycle Network",
-  "networkImage": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/vehicle-lifecycle-network/networkimage.svg",
-  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/vehicle-lifecycle-network/networkimageanimated.svg",
+  "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/vehicle-lifecycle-network/networkimage.svg",
+  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/vehicle-lifecycle-network/networkimageanimated.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create  --sourceType dir --sourceName . -a ./dist/vehicle-lifecycle-network.bna",
     "pretest": "npm run lint",

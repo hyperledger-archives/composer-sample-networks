@@ -5,8 +5,8 @@
   "name": "animaltracking-network",
   "version": "0.1.4",
   "description": "Animal Tracking network based on UK DEFRA regulations",
-  "networkImage": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/animaltracking-network/networkimage.svg",
-  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/composer-sample-networks/master/packages/animaltracking-network/networkimageanimated.svg",
+  "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/animaltracking-network/networkimage.svg",
+  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/animaltracking-network/networkimageanimated.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/animaltracking-network.bna",
     "pretest": "npm run lint",
