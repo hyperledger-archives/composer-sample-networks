@@ -3,7 +3,7 @@
     "composer": "^0.10.0"
   },
   "name": "trade-network",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Commodities Trading Business Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/trade-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/trade-network/networkimageanimated.svg",
