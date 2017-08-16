@@ -101,9 +101,8 @@ describe('Acl checking', () => {
                 bob.lastName = 'B';
                 return businessNetworkConnection.getParticipantRegistry('org.acme.pii.Member')
                     .then((participantRegistry) => {
-                        participantRegistry.addAll([alice, bob]);
+                        return participantRegistry.addAll([alice, bob]);
                     });
-
             })
             .then(() => {
 
