@@ -3,7 +3,7 @@
     "composer": "^0.11.0"
   },
   "name": "digitalproperty-network",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Digital Property Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/digitalproperty-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/digitalproperty-network/networkimageanimated.svg",
