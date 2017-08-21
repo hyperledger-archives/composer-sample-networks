@@ -121,4 +121,5 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
             }
             return Promise.all(promises);
         });
+    
 }
