@@ -124,4 +124,20 @@ describe('Vehicle Lifecycle Network', function() {
                 });
         });
     });
+
+    describe('ScrapAllVehiclesByColour', function() {
+        it('should select vehicles by colour and change vehicles status to SCRAPPED', function() {
+            var vehicleToScrap = 'white';
+            var assetRegistry;
+
+            var setupdemo = factory.newTransaction(NS, 'SetupDemo');
+            businessNetworkConnection.submitTransaction(setupdemo);
+
+            var scrapVehicle = factory.newTransaction(NS_D, 'ScrapAllVehiclesByColour');
+            scrapVehicle.colour =  vehicleToScrap;
+            businessNetworkConnection.submitTransaction(scrapVehicle);
+
+        });
+    });
+
 });

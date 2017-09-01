@@ -97,7 +97,7 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
     return getAssetRegistry(NS_D + '.Vehicle')
         .then(function (ar){
             assetRegistry = ar;
-            return queryNative(JSON.stringify(q));
+            return query('selectAllCarsByColour', {'colour':scrapAllVehicles.colour});
         })
         .then(function (resultArray) {
             console.log('TP function received query result: ', JSON.stringify(resultArray));
@@ -121,4 +121,5 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
             }
             return Promise.all(promises);
         });
+    
 }
