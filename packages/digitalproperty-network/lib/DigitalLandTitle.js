@@ -27,8 +27,27 @@ function onRegisterPropertyForSale(propertyForSale) {
     console.log('### onRegisterPropertyForSale ' + propertyForSale.toString());
     propertyForSale.title.forSale = true;
 
-    return getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle').then(function(result) {
-        return result.update(propertyForSale.title);
-    }
-    );
+    var SID;
+    var salesRegistry;
+    
+    SID = propertyForSale.seller.personId + propertyForSale.title.titleId;
+    
+    console.log('###' + 'SID =' + SID);
+
+    return getAssetRegistry('net.biz.digitalPropertyNetwork.SalesAgreement')
+        .then(function (result) {
+            salesRegistry = result;
+        })
+        .then(function () {
+            salesRecord = getFactory().newResource('net.biz.digitalPropertyNetwork', "SalesAgreement", SID);
+            salesRecord.seller = propertyForSale.seller;
+            salesRecord.title = propertyForSale.title;
+            return salesRegistry.add(salesRecord);
+        })
+        .then(function () {
+            return getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle').then(function (result) {
+                return result.update(propertyForSale.title);
+            })
+        }
+        );
 }
