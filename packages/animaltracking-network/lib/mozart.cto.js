@@ -181,7 +181,7 @@ function setupDemo(setupDemo) {
   })
   .then(function(fieldRegistry) {
       fields.forEach(function(field, index) {
-          var business = 'BUSINESS_' + (((index + 1) % 2) + 1);
+          var business = 'BUSINESS_' + ((index % 2) + 1);
           field.name = 'FIELD_' + (index + 1);
           field.business = factory.newRelationship(NS, 'Business', business);
       });
@@ -192,8 +192,8 @@ function setupDemo(setupDemo) {
   })
   .then(function(animalRegistry) {
       animals.forEach(function(animal, index) {
-          var field = 'FIELD_' + (((index + 1) % 2) + 1);
-          var farmer = 'FARMER_' + (((index + 1) % 2) + 1);
+          var field = 'FIELD_' + ((index % 2) + 1);
+          var farmer = 'FARMER_' + ((index % 2) + 1);
           animal.species = 'SHEEP_GOAT';
           animal.movementStatus = 'IN_FIELD';
           animal.productionType = 'MEAT';
