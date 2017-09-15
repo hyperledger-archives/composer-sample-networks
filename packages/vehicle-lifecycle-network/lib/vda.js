@@ -78,11 +78,11 @@ function scrapVehicle(scrapVehicle) {
 
 /**
  * Scrap a vehicle
- * @param {org.vda.ScrapAllVehiclesByColour} scrapAllVehicles - the ScrapAllVehicles transaction
+ * @param {org.vda.ScrapAllVehiclesByColourTxn} scrapAllVehicles - the ScrapAllVehicles transaction
  * @transaction
  */
-function scrapAllVehiclesByColour(scrapAllVehicles) {
-    console.log('scrapAllVehiclesByColour');
+function scrapAllVehiclesByColourTxn(scrapAllVehicles) {
+    console.log('scrapAllVehiclesByColouriTxn');
 
     var NS_D = 'org.vda';
     var assetRegistry;

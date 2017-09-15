@@ -125,24 +125,21 @@ describe('Vehicle Lifecycle Network', function() {
         });
     });
 
-    describe('ScrapAllVehiclesByColour', function() {
+    describe('ScrapAllVehiclesByColourTxn', function() {
         it('should select vehicles by colour and change vehicles status to SCRAPPED', function() {
             /* vehicle with beige colour
                and id 123456789 resides
                in reposritory
             */
-            var vehicleToScrap = 'Beige';
-            var assetRegistry;
             var vehicleId = '123456789';
-
-            var scrapVehicle = factory.newTransaction(NS_D, 'ScrapAllVehiclesByColour');
-            scrapVehicle.colour =  vehicleToScrap;
+            var scrapVehicle = factory.newTransaction(NS_D, 'ScrapAllVehiclesByColourTxn');
+            scrapVehicle.colour = 'Beige';
             return businessNetworkConnection.submitTransaction(scrapVehicle)
                 .then(function() {
                     return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
                 })
                 .then(function(ar) {
-                    assetRegistry = ar;
+                    var assetRegistry = ar;
                     return assetRegistry.get(vehicleId);
                 })
                 .then(function(vehicle) {
