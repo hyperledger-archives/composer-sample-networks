@@ -3,7 +3,7 @@
 # Exit on first error, print all commands.
 set -e
 
-# Grab the Concerto directory.
+# Grab the Script directory.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 echo "Scanning all the node modules starting at "${DIR}
