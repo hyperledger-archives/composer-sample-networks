@@ -1,9 +1,9 @@
 {
   "engines": {
-    "composer": "^0.11.0 || ^0.12.0"
+    "composer": "^0.11.0 || ^0.12.0 || ^0.13.0"
   },
   "name": "carauction-network",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Car Auction Business Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/carauction-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/carauction-network/networkimageanimated.svg",
