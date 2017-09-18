@@ -27,19 +27,19 @@ function onRegisterPropertyForSale(propertyForSale) {
     console.log('### onRegisterPropertyForSale ' + propertyForSale.toString());
     propertyForSale.title.forSale = true;
 
-    var SID;
+    var SaleId;
     var salesRegistry;
 
-    SID = propertyForSale.seller.personId + propertyForSale.title.titleId;
+    SaleId = propertyForSale.seller.personId + propertyForSale.title.titleId;
 
-    console.log('###' + 'SID =' + SID);
+    console.log('###' + 'SaleID =' + SaleId);
 
     return getAssetRegistry('net.biz.digitalPropertyNetwork.SalesAgreement')
         .then(function (result) {
             salesRegistry = result;
         })
         .then(function () {
-            salesAgreement = getFactory().newResource('net.biz.digitalPropertyNetwork', 'SalesAgreement', SID);
+            salesAgreement = getFactory().newResource('net.biz.digitalPropertyNetwork', 'SalesAgreement', SaleId);
             salesAgreement.seller = propertyForSale.seller;
             salesAgreement.title = propertyForSale.title;
             return salesRegistry.add(salesAgreement);
