@@ -29,9 +29,9 @@ function onRegisterPropertyForSale(propertyForSale) {
 
     var SID;
     var salesRegistry;
-    
+
     SID = propertyForSale.seller.personId + propertyForSale.title.titleId;
-    
+
     console.log('###' + 'SID =' + SID);
 
     return getAssetRegistry('net.biz.digitalPropertyNetwork.SalesAgreement')
@@ -39,15 +39,15 @@ function onRegisterPropertyForSale(propertyForSale) {
             salesRegistry = result;
         })
         .then(function () {
-            salesRecord = getFactory().newResource('net.biz.digitalPropertyNetwork', "SalesAgreement", SID);
-            salesRecord.seller = propertyForSale.seller;
-            salesRecord.title = propertyForSale.title;
-            return salesRegistry.add(salesRecord);
+            salesAgreement = getFactory().newResource('net.biz.digitalPropertyNetwork', 'SalesAgreement', SID);
+            salesAgreement.seller = propertyForSale.seller;
+            salesAgreement.title = propertyForSale.title;
+            return salesRegistry.add(salesAgreement);
         })
         .then(function () {
             return getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle').then(function (result) {
                 return result.update(propertyForSale.title);
-            })
+            });
         }
         );
 }
