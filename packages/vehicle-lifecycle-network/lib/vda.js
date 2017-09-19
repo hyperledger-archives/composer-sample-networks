@@ -82,7 +82,7 @@ function scrapVehicle(scrapVehicle) {
  * @transaction
  */
 function scrapAllVehiclesByColour(scrapAllVehicles) {
-    console.log('scrapVehicle');
+    console.log('scrapAllVehiclesByColour');
 
     var NS_D = 'org.vda';
     var assetRegistry;
@@ -97,12 +97,11 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
     return getAssetRegistry(NS_D + '.Vehicle')
         .then(function (ar){
             assetRegistry = ar;
-            return queryNative(JSON.stringify(q));
+            return query('selectAllCarsByColour', {'colour':scrapAllVehicles.colour});
         })
         .then(function (resultArray) {
-            console.log('TP function received query result: ', JSON.stringify(resultArray));
             if (resultArray.length < 1 ) {
-                throw new Error('No vehicles found with ' + scrapAllVehicles.colour, resultArray.length);
+                throw new Error('No vehicles found with ' + scrapAllVehicles.colour +' '+resultArray.length);
             }
 
             var factory = getFactory();
@@ -110,8 +109,7 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
             var serializer = getSerializer();
             for (var x = 0; x < resultArray.length; x++) {
                 var currentResult = resultArray[x];
-                var vehicle = serializer.fromJSON(currentResult.Record);
-
+                var vehicle = currentResult;
                 vehicle.vehicleStatus = 'SCRAPPED';
                 var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
                 scrapVehicleEvent.vehicle = vehicle;
