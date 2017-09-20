@@ -30,9 +30,8 @@ function onRegisterPropertyForSale(propertyForSale) {
     var SaleId;
     var salesRegistry;
 
+    //SaleId is a unique ID, in order to identify a sales agreement, which is created by combining the personId and titleId.
     SaleId = propertyForSale.seller.personId + propertyForSale.title.titleId;
-
-    console.log('###' + 'SaleID =' + SaleId);
 
     return getAssetRegistry('net.biz.digitalPropertyNetwork.SalesAgreement')
         .then(function (result) {
@@ -45,9 +44,10 @@ function onRegisterPropertyForSale(propertyForSale) {
             return salesRegistry.add(salesAgreement);
         })
         .then(function () {
-            return getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle').then(function (result) {
-                return result.update(propertyForSale.title);
-            });
+            return getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle');
+
         }
-        );
+        ).then(function (result) {
+            return result.update(propertyForSale.title);
+        });
 }
