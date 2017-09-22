@@ -29,19 +29,36 @@ function onRegisterPropertyForSale(propertyForSale) {
 
     var SaleId;
     var salesRegistry;
+    var SaleIdExists = false;
+
 
     //SaleId is a unique ID, in order to identify a sales agreement, which is created by combining the personId and titleId.
     SaleId = propertyForSale.seller.personId + propertyForSale.title.titleId;
 
     return getAssetRegistry('net.biz.digitalPropertyNetwork.SalesAgreement')
+
+        .then(function (registry) {
+            salesRegistry = registry;
+            //console.log('Checking if there is already an existing Sales Agreement.' + util.inspect());
+            return registry.exists(SaleId);
+
+        }).then(function (result) {
+
+            SaleIdExists = result;
+        })
         .then(function (result) {
-            salesRegistry = result;
+
         })
         .then(function () {
             salesAgreement = getFactory().newResource('net.biz.digitalPropertyNetwork', 'SalesAgreement', SaleId);
             salesAgreement.seller = propertyForSale.seller;
             salesAgreement.title = propertyForSale.title;
-            return salesRegistry.add(salesAgreement);
+            if (SaleIdExists) {
+                //console.log('Sales Agreement with that ID already exists.');
+            }
+            else {
+                return salesRegistry.add(salesAgreement);
+            }
         })
         .then(function () {
             return getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle');
