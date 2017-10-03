@@ -36,7 +36,7 @@ describe('Vehicle Lifecycle Network', function() {
 
     var businessNetworkConnection;
 
-    before(function() {
+    beforeEach(function() {
         BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
         var adminConnection = new AdminConnection({ fs: bfs_fs });
         return adminConnection.createProfile('defaultProfile', {

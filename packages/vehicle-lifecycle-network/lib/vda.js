@@ -87,36 +87,23 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
     var NS_D = 'org.vda';
     var assetRegistry;
 
-    // create the query
-    var q = {
-        selector: {
-            'vehicleDetails.colour': scrapAllVehicles.colour
-        }
-    };
-
     return getAssetRegistry(NS_D + '.Vehicle')
         .then(function (ar){
             assetRegistry = ar;
             return query('selectAllCarsByColour', {'colour':scrapAllVehicles.colour});
         })
-        .then(function (resultArray) {
-            if (resultArray.length < 1 ) {
-                throw new Error('No vehicles found with ' + scrapAllVehicles.colour +' '+resultArray.length);
-            }
-
-            var factory = getFactory();
-            var promises =[];
-            var serializer = getSerializer();
-            for (var x = 0; x < resultArray.length; x++) {
-                var currentResult = resultArray[x];
-                var vehicle = currentResult;
-                vehicle.vehicleStatus = 'SCRAPPED';
-                var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
-                scrapVehicleEvent.vehicle = vehicle;
-                emit(scrapVehicleEvent);
-                promises.push(assetRegistry.update(vehicle));
-
-            }
-            return Promise.all(promises);
+        .then(function (vehicles) {
+             if (vehicles.length >=1 ) {
+                  var factory = getFactory();
+                  for (var x = 0; x < vehicles.length; x++) {
+                      if (vehicles[x].vehicleStatus != 'SCRAPPED') {
+                          vehicles[x].vehicleStatus = 'SCRAPPED';
+                          var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
+                          scrapVehicleEvent.vehicle = vehicles[x];
+                          emit(scrapVehicleEvent);
+                      }
+                  } 
+                  return assetRegistry.updateAll(vehicles);
+             }
         });
 }
