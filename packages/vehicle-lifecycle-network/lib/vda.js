@@ -95,15 +95,17 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
         .then(function (vehicles) {
              if (vehicles.length >=1 ) {
                   var factory = getFactory();
-                  for (var x = 0; x < vehicles.length; x++) {
-                      if (vehicles[x].vehicleStatus != 'SCRAPPED') {
-                          vehicles[x].vehicleStatus = 'SCRAPPED';
-                          var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
-                          scrapVehicleEvent.vehicle = vehicles[x];
-                          emit(scrapVehicleEvent);
-                      }
-                  } 
-                  return assetRegistry.updateAll(vehicles);
+                  var vehiclesToScrap = vehicles.filter(function(vehicle) {
+                      return vehicle.vehicleStatus !== 'SCRAPPED';
+                 });
+                 for (var x = 0; x < vehiclesToScrap.length; x++) {
+                     vehiclesToScrap[x].vehicleStatus = 'SCRAPPED';
+                     vehicles[x].vehicleStatus = 'SCRAPPED';
+                     var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
+                     scrapVehicleEvent.vehicle = vehicles[x];
+                     emit(scrapVehicleEvent);
+                 }
+                 return assetRegistry.updateAll(vehiclesToScrap);
              }
         });
 }
