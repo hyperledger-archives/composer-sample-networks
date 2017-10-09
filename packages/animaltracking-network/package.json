@@ -1,6 +1,6 @@
 {
   "engines": {
-    "composer": "^0.11.0 || ^0.12.0 || ^0.13.0"
+    "composer": "^0.14.0"
   },
   "name": "animaltracking-network",
   "version": "0.1.10",
@@ -36,8 +36,8 @@
   "devDependencies": {
     "browserfs": "^1.2.0",
     "chai": "^3.5.0",
-    "composer-cli": "^0.11.0",
-    "composer-connector-embedded": "^0.11.0",
+    "composer-cli": "^0.14.0-0",
+    "composer-connector-embedded": "^0.14.0-0",
     "eslint": "^3.6.1",
     "jsdoc": "^3.4.1",
     "license-check": "^1.1.5",
