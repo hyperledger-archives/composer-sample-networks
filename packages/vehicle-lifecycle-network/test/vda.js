@@ -149,4 +149,5 @@ describe('Vehicle Lifecycle Network', function() {
         });
     });
 
+
 });
