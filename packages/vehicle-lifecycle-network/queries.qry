@@ -4,3 +4,4 @@ query selectAllCarsByColour {
       SELECT org.vda.Vehicle
           WHERE (vehicleDetails.colour==_$colour)
 }
+

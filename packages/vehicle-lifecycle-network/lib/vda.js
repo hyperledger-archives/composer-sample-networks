@@ -108,5 +108,6 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
                  return assetRegistry.updateAll(vehiclesToScrap);
              }
         });
+
 }
 
