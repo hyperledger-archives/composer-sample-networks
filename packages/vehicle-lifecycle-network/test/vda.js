@@ -36,7 +36,7 @@ describe('Vehicle Lifecycle Network', function() {
 
     var businessNetworkConnection;
 
-    before(function() {
+    beforeEach(function() {
         BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
         var adminConnection = new AdminConnection({ fs: bfs_fs });
         return adminConnection.createProfile('defaultProfile', {
@@ -124,4 +124,30 @@ describe('Vehicle Lifecycle Network', function() {
                 });
         });
     });
+
+    describe('ScrapAllVehiclesByColour', function() {
+        it('should select vehicles by colour and change vehicles status to SCRAPPED', function() {
+            /* vehicle with beige colour
+               and id 123456789 resides
+               in reposritory
+            */
+            var vehicleId = '123456789';
+            var scrapVehicleTransaction = factory.newTransaction(NS_D, 'ScrapAllVehiclesByColour');
+            scrapVehicleTransaction.colour = 'Beige';
+            return businessNetworkConnection.submitTransaction(scrapVehicleTransaction)
+                .then(function() {
+                    return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
+                })
+                .then(function(ar) {
+                    var assetRegistry = ar;
+                    return assetRegistry.get(vehicleId);
+                })
+                .then(function(vehicle) {
+                    vehicle.vehicleStatus.should.equal('SCRAPPED');
+                });
+
+        });
+    });
+
+
 });

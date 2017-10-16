@@ -82,43 +82,31 @@ function scrapVehicle(scrapVehicle) {
  * @transaction
  */
 function scrapAllVehiclesByColour(scrapAllVehicles) {
-    console.log('scrapVehicle');
+    console.log('scrapAllVehiclesByColour');
 
     var NS_D = 'org.vda';
     var assetRegistry;
 
-    // create the query
-    var q = {
-        selector: {
-            'vehicleDetails.colour': scrapAllVehicles.colour
-        }
-    };
-
     return getAssetRegistry(NS_D + '.Vehicle')
         .then(function (ar){
             assetRegistry = ar;
-            return queryNative(JSON.stringify(q));
+            return query('selectAllCarsByColour', {'colour':scrapAllVehicles.colour});
         })
-        .then(function (resultArray) {
-            console.log('TP function received query result: ', JSON.stringify(resultArray));
-            if (resultArray.length < 1 ) {
-                throw new Error('No vehicles found with ' + scrapAllVehicles.colour, resultArray.length);
-            }
-
-            var factory = getFactory();
-            var promises =[];
-            var serializer = getSerializer();
-            for (var x = 0; x < resultArray.length; x++) {
-                var currentResult = resultArray[x];
-                var vehicle = serializer.fromJSON(currentResult.Record);
-
-                vehicle.vehicleStatus = 'SCRAPPED';
-                var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
-                scrapVehicleEvent.vehicle = vehicle;
-                emit(scrapVehicleEvent);
-                promises.push(assetRegistry.update(vehicle));
-
-            }
-            return Promise.all(promises);
+        .then(function (vehicles) {
+             if (vehicles.length >=1 ) {
+                  var factory = getFactory();
+                  var vehiclesToScrap = vehicles.filter(function(vehicle) {
+                      return vehicle.vehicleStatus !== 'SCRAPPED';
+                 });
+                 for (var x = 0; x < vehiclesToScrap.length; x++) {
+                     vehiclesToScrap[x].vehicleStatus = 'SCRAPPED';
+                     vehicles[x].vehicleStatus = 'SCRAPPED';
+                     var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
+                     scrapVehicleEvent.vehicle = vehicles[x];
+                     emit(scrapVehicleEvent);
+                 }
+                 return assetRegistry.updateAll(vehiclesToScrap);
+             }
         });
 }
+
