@@ -100,9 +100,8 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
                  });
                  for (var x = 0; x < vehiclesToScrap.length; x++) {
                      vehiclesToScrap[x].vehicleStatus = 'SCRAPPED';
-                     vehicles[x].vehicleStatus = 'SCRAPPED';
                      var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
-                     scrapVehicleEvent.vehicle = vehicles[x];
+                     scrapVehicleEvent.vehicle = vehiclesToScrap[x];
                      emit(scrapVehicleEvent);
                  }
                  return assetRegistry.updateAll(vehiclesToScrap);
