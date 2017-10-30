@@ -93,19 +93,18 @@ function scrapAllVehiclesByColour(scrapAllVehicles) {
             return query('selectAllCarsByColour', {'colour':scrapAllVehicles.colour});
         })
         .then(function (vehicles) {
-             if (vehicles.length >=1 ) {
-                  var factory = getFactory();
-                  var vehiclesToScrap = vehicles.filter(function(vehicle) {
-                      return vehicle.vehicleStatus !== 'SCRAPPED';
-                 });
-                 for (var x = 0; x < vehiclesToScrap.length; x++) {
-                     vehiclesToScrap[x].vehicleStatus = 'SCRAPPED';
-                     var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
-                     scrapVehicleEvent.vehicle = vehiclesToScrap[x];
-                     emit(scrapVehicleEvent);
-                 }
-                 return assetRegistry.updateAll(vehiclesToScrap);
+            if (vehicles.length >=1 ) {
+                var factory = getFactory();
+                var vehiclesToScrap = vehicles.filter(function(vehicle) {
+                   return vehicle.vehicleStatus !== 'SCRAPPED';
+                });
+                for (var x = 0; x < vehiclesToScrap.length; x++) {
+                    vehiclesToScrap[x].vehicleStatus = 'SCRAPPED';
+                    var scrapVehicleEvent = factory.newEvent(NS_D, 'ScrapVehicleEvent');
+                    scrapVehicleEvent.vehicle = vehiclesToScrap[x];
+                    emit(scrapVehicleEvent);
+                }
+                return assetRegistry.updateAll(vehiclesToScrap);
              }
         });
-
 }
