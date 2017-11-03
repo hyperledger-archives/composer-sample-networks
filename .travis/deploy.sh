@@ -10,7 +10,7 @@ date
 ME=`basename "$0"`
 
 # Check that this is the right node.js version.
-if [ "${TRAVIS_NODE_VERSION}" != "" -a "${TRAVIS_NODE_VERSION}" != "6" ]; then
+if [ "${TRAVIS_NODE_VERSION}" != "" -a "${TRAVIS_NODE_VERSION}" != "8" ]; then
     echo Not executing as not running primary node.js version.
     exit 0
 fi
