@@ -1,6 +1,6 @@
 {
   "engines": {
-    "composer": "^0.14.0"
+    "composer": "^0.15.0"
   },
   "name": "vehicle-lifecycle-network",
   "version": "0.1.11",
