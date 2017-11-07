@@ -21,12 +21,14 @@ const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefi
 const path = require('path');
 
 require('chai').should();
+let sinon = require('sinon');
 
 const bfs_fs = BrowserFS.BFSRequire('fs');
 const NS = 'org.acme.shipping.perishable';
 let grower_id = 'farmer@email.com';
 let importer_id = 'supermarket@email.com';
 let factory;
+let clock;
 
 describe('Perishable Shipping Network', () => {
 
@@ -58,6 +60,14 @@ describe('Perishable Shipping Network', () => {
             const setupDemo = factory.newTransaction(NS, 'SetupDemo');
             return businessNetworkConnection.submitTransaction(setupDemo);
         });
+    });
+
+    beforeEach(function () {
+        clock = sinon.useFakeTimers();
+    });
+
+    afterEach(function () {
+        clock.restore();
     });
 
     describe('#shipment', () => {
@@ -112,14 +122,13 @@ describe('Perishable Shipping Network', () => {
             const tempReading = factory.newTransaction(NS, 'TemperatureReading');
             tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
             tempReading.centigrade = 4.5;
+            // advance the javascript clock to create a time-advanced test timestamp
+            clock.tick(1000000000000000);
             return businessNetworkConnection.submitTransaction(tempReading)
                 .then(() => {
                     // submit the shipment received
                     const received = factory.newTransaction(NS, 'ShipmentReceived');
                     received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
-                    const late = new Date();
-                    late.setDate(late.getDate() + 2);
-                    received.timestamp = late;
                     return businessNetworkConnection.submitTransaction(received);
                 })
                 .then(() => {
