@@ -35,6 +35,7 @@
     "composer-admin": "^0.14.0-0",
     "composer-cli": "^0.14.0-0",
     "composer-client": "^0.14.0-0",
+    "composer-common": "^0.14.0-0",
     "composer-connector-embedded": "^0.14.0-0",
     "eslint": "^3.6.1",
     "istanbul": "^0.4.5",
