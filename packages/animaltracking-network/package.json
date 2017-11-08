@@ -36,7 +36,10 @@
   "devDependencies": {
     "browserfs": "^1.2.0",
     "chai": "^3.5.0",
+    "composer-admin": "^0.14.0-0",
     "composer-cli": "^0.14.0-0",
+    "composer-client": "^0.14.0-0",
+    "composer-common": "^0.14.0-0",
     "composer-connector-embedded": "^0.14.0-0",
     "eslint": "^3.6.1",
     "jsdoc": "^3.5.5",
