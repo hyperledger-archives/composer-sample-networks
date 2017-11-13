@@ -15,54 +15,91 @@
 'use strict';
 
 const AdminConnection = require('composer-admin').AdminConnection;
-const BrowserFS = require('browserfs/dist/node/index');
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
 const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
+const IdCard = require('composer-common').IdCard;
+const MemoryCardStore = require('composer-common').MemoryCardStore;
 const path = require('path');
 
 require('chai').should();
 let sinon = require('sinon');
 
-const bfs_fs = BrowserFS.BFSRequire('fs');
-const NS = 'org.acme.shipping.perishable';
+const namespace = 'org.acme.shipping.perishable';
 let grower_id = 'farmer@email.com';
 let importer_id = 'supermarket@email.com';
-let factory;
-let clock;
 
 describe('Perishable Shipping Network', () => {
-
+    // In-memory card store for testing so cards are not persisted to the file system
+    const cardStore = new MemoryCardStore();
+    let adminConnection;
     let businessNetworkConnection;
+    let factory;
+    let clock;
 
     before(() => {
-        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
-        const adminConnection = new AdminConnection({ fs: bfs_fs });
-        return adminConnection.createProfile('defaultProfile', {
+        // Embedded connection used for local testing
+        const connectionProfile = {
+            name: 'embedded',
             type: 'embedded'
-        })
-        .then(() => {
-            return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(() => {
+        };
+        // Embedded connection does not need real credentials
+        const credentials = {
+            certificate: 'FAKE CERTIFICATE',
+            privateKey: 'FAKE PRIVATE KEY'
+        };
+
+        // PeerAdmin identity used with the admin connection to deploy business networks
+        const deployerMetadata = {
+            version: 1,
+            userName: 'PeerAdmin',
+            roles: [ 'PeerAdmin', 'ChannelAdmin' ]
+        };
+        const deployerCard = new IdCard(deployerMetadata, connectionProfile);
+        deployerCard.setCredentials(credentials);
+
+        const deployerCardName = 'PeerAdmin';
+        adminConnection = new AdminConnection({ cardStore: cardStore });
+
+        const adminUserName = 'admin';
+        let adminCardName;
+        let businessNetworkDefinition;
+
+        return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
+            return adminConnection.connect(deployerCardName);
+        }).then(() => {
+            businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
+
             return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-        })
-        .then((businessNetworkDefinition) => {
-            return adminConnection.deploy(businessNetworkDefinition);
-        })
-        .then(() => {
-            businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-            return businessNetworkConnection.connect('defaultProfile', 'perishable-network', 'admin', 'Xurw3yU9zI0l');
-        })
-        .then(() => {
-            // submit the setup demo transaction
-            // this will create some sample assets and participants
+        }).then(definition => {
+            businessNetworkDefinition = definition;
+            // Install the Composer runtime for the new business network
+            return adminConnection.install(businessNetworkDefinition.getName());
+        }).then(() => {
+            // Start the business network and configure an network admin identity
+            const startOptions = {
+                networkAdmins: [
+                    {
+                        userName: adminUserName,
+                        enrollmentSecret: 'adminpw'
+                    }
+                ]
+            };
+            return adminConnection.start(businessNetworkDefinition, startOptions);
+        }).then(adminCards => {
+            // Import the network admin identity for us to use
+            adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
+            return adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
+        }).then(() => {
+            // Connect to the business network using the network admin identity
+            return businessNetworkConnection.connect(adminCardName);
+        }).then(() => {
             factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-            const setupDemo = factory.newTransaction(NS, 'SetupDemo');
+            const setupDemo = factory.newTransaction(namespace, 'SetupDemo');
             return businessNetworkConnection.submitTransaction(setupDemo);
         });
     });
 
-    beforeEach(function () {
+    beforeEach(() => {
         clock = sinon.useFakeTimers();
     });
 
@@ -74,18 +111,18 @@ describe('Perishable Shipping Network', () => {
 
         it('should receive base price for a shipment within temperature range', () => {
             // submit the temperature reading
-            const tempReading = factory.newTransaction(NS, 'TemperatureReading');
-            tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+            const tempReading = factory.newTransaction(namespace, 'TemperatureReading');
+            tempReading.shipment = factory.newRelationship(namespace, 'Shipment', 'SHIP_001');
             tempReading.centigrade = 4.5;
             return businessNetworkConnection.submitTransaction(tempReading)
                 .then(() => {
                     // submit the shipment received
-                    const received = factory.newTransaction(NS, 'ShipmentReceived');
-                    received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+                    const received = factory.newTransaction(namespace, 'ShipmentReceived');
+                    received.shipment = factory.newRelationship(namespace, 'Shipment', 'SHIP_001');
                     return businessNetworkConnection.submitTransaction(received);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+                    return businessNetworkConnection.getParticipantRegistry(namespace + '.Grower');
                 })
                 .then((growerRegistry) => {
                     // check the grower's balance
@@ -96,7 +133,7 @@ describe('Perishable Shipping Network', () => {
                     newGrower.accountBalance.should.equal(2500);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
+                    return businessNetworkConnection.getParticipantRegistry(namespace + '.Importer');
                 })
                 .then((importerRegistry) => {
                     // check the importer's balance
@@ -106,7 +143,7 @@ describe('Perishable Shipping Network', () => {
                     newImporter.accountBalance.should.equal(-2500);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getAssetRegistry(NS + '.Shipment');
+                    return businessNetworkConnection.getAssetRegistry(namespace + '.Shipment');
                 })
                 .then((shipmentRegistry) => {
                     // check the state of the shipment
@@ -119,20 +156,20 @@ describe('Perishable Shipping Network', () => {
 
         it('should receive nothing for a late shipment', () => {
             // submit the temperature reading
-            const tempReading = factory.newTransaction(NS, 'TemperatureReading');
-            tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+            const tempReading = factory.newTransaction(namespace, 'TemperatureReading');
+            tempReading.shipment = factory.newRelationship(namespace, 'Shipment', 'SHIP_001');
             tempReading.centigrade = 4.5;
             // advance the javascript clock to create a time-advanced test timestamp
             clock.tick(1000000000000000);
             return businessNetworkConnection.submitTransaction(tempReading)
                 .then(() => {
                     // submit the shipment received
-                    const received = factory.newTransaction(NS, 'ShipmentReceived');
-                    received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+                    const received = factory.newTransaction(namespace, 'ShipmentReceived');
+                    received.shipment = factory.newRelationship(namespace, 'Shipment', 'SHIP_001');
                     return businessNetworkConnection.submitTransaction(received);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+                    return businessNetworkConnection.getParticipantRegistry(namespace + '.Grower');
                 })
                 .then((growerRegistry) => {
                     // check the grower's balance
@@ -143,7 +180,7 @@ describe('Perishable Shipping Network', () => {
                     newGrower.accountBalance.should.equal(2500);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
+                    return businessNetworkConnection.getParticipantRegistry(namespace + '.Importer');
                 })
                 .then((importerRegistry) => {
                     // check the importer's balance
@@ -156,18 +193,18 @@ describe('Perishable Shipping Network', () => {
 
         it('should apply penalty for min temperature violation', () => {
             // submit the temperature reading
-            const tempReading = factory.newTransaction(NS, 'TemperatureReading');
-            tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+            const tempReading = factory.newTransaction(namespace, 'TemperatureReading');
+            tempReading.shipment = factory.newRelationship(namespace, 'Shipment', 'SHIP_001');
             tempReading.centigrade = 1;
             return businessNetworkConnection.submitTransaction(tempReading)
                 .then(() => {
                     // submit the shipment received
-                    const received = factory.newTransaction(NS, 'ShipmentReceived');
-                    received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+                    const received = factory.newTransaction(namespace, 'ShipmentReceived');
+                    received.shipment = factory.newRelationship(namespace, 'Shipment', 'SHIP_001');
                     return businessNetworkConnection.submitTransaction(received);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+                    return businessNetworkConnection.getParticipantRegistry(namespace + '.Grower');
                 })
                 .then((growerRegistry) => {
                     // check the grower's balance
@@ -178,7 +215,7 @@ describe('Perishable Shipping Network', () => {
                     newGrower.accountBalance.should.equal(4000);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
+                    return businessNetworkConnection.getParticipantRegistry(namespace + '.Importer');
                 })
                 .then((importerRegistry) => {
                     // check the importer's balance
@@ -191,18 +228,18 @@ describe('Perishable Shipping Network', () => {
 
         it('should apply penalty for max temperature violation', () => {
             // submit the temperature reading
-            const tempReading = factory.newTransaction(NS, 'TemperatureReading');
-            tempReading.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+            const tempReading = factory.newTransaction(namespace, 'TemperatureReading');
+            tempReading.shipment = factory.newRelationship(namespace, 'Shipment', 'SHIP_001');
             tempReading.centigrade = 11;
             return businessNetworkConnection.submitTransaction(tempReading)
                 .then(() => {
                     // submit the shipment received
-                    const received = factory.newTransaction(NS, 'ShipmentReceived');
-                    received.shipment = factory.newRelationship(NS, 'Shipment', 'SHIP_001');
+                    const received = factory.newTransaction(namespace, 'ShipmentReceived');
+                    received.shipment = factory.newRelationship(namespace, 'Shipment', 'SHIP_001');
                     return businessNetworkConnection.submitTransaction(received);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.Grower');
+                    return businessNetworkConnection.getParticipantRegistry(namespace + '.Grower');
                 })
                 .then((growerRegistry) => {
                     // check the grower's balance
@@ -213,7 +250,7 @@ describe('Perishable Shipping Network', () => {
                     newGrower.accountBalance.should.equal(5000);
                 })
                 .then(() => {
-                    return businessNetworkConnection.getParticipantRegistry(NS + '.Importer');
+                    return businessNetworkConnection.getParticipantRegistry(namespace + '.Importer');
                 })
                 .then((importerRegistry) => {
                     // check the importer's balance

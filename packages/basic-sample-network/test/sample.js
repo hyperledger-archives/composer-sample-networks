@@ -15,18 +15,31 @@
 'use strict';
 
 const AdminConnection = require('composer-admin').AdminConnection;
-const BrowserFS = require('browserfs/dist/node/index');
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
 const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
+const IdCard = require('composer-common').IdCard;
+const MemoryCardStore = require('composer-common').MemoryCardStore;
 const path = require('path');
 
 const chai = require('chai');
 chai.should();
 chai.use(require('chai-as-promised'));
 
-const bfs_fs = BrowserFS.BFSRequire('fs');
-
 describe('Sample', () => {
+    // In-memory card store for testing so cards are not persisted to the file system
+    const cardStore = new MemoryCardStore();
+
+    // Embedded connection used for local testing
+    const connectionProfile = {
+        name: 'embedded',
+        type: 'embedded'
+    };
+
+    // Name of the business network card containing the administrative identity for the business network
+    const adminCardName = 'admin';
+
+    // Admin connection to the blockchain, used to deploy the business network
+    let adminConnection;
 
     // This is the business network connection the tests will use.
     let businessNetworkConnection;
@@ -35,123 +48,159 @@ describe('Sample', () => {
     let factory;
 
     // These are the identities for Alice and Bob.
-    let aliceIdentity;
-    let bobIdentity;
+    const aliceCardName = 'alice';
+    const bobCardName = 'bob';
 
     // These are a list of receieved events.
     let events;
 
+    let businessNetworkName;
+
+    before(() => {
+        // Embedded connection does not need real credentials
+        const credentials = {
+            certificate: 'FAKE CERTIFICATE',
+            privateKey: 'FAKE PRIVATE KEY'
+        };
+
+        // Identity used with the admin connection to deploy business networks
+        const deployerMetadata = {
+            version: 1,
+            userName: 'PeerAdmin',
+            roles: [ 'PeerAdmin', 'ChannelAdmin' ]
+        };
+        const deployerCard = new IdCard(deployerMetadata, connectionProfile);
+        deployerCard.setCredentials(credentials);
+        const deployerCardName = 'PeerAdmin';
+
+        adminConnection = new AdminConnection({ cardStore: cardStore });
+
+        return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
+            return adminConnection.connect(deployerCardName);
+        });
+    });
+
+    /**
+     *
+     * @param {String} cardName The card name to use for this identity
+     * @param {Object} identity The identity details
+     * @returns {Promise} resolved when the card is imported
+     */
+    function importCardForIdentity(cardName, identity) {
+        const metadata = {
+            userName: identity.userID,
+            version: 1,
+            enrollmentSecret: identity.userSecret,
+            businessNetwork: businessNetworkName
+        };
+        const card = new IdCard(metadata, connectionProfile);
+        return adminConnection.importCard(cardName, card);
+    }
+
     // This is called before each test is executed.
     beforeEach(() => {
+        let businessNetworkDefinition;
 
-        // Initialize an in-memory file system, so we do not write any files to the actual file system.
-        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
-
-        // Create a new admin connection.
-        const adminConnection = new AdminConnection({ fs: bfs_fs });
-
-        // Create a new connection profile that uses the embedded (in-memory) runtime.
-        return adminConnection.createProfile('defaultProfile', { type : 'embedded' })
-            .then(() => {
-
-                // Establish an admin connection. The user ID must be admin. The user secret is
-                // ignored, but only when the tests are executed using the embedded (in-memory)
-                // runtime.
-                return adminConnection.connect('defaultProfile', 'admin', 'adminpw');
-
+        // Generate a business network definition from the project directory.
+        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'))
+            .then(definition => {
+                businessNetworkDefinition = definition;
+                businessNetworkName = definition.getName();
+                return adminConnection.install(businessNetworkName);
             })
             .then(() => {
-
-                // Generate a business network definition from the project directory.
-                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-
-            })
-            .then((businessNetworkDefinition) => {
-
-                // Deploy and start the business network defined by the business network definition.
-                return adminConnection.deploy(businessNetworkDefinition);
-
+                const startOptions = {
+                    networkAdmins: [
+                        {
+                            userName: 'admin',
+                            enrollmentSecret: 'adminpw'
+                        }
+                    ]
+                };
+                return adminConnection.start(businessNetworkDefinition, startOptions);
+            }).then(adminCards => {
+                return adminConnection.importCard(adminCardName, adminCards.get('admin'));
             })
             .then(() => {
-
                 // Create and establish a business network connection
-                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
+                businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
                 events = [];
-                businessNetworkConnection.on('event', (event) => {
+                businessNetworkConnection.on('event', event => {
                     events.push(event);
                 });
-                return businessNetworkConnection.connect('defaultProfile', 'basic-sample-network', 'admin', 'adminpw');
-
+                return businessNetworkConnection.connect(adminCardName);
             })
             .then(() => {
-
                 // Get the factory for the business network.
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
+                return businessNetworkConnection.getParticipantRegistry('org.acme.sample.SampleParticipant');
+            })
+            .then(participantRegistry => {
                 // Create the participants.
                 const alice = factory.newResource('org.acme.sample', 'SampleParticipant', 'alice@email.com');
                 alice.firstName = 'Alice';
                 alice.lastName = 'A';
+
                 const bob = factory.newResource('org.acme.sample', 'SampleParticipant', 'bob@email.com');
                 bob.firstName = 'Bob';
                 bob.lastName = 'B';
-                return businessNetworkConnection.getParticipantRegistry('org.acme.sample.SampleParticipant')
-                    .then((participantRegistry) => {
-                        participantRegistry.addAll([alice, bob]);
-                    });
 
+                participantRegistry.addAll([alice, bob]);
             })
             .then(() => {
-
+                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+            })
+            .then(assetRegistry => {
                 // Create the assets.
                 const asset1 = factory.newResource('org.acme.sample', 'SampleAsset', '1');
                 asset1.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
                 asset1.value = '10';
+
                 const asset2 = factory.newResource('org.acme.sample', 'SampleAsset', '2');
                 asset2.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
                 asset2.value = '20';
-                return businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset')
-                    .then((assetRegistry) => {
-                        assetRegistry.addAll([asset1, asset2]);
-                    });
+
+                assetRegistry.addAll([asset1, asset2]);
             })
             .then(() => {
-
                 // Issue the identities.
-                return businessNetworkConnection.issueIdentity('org.acme.sample.SampleParticipant#alice@email.com', 'alice1')
-                    .then((identity) => {
-                        aliceIdentity = identity;
-                        return businessNetworkConnection.issueIdentity('org.acme.sample.SampleParticipant#bob@email.com', 'bob1');
-                    })
-                    .then((identity) => {
-                        bobIdentity = identity;
-                    });
-
+                return businessNetworkConnection.issueIdentity('org.acme.sample.SampleParticipant#alice@email.com', 'alice1');
+            })
+            .then(identity => {
+                return importCardForIdentity(aliceCardName, identity);
+            }).then(() => {
+                return businessNetworkConnection.issueIdentity('org.acme.sample.SampleParticipant#bob@email.com', 'bob1');
+            })
+            .then((identity) => {
+                return importCardForIdentity(bobCardName, identity);
             });
-
     });
 
     /**
      * Reconnect using a different identity.
-     * @param {Object} identity The identity to use.
+     * @param {String} cardName The name of the card for the identity to use
      * @return {Promise} A promise that will be resolved when complete.
      */
-    function useIdentity(identity) {
+    function useIdentity(cardName) {
         return businessNetworkConnection.disconnect()
             .then(() => {
-                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
+                businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
                 events = [];
                 businessNetworkConnection.on('event', (event) => {
                     events.push(event);
                 });
-                return businessNetworkConnection.connect('defaultProfile', 'basic-sample-network', identity.userID, identity.userSecret);
+                return businessNetworkConnection.connect(cardName);
+            })
+            .then(() => {
+                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
             });
     }
 
     it('Alice can read all of the assets', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Get the assets.
@@ -180,7 +229,7 @@ describe('Sample', () => {
     it('Bob can read all of the assets', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Get the assets.
@@ -209,7 +258,7 @@ describe('Sample', () => {
     it('Alice can add assets that she owns', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Create the asset.
@@ -240,7 +289,7 @@ describe('Sample', () => {
     it('Alice cannot add assets that Bob owns', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Create the asset.
@@ -262,7 +311,7 @@ describe('Sample', () => {
     it('Bob can add assets that he owns', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Create the asset.
@@ -293,7 +342,7 @@ describe('Sample', () => {
     it('Bob cannot add assets that Alice owns', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Create the asset.
@@ -315,7 +364,7 @@ describe('Sample', () => {
     it('Alice can update her assets', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Create the asset.
@@ -346,7 +395,7 @@ describe('Sample', () => {
     it('Alice cannot update Bob\'s assets', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Create the asset.
@@ -368,7 +417,7 @@ describe('Sample', () => {
     it('Bob can update his assets', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Create the asset.
@@ -399,7 +448,7 @@ describe('Sample', () => {
     it('Bob cannot update Alice\'s assets', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Create the asset.
@@ -421,7 +470,7 @@ describe('Sample', () => {
     it('Alice can remove her assets', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Remove the asset, then test the asset exists.
@@ -441,7 +490,7 @@ describe('Sample', () => {
     it('Alice cannot remove Bob\'s assets', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Remove the asset, then test the asset exists.
@@ -458,7 +507,7 @@ describe('Sample', () => {
     it('Bob can remove his assets', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Remove the asset, then test the asset exists.
@@ -478,7 +527,7 @@ describe('Sample', () => {
     it('Bob cannot remove Alice\'s assets', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Remove the asset, then test the asset exists.
@@ -495,7 +544,7 @@ describe('Sample', () => {
     it('Alice can submit a transaction for her assets', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Submit the transaction.
@@ -536,7 +585,7 @@ describe('Sample', () => {
     it('Alice cannot submit a transaction for Bob\'s assets', () => {
 
         // Use the identity for Alice.
-        return useIdentity(aliceIdentity)
+        return useIdentity(aliceCardName)
             .then(() => {
 
                 // Submit the transaction.
@@ -553,7 +602,7 @@ describe('Sample', () => {
     it('Bob can submit a transaction for his assets', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Submit the transaction.
@@ -594,7 +643,7 @@ describe('Sample', () => {
     it('Bob cannot submit a transaction for Alice\'s assets', () => {
 
         // Use the identity for Bob.
-        return useIdentity(bobIdentity)
+        return useIdentity(bobCardName)
             .then(() => {
 
                 // Submit the transaction.

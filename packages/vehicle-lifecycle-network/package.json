@@ -1,9 +1,9 @@
 {
   "engines": {
-    "composer": "^0.15.0"
+    "composer": "^0.15.2"
   },
   "name": "vehicle-lifecycle-network",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Vehicle Lifecycle Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/vehicle-lifecycle-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/vehicle-lifecycle-network/networkimageanimated.svg",
