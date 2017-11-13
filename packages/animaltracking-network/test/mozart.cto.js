@@ -14,17 +14,16 @@
 
 'use strict';
 
-let AdminConnection = require('composer-admin').AdminConnection;
-let BrowserFS = require('browserfs/dist/node/index');
-let BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-let BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
-let path = require('path');
+const AdminConnection = require('composer-admin').AdminConnection;
+const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
+const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
+const IdCard = require('composer-common').IdCard;
+const MemoryCardStore = require('composer-common').MemoryCardStore;
+const path = require('path');
 
-let Util = require('./util');
+const Util = require('./util');
 
-
-let bfs_fs = BrowserFS.BFSRequire('fs');
-let NS = 'com.biz';
+const NS = 'com.biz';
 
 let factory;
 
@@ -34,26 +33,56 @@ describe('Animal Tracking Network', function() {
 
     let businessNetworkConnection;
 
-    before(function() {
-        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
-        let adminConnection = new AdminConnection({ fs: bfs_fs });
-        return adminConnection.createProfile('defaultProfile', {
+    before(() => {
+        const connectionProfile = {
+            name: 'embedded',
             type: 'embedded'
-        })
-            .then(function() {
-                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
+        };
+        const credentials = {
+            certificate: 'FAKE CERTIFICATE',
+            privateKey: 'FAKE PRIVATE KEY'
+        };
+
+        const deployerMetadata = {
+            version: 1,
+            userName: 'PeerAdmin',
+            roles: [ 'PeerAdmin', 'ChannelAdmin' ]
+        };
+        const deployerCard = new IdCard(deployerMetadata, connectionProfile);
+        deployerCard.setCredentials(credentials);
+
+        const userMetadata = {
+            version: 1,
+            userName: 'admin',
+            businessNetwork: 'animaltracking-network'
+        };
+        const userCard = new IdCard(userMetadata, connectionProfile);
+        userCard.setCredentials(credentials);
+
+        const deployerCardName = 'deployer';
+        const userCardName = 'user';
+
+        const cardStore = new MemoryCardStore();
+        const adminConnection = new AdminConnection({ cardStore: cardStore });
+
+        return adminConnection.importCard(deployerCardName, deployerCard)
+            .then(() => {
+                return adminConnection.importCard(userCardName, userCard);
             })
-            .then(function() {
+            .then(() => {
+                return adminConnection.connect(deployerCardName);
+            })
+            .then(() => {
                 return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
             })
-            .then(function(businessNetworkDefinition) {
+            .then((businessNetworkDefinition) => {
                 return adminConnection.deploy(businessNetworkDefinition);
             })
-            .then(function() {
-                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-                return businessNetworkConnection.connect('defaultProfile', 'animaltracking-network', 'admin', 'Xurw3yU9zI0l');
+            .then(() => {
+                businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
+                return businessNetworkConnection.connect(userCardName);
             })
-            .then(function() {
+            .then(() => {
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
                 return Util.setupDemo(businessNetworkConnection);
             });
