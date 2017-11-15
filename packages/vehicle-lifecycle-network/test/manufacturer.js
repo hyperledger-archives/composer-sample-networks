@@ -14,72 +14,74 @@
 
 'use strict';
 
-var AdminConnection = require('composer-admin').AdminConnection;
-var BrowserFS = require('browserfs/dist/node/index');
-var BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-var BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
-var path = require('path');
+const Util = require('./util');
 
-var should = require('chai').should();
-var Util = require('./util');
+const should = require('chai').should();
 
+const NS = 'org.acme.vehicle.lifecycle';
+const NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
+const NS_D = 'org.vda';
 
-var bfs_fs = BrowserFS.BFSRequire('fs');
-var NS = 'org.acme.vehicle.lifecycle';
-var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
-var NS_D = 'org.vda';
+describe('Manufacturer', function() {
+    let businessNetworkConnection;
+    let factory;
 
-var factory;
-
-describe('Vehicle Lifecycle Network', function() {
-
-    var businessNetworkConnection;
-
-    before(function() {
-        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
-        var adminConnection = new AdminConnection({ fs: bfs_fs });
-        return adminConnection.createProfile('defaultProfile', {
-            type: 'embedded'
-        })
-            .then(function() {
-                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
-            })
-            .then(function() {
-                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-            })
-            .then(function(businessNetworkDefinition) {
-                return adminConnection.deploy(businessNetworkDefinition);
-            })
-            .then(function() {
-                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-                return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
-            })
-            .then(function() {
+    beforeEach(function() {
+        return Util.deployAndConnect()
+            .then(connection => {
+                businessNetworkConnection = connection;
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-                return Util.setup(businessNetworkConnection);
             });
     });
 
-    describe('#placeOrder', function() {
+    const orderId = '1000-1000-1000-1000';
 
+    /**
+     * Place a vehicle order.
+     * @returns {Promise} resolved when the transaction is complete.
+     */
+    function placeOrder() {
+        const placeOrder = factory.newTransaction(NS_M, 'PlaceOrder');
+        placeOrder.manufacturer = factory.newRelationship(NS_M, 'Manufacturer', 'manufacturer');
+        placeOrder.orderId = orderId;
+        placeOrder.orderer = factory.newRelationship(NS, 'PrivateOwner', 'dan');
+        const vehicleDetails = factory.newConcept(NS_D, 'VehicleDetails');
+        vehicleDetails.modelType = 'Mustang';
+        vehicleDetails.make = 'Ford';
+        vehicleDetails.colour = 'Red';
+        vehicleDetails.vin = '';
+        placeOrder.vehicleDetails = vehicleDetails;
+        return businessNetworkConnection.submitTransaction(placeOrder);
+    }
+
+    /**
+     * Update a vehicle order.
+     * @returns {Promise} resolved when the transaction is complete.
+     */
+    function updateOrder() {
+        const updateOrderStatus = factory.newTransaction(NS_M, 'UpdateOrderStatus');
+        updateOrderStatus.orderStatus = 'VIN_ASSIGNED';
+        updateOrderStatus.vin = 'VIN_NUMBER';
+
+        return businessNetworkConnection.getAssetRegistry(NS_M + '.Order')
+            .then(function(orderRegistry) {
+                return orderRegistry.getAll();
+            })
+            .then(function(orders) {
+                const order = orders[0];
+                updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
+                return businessNetworkConnection.submitTransaction(updateOrderStatus);
+            });
+    }
+
+    describe('#placeOrder', function() {
         it('should be able to place an order for a vehicle', function() {
-            // submit the transaction
-            var placeOrder = factory.newTransaction(NS_M, 'PlaceOrder');
-            placeOrder.manufacturer = factory.newRelationship(NS_M, 'Manufacturer', 'manufacturer');
-            placeOrder.orderId = '1000-1000-1000-1000';
-            placeOrder.orderer = factory.newRelationship(NS, 'PrivateOwner', 'dan');
-            var vehicleDetails = factory.newConcept(NS_D, 'VehicleDetails');
-            vehicleDetails.modelType = 'Mustang';
-            vehicleDetails.make = 'Ford';
-            vehicleDetails.colour = 'Red';
-            vehicleDetails.vin = '';
-            placeOrder.vehicleDetails = vehicleDetails;
-            return businessNetworkConnection.submitTransaction(placeOrder)
+            return placeOrder()
                 .then(function() {
                     return businessNetworkConnection.getAssetRegistry(NS_M + '.Order');
                 })
                 .then(function(orderRegistry) {
-                    return orderRegistry.get(placeOrder.orderId);
+                    return orderRegistry.get(orderId);
                 })
                 .then(function(order) {
                     order.orderStatus.should.equal('PLACED');
@@ -88,24 +90,10 @@ describe('Vehicle Lifecycle Network', function() {
     });
 
     describe('#updateOrderStatus', function() {
-
         it('should create a vehicle and assign it a VIN number', function() {
-            var updateOrderStatus = factory.newTransaction(NS_M, 'UpdateOrderStatus');
-            updateOrderStatus.orderStatus = 'VIN_ASSIGNED';
-            updateOrderStatus.vin = 'VIN_NUMBER';
-
-            return businessNetworkConnection.getAssetRegistry(NS_M + '.Order')
-                .then(function(orderRegistry) {
-                    return orderRegistry.getAll();
-                })
-                .then(function(orders) {
-                    return orders[0]; // Get the order added in the previous test
-                })
-                .then(function(order) {
-                    updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
-                })
+            return placeOrder()
                 .then(function() {
-                    return businessNetworkConnection.submitTransaction(updateOrderStatus);
+                    return updateOrder();
                 })
                 .then(function() {
                     return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
@@ -121,23 +109,25 @@ describe('Vehicle Lifecycle Network', function() {
         });
 
         it('should assign an owner to a vehicle and make it active', function() {
-            var updateOrderStatus = factory.newTransaction(NS_M, 'UpdateOrderStatus');
+            const updateOrderStatus = factory.newTransaction(NS_M, 'UpdateOrderStatus');
             updateOrderStatus.orderStatus = 'OWNER_ASSIGNED';
             updateOrderStatus.vin = 'VIN_NUMBER';
             updateOrderStatus.numberPlate = 'NUMBER_PLATE';
             updateOrderStatus.v5c = 'V5C';
 
-            return businessNetworkConnection.getAssetRegistry(NS_M + '.Order')
+            return placeOrder()
+                .then(function() {
+                    return updateOrder();
+                })
+                .then(function() {
+                    return businessNetworkConnection.getAssetRegistry(NS_M + '.Order');
+                })
                 .then(function(orderRegistry) {
                     return orderRegistry.getAll();
                 })
                 .then(function(orders) {
-                    return orders[0]; // Get the order added in the previous test
-                })
-                .then(function(order) {
+                    const order = orders[0];
                     updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
-                })
-                .then(function() {
                     return businessNetworkConnection.submitTransaction(updateOrderStatus);
                 })
                 .then(function() {
@@ -154,4 +144,5 @@ describe('Vehicle Lifecycle Network', function() {
                 });
         });
     });
+
 });
