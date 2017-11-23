@@ -14,62 +14,35 @@
 
 'use strict';
 
-var AdminConnection = require('composer-admin').AdminConnection;
-var BrowserFS = require('browserfs/dist/node/index');
-var BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-var BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
-var Util = require('./util');
-var path = require('path');
+const Util = require('./util');
 
-var should = require('chai').should();
+const should = require('chai').should();
 
+const NS = 'org.acme.vehicle.lifecycle';
+const NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
+const NS_D = 'org.vda';
 
-
-var bfs_fs = BrowserFS.BFSRequire('fs');
-var NS = 'org.acme.vehicle.lifecycle';
-var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
-var NS_D = 'org.vda';
-
-var factory;
-
-describe('Vehicle Lifecycle Network', function() {
-
-    var businessNetworkConnection;
+describe('VDA', function() {
+    let businessNetworkConnection;
+    let factory;
 
     beforeEach(function() {
-        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
-        var adminConnection = new AdminConnection({ fs: bfs_fs });
-        return adminConnection.createProfile('defaultProfile', {
-            type: 'embedded'
-        })
-            .then(function() {
-                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
-            })
-            .then(function() {
-                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-            })
-            .then(function(businessNetworkDefinition) {
-                return adminConnection.deploy(businessNetworkDefinition);
-            })
-            .then(function() {
-                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-                return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
-            })
-            .then(function() {
+        return Util.deployAndConnect()
+            .then(connection => {
+                businessNetworkConnection = connection;
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
                 return Util.setup(businessNetworkConnection);
             });
     });
 
     describe('#privateVehicleTransfer', function() {
-
         it('should be able to transfer a vehicle between two private owners', function() {
-            var vehicleToTransfer = '123456789';
-            var owners = ['dan', 'simon'];
+            const vehicleToTransfer = '123456789';
+            const owners = ['dan', 'simon'];
 
-            var vehicleRegistry;
-            var privateOwnerRegistry;
-            var vehicle;
+            let vehicleRegistry;
+            let privateOwnerRegistry;
+            let vehicle;
 
             return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle')
                 .then(function(vr) {
@@ -82,7 +55,7 @@ describe('Vehicle Lifecycle Network', function() {
                     vehicle.owner.getIdentifier().should.equal('dan');
                 })
                 .then(function() {
-                    var privateVehicleTransfer = factory.newTransaction(NS_D, 'PrivateVehicleTransfer');
+                    const privateVehicleTransfer = factory.newTransaction(NS_D, 'PrivateVehicleTransfer');
                     privateVehicleTransfer.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicle.getIdentifier());
                     privateVehicleTransfer.seller = vehicle.owner;
                     privateVehicleTransfer.buyer = factory.newRelationship(NS, 'PrivateOwner', 'simon');
@@ -105,18 +78,16 @@ describe('Vehicle Lifecycle Network', function() {
 
     describe('ScrapVehicle', function() {
         it('should change a vehicles status to SCRAPPED', function() {
-            var vehicleToScrap = '123456789';
-            var assetRegistry;
+            const vehicleToScrap = '123456789';
 
-            var scrapVehicle = factory.newTransaction(NS_D, 'ScrapVehicle');
+            const scrapVehicle = factory.newTransaction(NS_D, 'ScrapVehicle');
             scrapVehicle.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicleToScrap);
 
             return businessNetworkConnection.submitTransaction(scrapVehicle)
                 .then(function() {
                     return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
                 })
-                .then(function(ar) {
-                    assetRegistry = ar;
+                .then(function(assetRegistry) {
                     return assetRegistry.get(vehicleToScrap);
                 })
                 .then(function(vehicle) {
@@ -127,19 +98,16 @@ describe('Vehicle Lifecycle Network', function() {
 
     describe('ScrapAllVehiclesByColour', function() {
         it('should select vehicles by colour and change vehicles status to SCRAPPED', function() {
-            /* vehicle with beige colour
-               and id 123456789 resides
-               in reposritory
-            */
-            var vehicleId = '123456789';
-            var scrapVehicleTransaction = factory.newTransaction(NS_D, 'ScrapAllVehiclesByColour');
+            // Vehicle with beige colour and id 123456789 resides in reposritory
+            const vehicleId = '123456789';
+            const scrapVehicleTransaction = factory.newTransaction(NS_D, 'ScrapAllVehiclesByColour');
             scrapVehicleTransaction.colour = 'Beige';
             return businessNetworkConnection.submitTransaction(scrapVehicleTransaction)
                 .then(function() {
                     return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
                 })
                 .then(function(ar) {
-                    var assetRegistry = ar;
+                    const assetRegistry = ar;
                     return assetRegistry.get(vehicleId);
                 })
                 .then(function(vehicle) {

@@ -14,12 +14,22 @@
 
 'use strict';
 
-var BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
+const AdminConnection = require('composer-admin').AdminConnection;
+const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
+const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
+const IdCard = require('composer-common').IdCard;
+const MemoryCardStore = require('composer-common').MemoryCardStore;
 
-var NS = 'org.acme.vehicle.lifecycle';
-var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
-var NS_D = 'org.vda';
+const path = require('path');
 
+const NS = 'org.acme.vehicle.lifecycle';
+const NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
+const NS_D = 'org.vda';
+
+const cardStore = new MemoryCardStore();
+const adminCardName = 'admin';
+
+let adminConnection;
 
 /**
  *
@@ -87,3 +97,71 @@ module.exports.setup = function(businessNetworkConnection) {
             return ar.addAll([v]);
         });
 };
+
+module.exports.deployAndConnect = function() {
+    let adminConnection;
+    let businessNetworkDefinition;
+    let businessNetworkConnection;
+
+    return getAdminConnection().then(connection => {
+        adminConnection = connection;
+        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
+    }).then(definition => {
+        businessNetworkDefinition = definition;
+        return adminConnection.install(businessNetworkDefinition.getName());
+    }).then(() => {
+        const startOptions = {
+            networkAdmins: [
+                {
+                    userName: 'admin',
+                    enrollmentSecret: 'adminpw'
+                }
+            ]
+        };
+        return adminConnection.start(businessNetworkDefinition, startOptions);
+    }).then(adminCards => {
+        return adminConnection.importCard(adminCardName, adminCards.get('admin'));
+    }).then(() => {
+        businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
+        return businessNetworkConnection.connect(adminCardName);
+    }).then(() => {
+        return businessNetworkConnection;
+    });
+};
+
+/**
+ * Install required cards and create an admin connection.
+ * @returns {Promise} Resolves with a AdminConnection.
+ */
+function getAdminConnection() {
+    if (adminConnection) {
+        return Promise.resolve(adminConnection);
+    }
+
+    const connectionProfile = {
+        name: 'embedded',
+        type: 'embedded'
+    };
+    const credentials = {
+        certificate: 'FAKE CERTIFICATE',
+        privateKey: 'FAKE PRIVATE KEY'
+    };
+
+    const deployerMetadata = {
+        version: 1,
+        userName: 'PeerAdmin',
+        roles: [ 'PeerAdmin', 'ChannelAdmin' ]
+    };
+    const deployerCard = new IdCard(deployerMetadata, connectionProfile);
+    deployerCard.setCredentials(credentials);
+
+    const deployerCardName = 'deployer';
+
+    adminConnection = new AdminConnection({ cardStore: cardStore });
+
+    return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
+        return adminConnection.connect(deployerCardName);
+    }).then(() => {
+        return adminConnection;
+    });
+}

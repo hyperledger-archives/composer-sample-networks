@@ -14,99 +14,76 @@
 
 'use strict';
 
-var AdminConnection = require('composer-admin').AdminConnection;
-var BrowserFS = require('browserfs/dist/node/index');
-var BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-var BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
-var path = require('path');
+const Util = require('./util');
 
-var should = require('chai').should();
+const should = require('chai').should();
 
+const NS = 'org.acme.vehicle.lifecycle';
+const NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
+const NS_D = 'org.vda';
 
+describe('Setup', function() {
+    let businessNetworkConnection;
+    let factory;
 
-var bfs_fs = BrowserFS.BFSRequire('fs');
-var NS = 'org.acme.vehicle.lifecycle';
-var NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
-var NS_D = 'org.vda';
-
-var factory;
-
-describe('Vehicle Lifecycle Network', function() {
-
-    var businessNetworkConnection;
-
-    before(function() {
-        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
-        var adminConnection = new AdminConnection({ fs: bfs_fs });
-        return adminConnection.createProfile('defaultProfile', {
-            type: 'embedded'
-        })
-            .then(function() {
-                return adminConnection.connect('defaultProfile', 'admin', 'Xurw3yU9zI0l');
-            })
-            .then(function() {
-                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-            })
-            .then(function(businessNetworkDefinition) {
-                return adminConnection.deploy(businessNetworkDefinition);
-            })
-            .then(function() {
-                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-                return businessNetworkConnection.connect('defaultProfile', 'vehicle-lifecycle-network', 'admin', 'Xurw3yU9zI0l');
-            })
-            .then(function() {
-            // this will create some sample assets and participants
+    beforeEach(function() {
+        return Util.deployAndConnect()
+            .then(connection => {
+                businessNetworkConnection = connection;
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
             });
     });
 
-    describe('#setupDemo', function() {
+    describe('Setup', function() {
+        describe('#setupDemo', function() {
+            /**
+             *
+             * @param {String} registry - name of a registry
+             */
+            function getAllFromRegistry(type, registry) {
+                const func = 'get' + type + 'Registry';
+                return businessNetworkConnection[func](registry)
+                    .then(function(registry) {
+                        return registry.getAll();
+                    });
+            }
 
-        /**
-         *
-         * @param {String} registry - name of a registry
-         */
-        function getAllFromRegistry(type, registry) {
-            var func = 'get' + type + 'Registry';
-            return businessNetworkConnection[func](registry)
-                .then(function(registry) {
-                    return registry.getAll();
-                });
-        }
+            it('should create a scenario', function() {
+                // submit the transaction
+                const setupDemo = factory.newTransaction(NS, 'SetupDemo');
 
-        it('should create a scenario', function() {
-            // submit the transaction
-            var setupDemo = factory.newTransaction(NS, 'SetupDemo');
-
-            return businessNetworkConnection.submitTransaction(setupDemo)
-                .then(function() {
-                    // (participants) get regulator registry
-                    return getAllFromRegistry('Participant', NS + '.Regulator');
-                })
-                .then(function(regulators) {
-                    regulators.length.should.equal(1);
-                })
-                .then(function() {
-                    // (participants) get manufacturer registry
-                    return getAllFromRegistry('Participant', NS_M + '.Manufacturer');
-                })
-                .then(function(manufacturers) {
-                    manufacturers.length.should.be.above(1);
-                })
-                .then(function() {
-                    // (participants) get private owner registry
-                    return getAllFromRegistry('Participant', NS + '.PrivateOwner');
-                })
-                .then(function(privateOwners) {
-                    privateOwners.length.should.be.above(10);
-                })
-                .then(function() {
-                    // (assets) get vehicles registry
-                    return getAllFromRegistry('Asset', NS_D + '.Vehicle');
-                })
-                .then(function(vehicles) {
-                    vehicles.length.should.be.above(10);
-                });
+                return businessNetworkConnection.submitTransaction(setupDemo)
+                    .then(function() {
+                        // (participants) get regulator registry
+                        return getAllFromRegistry('Participant', NS + '.Regulator');
+                    })
+                    .then(function(regulators) {
+                        regulators.length.should.equal(1);
+                    })
+                    .then(function() {
+                        // (participants) get manufacturer registry
+                        return getAllFromRegistry('Participant', NS_M + '.Manufacturer');
+                    })
+                    .then(function(manufacturers) {
+                        manufacturers.length.should.be.above(1);
+                    })
+                    .then(function() {
+                        // (participants) get private owner registry
+                        return getAllFromRegistry('Participant', NS + '.PrivateOwner');
+                    })
+                    .then(function(privateOwners) {
+                        privateOwners.length.should.be.above(10);
+                    })
+                    .then(function() {
+                        // (assets) get vehicles registry
+                        return getAllFromRegistry('Asset', NS_D + '.Vehicle');
+                    })
+                    .then(function(vehicles) {
+                        vehicles.length.should.be.above(10);
+                    });
+            });
         });
+
     });
+
 });
