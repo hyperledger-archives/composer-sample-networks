@@ -15,40 +15,81 @@
 'use strict';
 
 const AdminConnection = require('composer-admin').AdminConnection;
-const BrowserFS = require('browserfs/dist/node/index');
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
 const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
+const IdCard = require('composer-common').IdCard;
+const MemoryCardStore = require('composer-common').MemoryCardStore;
 const path = require('path');
 
 require('chai').should();
 
-const bfs_fs = BrowserFS.BFSRequire('fs');
-const NS = 'org.acme.trading';
+const namespace = 'org.acme.trading';
 
 describe('Commodity Trading', () => {
-
-    // let adminConnection;
+    // In-memory card store for testing so cards are not persisted to the file system
+    const cardStore = new MemoryCardStore();
+    let adminConnection;
     let businessNetworkConnection;
 
     before(() => {
-        BrowserFS.initialize(new BrowserFS.FileSystem.InMemory());
-        const adminConnection = new AdminConnection({ fs: bfs_fs });
-        return adminConnection.createProfile('defaultProfile', {
+        // Embedded connection used for local testing
+        const connectionProfile = {
+            name: 'embedded',
             type: 'embedded'
-        })
-            .then(() => {
-                return adminConnection.connect('defaultProfile', 'admin', 'adminpw');
-            })
-            .then(() => {
-                return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-            })
-            .then((businessNetworkDefinition) => {
-                return adminConnection.deploy(businessNetworkDefinition);
-            })
-            .then(() => {
-                businessNetworkConnection = new BusinessNetworkConnection({ fs: bfs_fs });
-                return businessNetworkConnection.connect('defaultProfile', 'trade-network', 'admin', 'adminpw');
-            });
+        };
+        // Embedded connection does not need real credentials
+        const credentials = {
+            certificate: 'FAKE CERTIFICATE',
+            privateKey: 'FAKE PRIVATE KEY'
+        };
+
+        // PeerAdmin identity used with the admin connection to deploy business networks
+        const deployerMetadata = {
+            version: 1,
+            userName: 'PeerAdmin',
+            roles: [ 'PeerAdmin', 'ChannelAdmin' ]
+        };
+        const deployerCard = new IdCard(deployerMetadata, connectionProfile);
+        deployerCard.setCredentials(credentials);
+
+        const deployerCardName = 'PeerAdmin';
+        adminConnection = new AdminConnection({ cardStore: cardStore });
+
+        return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
+            return adminConnection.connect(deployerCardName);
+        });
+    });
+
+    beforeEach(() => {
+        businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
+
+        const adminUserName = 'admin';
+        let adminCardName;
+        let businessNetworkDefinition;
+
+        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..')).then(definition => {
+            businessNetworkDefinition = definition;
+            // Install the Composer runtime for the new business network
+            return adminConnection.install(businessNetworkDefinition.getName());
+        }).then(() => {
+            // Start the business network and configure an network admin identity
+            const startOptions = {
+                networkAdmins: [
+                    {
+                        userName: adminUserName,
+                        enrollmentSecret: 'adminpw'
+                    }
+                ]
+            };
+            return adminConnection.start(businessNetworkDefinition, startOptions);
+        }).then(adminCards => {
+            // Import the network admin identity for us to use
+            adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
+            return adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
+        }).then(() => {
+            // Connect to the business network using the network admin identity
+            return businessNetworkConnection.connect(adminCardName);
+        });
     });
 
     describe('#tradeCommodity', () => {
@@ -57,35 +98,35 @@ describe('Commodity Trading', () => {
             const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
             // create the traders
-            const dan = factory.newResource(NS, 'Trader', 'dan@email.com');
+            const dan = factory.newResource(namespace, 'Trader', 'dan@email.com');
             dan.firstName = 'Dan';
             dan.lastName = 'Selman';
 
-            const simon = factory.newResource(NS, 'Trader', 'simon@email.com');
+            const simon = factory.newResource(namespace, 'Trader', 'simon@email.com');
             simon.firstName = 'Simon';
             simon.lastName = 'Stone';
 
             // create the commodity
-            const commodity = factory.newResource(NS, 'Commodity', 'EMA');
+            const commodity = factory.newResource(namespace, 'Commodity', 'EMA');
             commodity.description = 'Corn';
             commodity.mainExchange = 'Euronext';
             commodity.quantity = 100;
-            commodity.owner = factory.newRelationship(NS, 'Trader', dan.$identifier);
+            commodity.owner = factory.newRelationship(namespace, 'Trader', dan.$identifier);
 
             // create the trade transaction
-            const trade = factory.newTransaction(NS, 'Trade');
-            trade.newOwner = factory.newRelationship(NS, 'Trader', simon.$identifier);
-            trade.commodity = factory.newRelationship(NS, 'Commodity', commodity.$identifier);
+            const trade = factory.newTransaction(namespace, 'Trade');
+            trade.newOwner = factory.newRelationship(namespace, 'Trader', simon.$identifier);
+            trade.commodity = factory.newRelationship(namespace, 'Commodity', commodity.$identifier);
 
             // the owner should of the commodity should be dan
             commodity.owner.$identifier.should.equal(dan.$identifier);
 
             // create the second commodity
-            const commodity2 = factory.newResource(NS, 'Commodity', 'XYZ');
+            const commodity2 = factory.newResource(namespace, 'Commodity', 'XYZ');
             commodity2.description = 'Soya';
             commodity2.mainExchange = 'Chicago';
             commodity2.quantity = 50;
-            commodity2.owner = factory.newRelationship(NS, 'Trader', dan.$identifier);
+            commodity2.owner = factory.newRelationship(namespace, 'Trader', dan.$identifier);
 
             // register for events from the business network
             businessNetworkConnection.on('event', (event) => {
@@ -93,13 +134,13 @@ describe('Commodity Trading', () => {
             });
 
             // Get the asset registry.
-            return businessNetworkConnection.getAssetRegistry(NS + '.Commodity')
+            return businessNetworkConnection.getAssetRegistry(namespace + '.Commodity')
                 .then((assetRegistry) => {
 
                     // add the commodities to the asset registry.
                     return assetRegistry.addAll([commodity,commodity2])
                         .then(() => {
-                            return businessNetworkConnection.getParticipantRegistry(NS + '.Trader');
+                            return businessNetworkConnection.getParticipantRegistry(namespace + '.Trader');
                         })
                         .then((participantRegistry) => {
                             // add the traders
@@ -110,7 +151,7 @@ describe('Commodity Trading', () => {
                             return businessNetworkConnection.submitTransaction(trade);
                         })
                         .then(() => {
-                            return businessNetworkConnection.getAssetRegistry(NS + '.Commodity');
+                            return businessNetworkConnection.getAssetRegistry(namespace + '.Commodity');
                         })
                         .then((assetRegistry) => {
                             // re-get the commodity
@@ -140,7 +181,7 @@ describe('Commodity Trading', () => {
                         })
                         .then(() => {
                             // submit the remove transaction
-                            const remove = factory.newTransaction(NS, 'RemoveHighQuantityCommodities');
+                            const remove = factory.newTransaction(namespace, 'RemoveHighQuantityCommodities');
                             return businessNetworkConnection.submitTransaction(remove);
                         })
                         .then(() => {

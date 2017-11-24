@@ -14,11 +14,11 @@
 
 'use strict';
 
-let NS = 'com.biz';
+let namespace = 'com.biz';
 
 module.exports.setupDemo = (businessNetworkConnection) => {
     let factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
-    let setupDemo = factory.newTransaction(NS, 'SetupDemo');
+    let setupDemo = factory.newTransaction(namespace, 'SetupDemo');
     return businessNetworkConnection.submitTransaction(setupDemo);
 };

@@ -1,9 +1,9 @@
 {
   "engines": {
-    "composer": "^0.15.0"
+    "composer": "^0.15.2"
   },
   "name": "digitalproperty-network",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Digital Property Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/digitalproperty-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/digitalproperty-network/networkimageanimated.svg",
@@ -30,13 +30,12 @@
   "author": "Hyperledger Composer",
   "license": "Apache-2.0",
   "devDependencies": {
-    "browserfs": "^1.2.0",
     "chai": "^3.5.0",
-    "composer-admin": "^0.14.0-0",
-    "composer-cli": "^0.14.0-0",
-    "composer-client": "^0.14.0-0",
-    "composer-common": "^0.14.0-0",
-    "composer-connector-embedded": "^0.14.0-0",
+    "composer-admin": "^0.15.2",
+    "composer-cli": "^0.15.2",
+    "composer-client": "^0.15.2",
+    "composer-common": "^0.15.2",
+    "composer-connector-embedded": "^0.15.2",
     "eslint": "^3.6.1",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.5.5",
