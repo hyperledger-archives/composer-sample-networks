@@ -1,6 +1,6 @@
 {
   "engines": {
-    "composer": "^0.15.2"
+    "composer": "^0.16.0"
   },
   "name": "animaltracking-network",
   "version": "0.1.13",
@@ -35,11 +35,11 @@
   ],
   "devDependencies": {
     "chai": "^3.5.0",
-    "composer-admin": "^0.15.2",
-    "composer-cli": "^0.15.2",
-    "composer-client": "^0.15.2",
-    "composer-common": "^0.15.2",
-    "composer-connector-embedded": "^0.15.2",
+    "composer-admin": "^0.16.0-0",
+    "composer-cli": "^0.16.0-0",
+    "composer-client": "^0.16.0-0",
+    "composer-common": "^0.16.0-0",
+    "composer-connector-embedded": "^0.16.0-0",
     "eslint": "^3.6.1",
     "jsdoc": "^3.5.5",
     "license-check": "^1.1.5",
@@ -60,6 +60,6 @@
     "logError": true
   },
   "dependencies": {
-    "animaltracking-model": "^0.1.0"
+    "animaltracking-model": "^0.1.2"
   }
 }
