@@ -32,7 +32,7 @@ describe('Sample', () => {
     // Embedded connection used for local testing
     const connectionProfile = {
         name: 'embedded',
-        type: 'embedded'
+        'x-type': 'embedded'
     };
 
     // Name of the business network card containing the administrative identity for the business network

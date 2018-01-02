@@ -39,7 +39,7 @@ describe('Animal Tracking Network', function() {
         // Embedded connection used for local testing
         const connectionProfile = {
             name: 'embedded',
-            type: 'embedded'
+            'x-type': 'embedded'
         };
         // Embedded connection does not need real credentials
         const credentials = {

@@ -140,7 +140,7 @@ function getAdminConnection() {
 
     const connectionProfile = {
         name: 'embedded',
-        type: 'embedded'
+        'x-type': 'embedded'
     };
     const credentials = {
         certificate: 'FAKE CERTIFICATE',
