@@ -76,16 +76,15 @@ describe('Sample', () => {
         adminConnection = new AdminConnection({ cardStore: cardStore });
 
         await adminConnection.importCard(deployerCardName, deployerCard);
-        return adminConnection.connect(deployerCardName);
+        await adminConnection.connect(deployerCardName);
     });
 
     /**
      *
      * @param {String} cardName The card name to use for this identity
      * @param {Object} identity The identity details
-     * @returns {Promise} resolved when the card is imported
      */
-    function importCardForIdentity(cardName, identity) {
+    async function importCardForIdentity(cardName, identity) {
         const metadata = {
             userName: identity.userID,
             version: 1,
@@ -93,7 +92,7 @@ describe('Sample', () => {
             businessNetwork: businessNetworkName
         };
         const card = new IdCard(metadata, connectionProfile);
-        return adminConnection.importCard(cardName, card);
+        await adminConnection.importCard(cardName, card);
     }
 
     // This is called before each test is executed.
