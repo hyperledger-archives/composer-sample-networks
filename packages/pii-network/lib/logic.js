@@ -14,14 +14,16 @@
 
 'use strict';
 
+/* global getCurrentParticipant getParticipantRegistry getFactory emit */
+
 /**
  * A Member grants access to their record to another Member.
  * @param {org.acme.pii.AuthorizeAccess} authorize - the authorize to be processed
  * @transaction
  */
-function authorizeAccess(authorize) {
+async function authorizeAccess(authorize) {  // eslint-disable-line no-unused-vars
 
-    var me = getCurrentParticipant();
+    const me = getCurrentParticipant();
     console.log('**** AUTH: ' + me.getIdentifier() + ' granting access to ' + authorize.memberId );
 
     if(!me) {
@@ -29,7 +31,7 @@ function authorizeAccess(authorize) {
     }
 
     // if the member is not already authorized, we authorize them
-    var index = -1;
+    let index = -1;
 
     if(!me.authorized) {
         me.authorized = [];
@@ -41,17 +43,14 @@ function authorizeAccess(authorize) {
     if(index < 0) {
         me.authorized.push(authorize.memberId);
 
-        return getParticipantRegistry('org.acme.pii.Member')
-        .then(function (memberRegistry) {
+        // emit an event
+        const event = getFactory().newEvent('org.acme.pii', 'MemberEvent');
+        event.memberTransaction = authorize;
+        emit(event);
 
-            // emit an event
-            var event = getFactory().newEvent('org.acme.pii', 'MemberEvent');
-            event.memberTransaction = authorize;
-            emit(event);
-
-            // persist the state of the member
-            return memberRegistry.update(me);
-        });
+        // persist the state of the member
+        const memberRegistry = await getParticipantRegistry('org.acme.pii.Member');
+        await memberRegistry.update(me);
     }
 }
 
@@ -60,9 +59,9 @@ function authorizeAccess(authorize) {
  * @param {org.acme.pii.RevokeAccess} revoke - the RevokeAccess to be processed
  * @transaction
  */
-function revokeAccess(revoke) {
+async function revokeAccess(revoke) {  // eslint-disable-line no-unused-vars
 
-    var me = getCurrentParticipant();
+    const me = getCurrentParticipant();
     console.log('**** REVOKE: ' + me.getIdentifier() + ' revoking access to ' + revoke.memberId );
 
     if(!me) {
@@ -70,21 +69,18 @@ function revokeAccess(revoke) {
     }
 
     // if the member is authorized, we remove them
-    var index = me.authorized ? me.authorized.indexOf(revoke.memberId) : -1;
+    const index = me.authorized ? me.authorized.indexOf(revoke.memberId) : -1;
 
     if(index>-1) {
         me.authorized.splice(index, 1);
 
-        return getParticipantRegistry('org.acme.pii.Member')
-        .then(function (memberRegistry) {
+        // emit an event
+        const event = getFactory().newEvent('org.acme.pii', 'MemberEvent');
+        event.memberTransaction = revoke;
+        emit(event);
 
-            // emit an event
-            var event = getFactory().newEvent('org.acme.pii', 'MemberEvent');
-            event.memberTransaction = revoke;
-            emit(event);
-
-            // persist the state of the member
-            return memberRegistry.update(me);
-        });
+        // persist the state of the member
+        const memberRegistry = await getParticipantRegistry('org.acme.pii.Member');
+        await memberRegistry.update(me);
     }
 }
