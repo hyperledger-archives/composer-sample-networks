@@ -31,7 +31,7 @@ describe('CarAuction', () => {
     let adminConnection;
     let businessNetworkConnection;
 
-    before(() => {
+    before(async () => {
         // Embedded connection used for local testing
         const connectionProfile = {
             name: 'embedded',
@@ -55,46 +55,42 @@ describe('CarAuction', () => {
         const deployerCardName = 'PeerAdmin';
         adminConnection = new AdminConnection({ cardStore: cardStore });
 
-        return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
-            return adminConnection.connect(deployerCardName);
-        });
+        await adminConnection.importCard(deployerCardName, deployerCard);
+        await adminConnection.connect(deployerCardName);
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
 
         const adminUserName = 'admin';
         let adminCardName;
-        let businessNetworkDefinition;
+        let businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
-        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..')).then(definition => {
-            businessNetworkDefinition = definition;
-            // Install the Composer runtime for the new business network
-            return adminConnection.install(businessNetworkDefinition.getName());
-        }).then(() => {
-            // Start the business network and configure an network admin identity
-            const startOptions = {
-                networkAdmins: [
-                    {
-                        userName: adminUserName,
-                        enrollmentSecret: 'adminpw'
-                    }
-                ]
-            };
-            return adminConnection.start(businessNetworkDefinition, startOptions);
-        }).then(adminCards => {
-            // Import the network admin identity for us to use
-            adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
-            return adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
-        }).then(() => {
-            // Connect to the business network using the network admin identity
-            return businessNetworkConnection.connect(adminCardName);
-        });
+        // Install the Composer runtime for the new business network
+        await adminConnection.install(businessNetworkDefinition.getName());
+
+        // Start the business network and configure an network admin identity
+        const startOptions = {
+            networkAdmins: [
+                {
+                    userName: adminUserName,
+                    enrollmentSecret: 'adminpw'
+                }
+            ]
+        };
+        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+
+        // Import the network admin identity for us to use
+        adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
+        await adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
+
+        // Connect to the business network using the network admin identity
+        await businessNetworkConnection.connect(adminCardName);
     });
 
     describe('#makeOffer', () => {
 
-        it('should add the offer to the offers of a vehicle listing', () => {
+        it('should add the offer to the offers of a vehicle listing', async () => {
 
             const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
@@ -137,123 +133,70 @@ describe('CarAuction', () => {
             offer.listing = factory.newRelationship(NS, 'VehicleListing', 'LISTING_001');
             offer.bidPrice = 200;
 
-            // Get the asset registry.
-            return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle')
-                .then((vehicleRegistry) => {
+            // Get the registries.
+            const vehicleRegistry = await businessNetworkConnection.getAssetRegistry(NS + '.Vehicle');
+            const vehicleListingRegistry = await businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
+            const userRegistry = await businessNetworkConnection.getParticipantRegistry(NS + '.Member');
+            const auctioneerRegistry = await businessNetworkConnection.getParticipantRegistry(NS + '.Auctioneer');
 
-                    // Add the Vehicle to the asset registry.
-                    return vehicleRegistry.add(vehicle)
-                        .then(() => {
-                            // Add the VehicleListing to the asset registry
-                            return businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
-                        })
-                        .then((vehicleListingRegistry) => {
-                            // add the vehicle listing
-                            return vehicleListingRegistry.add(listing);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getParticipantRegistry(NS + '.Member');
-                        })
-                        .then((userRegistry) => {
-                            // add the members
-                            return userRegistry.addAll([buyer, buyer2, seller]);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getParticipantRegistry(NS + '.Auctioneer');
-                        })
-                        .then((userRegistry) => {
-                            // add the auctioneers
-                            return userRegistry.addAll([auctioneer]);
-                        })
-                        .then(() => {
-                            // Create the offer transaction and submit
-                            return businessNetworkConnection.submitTransaction(offer);
-                        })
-                        .then(() => {
-                            const lowOffer = factory.newTransaction(NS, 'Offer');
-                            lowOffer.member = factory.newRelationship(NS, 'Member', buyer2.$identifier);
-                            lowOffer.listing = factory.newRelationship(NS, 'VehicleListing', 'LISTING_001');
-                            lowOffer.bidPrice = 50;
-                            // Create the offer transaction and submit
-                            return businessNetworkConnection.submitTransaction(lowOffer);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
-                        })
-                        .then((vehicleListingRegistry) => {
-                            // get the listing
-                            return vehicleListingRegistry.get(listing.$identifier);
-                        })
-                        .then((newListing) => {
-                            // both offers should have been added to the listing
-                            newListing.offers.length.should.equal(2);
-                        })
-                        .then(() => {
-                            // close the bidding
-                            const closeBidding = factory.newTransaction(NS, 'CloseBidding');
-                            closeBidding.listing = factory.newRelationship(NS, 'VehicleListing', 'LISTING_001');
-                            return businessNetworkConnection.submitTransaction(closeBidding);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
-                        })
-                        .then((vehicleListingRegistry) => {
-                            // get the listing
-                            return vehicleListingRegistry.get(listing.$identifier);
-                        })
-                        .then((newListing) => {
-                            // the offer should have been added to the listing
-                            newListing.state.should.equal('SOLD');
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getParticipantRegistry(NS + '.Member');
-                        })
-                        .then((userRegistry) => {
-                            // add the buyer and seller
-                            return userRegistry.get(buyer.$identifier);
-                        })
-                        .then((buyer) => {
-                            // check the buyer's balance
-                            buyer.balance.should.equal(800);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getParticipantRegistry(NS + '.Member');
-                        })
-                        .then((userRegistry) => {
-                            // add the buyer and seller
-                            return userRegistry.get(seller.$identifier);
-                        })
-                        .then((newSeller) => {
-                            // check the seller's balance
-                            newSeller.balance.should.equal(200);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getParticipantRegistry(NS + '.Member');
-                        })
-                        .then((userRegistry) => {
-                            // add the buyer and seller
-                            return userRegistry.get(buyer.$identifier);
-                        })
-                        .then((newBuyer) => {
-                            // check the buyer's balance
-                            newBuyer.balance.should.equal(800);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle');
-                        })
-                        .then((vehicleRegistry) => {
-                            // get the vehicle
-                            return vehicleRegistry.get(vehicle.$identifier);
-                        })
-                        .then((newVehicle) => {
-                            // check that the buyer now owns the car
-                            newVehicle.owner.getIdentifier().should.equal(buyer.$identifier);
-                        });
-                });
+            // Add the Vehicle to the asset registry.
+            await vehicleRegistry.add(vehicle);
+
+            // Add the VehicleListing to the asset registry
+            await vehicleListingRegistry.add(listing);
+
+            // add the members
+            await userRegistry.addAll([buyer, buyer2, seller]);
+
+            // add the auctioneers
+            await auctioneerRegistry.addAll([auctioneer]);
+
+            // Create the offer transaction and submit
+            await businessNetworkConnection.submitTransaction(offer);
+
+            // Create the offer transaction and submit
+            const lowOffer = factory.newTransaction(NS, 'Offer');
+            lowOffer.member = factory.newRelationship(NS, 'Member', buyer2.$identifier);
+            lowOffer.listing = factory.newRelationship(NS, 'VehicleListing', 'LISTING_001');
+            lowOffer.bidPrice = 50;
+            await businessNetworkConnection.submitTransaction(lowOffer);
+
+            // get the listing
+            let newListing = await vehicleListingRegistry.get(listing.$identifier);
+
+            // both offers should have been added to the listing
+            newListing.offers.length.should.equal(2);
+
+            // close the bidding
+            const closeBidding = factory.newTransaction(NS, 'CloseBidding');
+            closeBidding.listing = factory.newRelationship(NS, 'VehicleListing', 'LISTING_001');
+            await businessNetworkConnection.submitTransaction(closeBidding);
+
+            // get the listing
+            newListing = await vehicleListingRegistry.get(listing.$identifier);
+
+            // the offer should have been added to the listing
+            newListing.state.should.equal('SOLD');
+
+            // get the buyer and seller
+            const theBuyer = await userRegistry.get(buyer.$identifier);
+            const theSeller = await userRegistry.get(seller.$identifier);
+
+            // check the buyer's balance
+            theBuyer.balance.should.equal(800);
+
+            // check the seller's balance
+            theSeller.balance.should.equal(200);
+
+            // get the vehicle
+            const theVehicle = await vehicleRegistry.get(vehicle.$identifier);
+
+            // check that the buyer now owns the car
+            theVehicle.owner.getIdentifier().should.equal(buyer.$identifier);
         });
 
-        describe('#closeBidding', function() {
-            it('with no bids should result in RESERVE_NOT_MET', function() {
+        describe('#closeBidding', () => {
+            it('with no bids should result in RESERVE_NOT_MET', async () => {
                 const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
                 const seller = factory.newResource(NS, 'Member', 'daniel.selman@example.com');
@@ -272,40 +215,28 @@ describe('CarAuction', () => {
                 listing.state = 'FOR_SALE';
                 listing.vehicle = factory.newRelationship(NS, 'Vehicle', vehicle.$identifier);
 
-                // Get the asset registry.
-                return businessNetworkConnection.getAssetRegistry(NS + '.Vehicle')
-                    .then((vehicleRegistry) => {
-                        // Add the Vehicle to the asset registry.
-                        return vehicleRegistry.add(vehicle);
-                    })
-                    .then(() => {
-                        return businessNetworkConnection.getParticipantRegistry(NS + '.Member');
-                    })
-                    .then((userRegistry) => {
-                        return userRegistry.add(seller);
-                    })
-                    .then(() => {
-                        return businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
-                    })
-                    .then((vehicleListingRegistry) => {
-                        // add the vehicle listing
-                        return vehicleListingRegistry.add(listing);
-                    })
-                    .then(() => {
-                        // close the bidding
-                        const closeBidding = factory.newTransaction(NS, 'CloseBidding');
-                        closeBidding.listing = factory.newRelationship(NS, 'VehicleListing', listing.$identifier);
-                        return businessNetworkConnection.submitTransaction(closeBidding);
-                    })
-                    .then(() => {
-                        return businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
-                    })
-                    .then((vehicleListingRegistry) => {
-                        return vehicleListingRegistry.get(listing.$identifier);
-                    })
-                    .then((vehicleListing) => {
-                        vehicleListing.state.should.equal('RESERVE_NOT_MET');
-                    });
+                // Get the registries.
+                const vehicleRegistry = await businessNetworkConnection.getAssetRegistry(NS + '.Vehicle');
+                const vehicleListingRegistry = await businessNetworkConnection.getAssetRegistry(NS + '.VehicleListing');
+                const userRegistry = await businessNetworkConnection.getParticipantRegistry(NS + '.Member');
+
+                // Add the Vehicle to the asset registry.
+                await vehicleRegistry.add(vehicle);
+
+                // add the seller to the member registry
+                await userRegistry.add(seller);
+
+                // add the vehicle listing
+                await vehicleListingRegistry.add(listing);
+
+                // close the bidding
+                const closeBidding = factory.newTransaction(NS, 'CloseBidding');
+                closeBidding.listing = factory.newRelationship(NS, 'VehicleListing', listing.$identifier);
+                await businessNetworkConnection.submitTransaction(closeBidding);
+
+                // get the listing and check state
+                const vehicleListing = await vehicleListingRegistry.get(listing.$identifier);
+                vehicleListing.state.should.equal('RESERVE_NOT_MET');
             });
         });
     });
