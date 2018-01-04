@@ -38,12 +38,9 @@ let adminConnection;
  * @param {String} type
  * @param {Resource} resource
  */
-module.exports.createAsset = function(businessNetworkConnection, NS, type, resource) {
-    var factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-    return businessNetworkConnection.getAssetRegistry(NS + '.' + type)
-        .then(function(registry) {
-            return registry.add(resource);
-        });
+module.exports.createAsset = async (businessNetworkConnection, NS, type, resource) => {
+    const registry = await businessNetworkConnection.getAssetRegistry(NS + '.' + type);
+    await registry.add(resource);
 };
 
 /**
@@ -53,24 +50,22 @@ module.exports.createAsset = function(businessNetworkConnection, NS, type, resou
  * @param {String} type
  * @param {Resource} resource
  */
-module.exports.createParticipant = function(businessNetworkConnection, NS, type, resource) {
-    return businessNetworkConnection.getParticipantRegistry(NS + '.' + resource.getIdentifier())
-        .then(function(registry) {
-            return registry.add(resource);
-        });
+module.exports.createParticipant = async (businessNetworkConnection, NS, type, resource) => {
+    const registry = await  businessNetworkConnection.getParticipantRegistry(NS + '.' + resource.getIdentifier());
+    await registry.add(resource);
 };
 
 /**
  *
  * @param {BusinessNetworkConnection} businessNetworkConnection
  */
-module.exports.setup = function(businessNetworkConnection) {
-    var factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-    var p1 = factory.newResource(NS, 'PrivateOwner', 'dan');
-    var p2 = factory.newResource(NS, 'PrivateOwner', 'simon');
-    var m1 = factory.newResource(NS_M, 'Manufacturer', 'manufacturer');
+module.exports.setup = async (businessNetworkConnection) => {
+    const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+    const p1 = factory.newResource(NS, 'PrivateOwner', 'dan');
+    const p2 = factory.newResource(NS, 'PrivateOwner', 'simon');
+    const m1 = factory.newResource(NS_M, 'Manufacturer', 'manufacturer');
 
-    var v = factory.newResource(NS_D, 'Vehicle', '123456789');
+    const v = factory.newResource(NS_D, 'Vehicle', '123456789');
     v.owner = factory.newRelationship(NS, 'PrivateOwner', 'dan');
     v.vehicleStatus = 'ACTIVE';
     v.numberPlate = 'NUMBER';
@@ -80,62 +75,44 @@ module.exports.setup = function(businessNetworkConnection) {
     v.vehicleDetails.colour = 'Beige';
     v.vehicleDetails.vin = '123456789';
 
-    return businessNetworkConnection.getParticipantRegistry(NS + '.PrivateOwner')
-        .then(function(pr) {
-            return pr.addAll([p1, p2]);
-        })
-        .then(function() {
-            return businessNetworkConnection.getParticipantRegistry(NS_M + '.Manufacturer');
-        })
-        .then(function(pr) {
-            return pr.addAll([m1]);
-        })
-        .then(function() {
-            return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
-        })
-        .then(function(ar) {
-            return ar.addAll([v]);
-        });
+    const pr = await businessNetworkConnection.getParticipantRegistry(NS + '.PrivateOwner');
+    await pr.addAll([p1, p2]);
+
+    const mr = await businessNetworkConnection.getParticipantRegistry(NS_M + '.Manufacturer');
+    await mr.addAll([m1]);
+
+    const vr = await businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
+    await vr.addAll([v]);
 };
 
-module.exports.deployAndConnect = function() {
-    let adminConnection;
-    let businessNetworkDefinition;
-    let businessNetworkConnection;
+module.exports.deployAndConnect = async () => {
+    const adminConnection = await getAdminConnection();
+    const businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
-    return getAdminConnection().then(connection => {
-        adminConnection = connection;
-        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
-    }).then(definition => {
-        businessNetworkDefinition = definition;
-        return adminConnection.install(businessNetworkDefinition.getName());
-    }).then(() => {
-        const startOptions = {
-            networkAdmins: [
-                {
-                    userName: 'admin',
-                    enrollmentSecret: 'adminpw'
-                }
-            ]
-        };
-        return adminConnection.start(businessNetworkDefinition, startOptions);
-    }).then(adminCards => {
-        return adminConnection.importCard(adminCardName, adminCards.get('admin'));
-    }).then(() => {
-        businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
-        return businessNetworkConnection.connect(adminCardName);
-    }).then(() => {
-        return businessNetworkConnection;
-    });
+    await adminConnection.install(businessNetworkDefinition.getName());
+    const startOptions = {
+        networkAdmins: [
+            {
+                userName: 'admin',
+                enrollmentSecret: 'adminpw'
+            }
+        ]
+    };
+    const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+    await adminConnection.importCard(adminCardName, adminCards.get('admin'));
+
+    const businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
+    await businessNetworkConnection.connect(adminCardName);
+    return businessNetworkConnection;
 };
 
 /**
  * Install required cards and create an admin connection.
  * @returns {Promise} Resolves with a AdminConnection.
  */
-function getAdminConnection() {
+async function getAdminConnection() {
     if (adminConnection) {
-        return Promise.resolve(adminConnection);
+        return adminConnection;
     }
 
     const connectionProfile = {
@@ -159,9 +136,7 @@ function getAdminConnection() {
 
     adminConnection = new AdminConnection({ cardStore: cardStore });
 
-    return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
-        return adminConnection.connect(deployerCardName);
-    }).then(() => {
-        return adminConnection;
-    });
+    await adminConnection.importCard(deployerCardName, deployerCard);
+    await adminConnection.connect(deployerCardName);
+    return adminConnection;
 }
