@@ -31,7 +31,7 @@ describe('Marbles', () => {
     let adminConnection;
     let businessNetworkConnection;
 
-    before(() => {
+    before(async () => {
         // Embedded connection used for local testing
         const connectionProfile = {
             name: 'embedded',
@@ -55,46 +55,42 @@ describe('Marbles', () => {
         const deployerCardName = 'PeerAdmin';
         adminConnection = new AdminConnection({ cardStore: cardStore });
 
-        return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
-            return adminConnection.connect(deployerCardName);
-        });
+        await adminConnection.importCard(deployerCardName, deployerCard);
+        await adminConnection.connect(deployerCardName);
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
 
         const adminUserName = 'admin';
         let adminCardName;
-        let businessNetworkDefinition;
+        let businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
-        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..')).then(definition => {
-            businessNetworkDefinition = definition;
-            // Install the Composer runtime for the new business network
-            return adminConnection.install(businessNetworkDefinition.getName());
-        }).then(() => {
-            // Start the business network and configure an network admin identity
-            const startOptions = {
-                networkAdmins: [
-                    {
-                        userName: adminUserName,
-                        enrollmentSecret: 'adminpw'
-                    }
-                ]
-            };
-            return adminConnection.start(businessNetworkDefinition, startOptions);
-        }).then(adminCards => {
-            // Import the network admin identity for us to use
-            adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
-            return adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
-        }).then(() => {
-            // Connect to the business network using the network admin identity
-            return businessNetworkConnection.connect(adminCardName);
-        });
+        // Install the Composer runtime for the new business network
+        await adminConnection.install(businessNetworkDefinition.getName());
+
+        // Start the business network and configure an network admin identity
+        const startOptions = {
+            networkAdmins: [
+                {
+                    userName: adminUserName,
+                    enrollmentSecret: 'adminpw'
+                }
+            ]
+        };
+
+        // Import the network admin identity for us to use
+        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+        adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
+        await adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
+
+        // Connect to the business network using the network admin identity
+        await businessNetworkConnection.connect(adminCardName);
     });
 
     describe('#trade', () => {
 
-        it('should be able to trade marbles', () => {
+        it('should be able to trade marbles', async () => {
 
             const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
@@ -118,35 +114,22 @@ describe('Marbles', () => {
             tradeMarble.newOwner = factory.newRelationship(namespace, 'Player', simon.$identifier);
             tradeMarble.marble = factory.newRelationship(namespace, 'Marble', marble.$identifier);
 
-            // Get the asset registry.
-            return businessNetworkConnection.getAssetRegistry(namespace + '.Marble')
-                .then((marbleRegistry) => {
+            // add the marble to the asset registry.
+            const marbleRegistry = await businessNetworkConnection.getAssetRegistry(namespace + '.Marble');
+            await marbleRegistry.add(marble);
 
-                    // Add the Marble to the asset registry.
-                    return marbleRegistry.add(marble)
-                        .then(() => {
-                            return businessNetworkConnection.getParticipantRegistry(namespace + '.Player');
-                        })
-                        .then((playerRegistry) => {
-                            // add the players
-                            return playerRegistry.addAll([dan, simon]);
-                        })
-                        .then(() => {
-                            // submit the transaction
-                            return businessNetworkConnection.submitTransaction(tradeMarble);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getAssetRegistry(namespace + '.Marble');
-                        })
-                        .then((marbleRegistry) => {
-                            // get the listing
-                            return marbleRegistry.get(marble.$identifier);
-                        })
-                        .then((newMarble) => {
-                            // simon should now own the marble
-                            newMarble.owner.getIdentifier().should.equal('sstone1@example.com');
-                        });
-                });
+            // add the players to the participant registry
+            const playerRegistry = await businessNetworkConnection.getParticipantRegistry(namespace + '.Player');
+            await playerRegistry.addAll([dan, simon]);
+
+            // submit the transaction
+            await businessNetworkConnection.submitTransaction(tradeMarble);
+
+            // get the listing
+            const newMarble = await marbleRegistry.get(marble.$identifier);
+
+            // simon should now own the marble
+            newMarble.owner.getIdentifier().should.equal('sstone1@example.com');
         });
     });
 });

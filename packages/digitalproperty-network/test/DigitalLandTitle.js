@@ -29,7 +29,7 @@ describe('DigitalLandTitle', () => {
     let adminConnection;
     let businessNetworkConnection;
 
-    before(() => {
+    before(async () => {
         // Embedded connection used for local testing
         const connectionProfile = {
             name: 'embedded',
@@ -53,46 +53,42 @@ describe('DigitalLandTitle', () => {
         const deployerCardName = 'PeerAdmin';
         adminConnection = new AdminConnection({ cardStore: cardStore });
 
-        return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
-            return adminConnection.connect(deployerCardName);
-        });
+        await adminConnection.importCard(deployerCardName, deployerCard);
+        await adminConnection.connect(deployerCardName);
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
 
         const adminUserName = 'admin';
         let adminCardName;
-        let businessNetworkDefinition;
+        let businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
-        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..')).then(definition => {
-            businessNetworkDefinition = definition;
-            // Install the Composer runtime for the new business network
-            return adminConnection.install(businessNetworkDefinition.getName());
-        }).then(() => {
-            // Start the business network and configure an network admin identity
-            const startOptions = {
-                networkAdmins: [
-                    {
-                        userName: adminUserName,
-                        enrollmentSecret: 'adminpw'
-                    }
-                ]
-            };
-            return adminConnection.start(businessNetworkDefinition, startOptions);
-        }).then(adminCards => {
-            // Import the network admin identity for us to use
-            adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
-            return adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
-        }).then(() => {
-            // Connect to the business network using the network admin identity
-            return businessNetworkConnection.connect(adminCardName);
-        });
+        // Install the Composer runtime for the new business network
+        await adminConnection.install(businessNetworkDefinition.getName());
+
+        // Start the business network and configure an network admin identity
+        const startOptions = {
+            networkAdmins: [
+                {
+                    userName: adminUserName,
+                    enrollmentSecret: 'adminpw'
+                }
+            ]
+        };
+        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+
+        // Import the network admin identity for us to use
+        adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
+        await adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
+
+        // Connect to the business network using the network admin identity
+        await businessNetworkConnection.connect(adminCardName);
     });
 
     describe('#onRegisterPropertyForSale', () => {
 
-        it('should change the forSale flag from undefined to true', () => {
+        it('should change the forSale flag from undefined to true', async () => {
 
             // Create the existing LandTitle asset.
             let factory = businessNetworkConnection.getBusinessNetwork().getFactory();
@@ -113,33 +109,21 @@ describe('DigitalLandTitle', () => {
             transaction.seller = person;
 
             // Get the asset registry.
-            return businessNetworkConnection.getParticipantRegistry('net.biz.digitalPropertyNetwork.Person')
-                .then((personRegistry) => {
-                    return personRegistry.add(seller);
-                })
-                .then(() => {
-                    return businessNetworkConnection.getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle');
-                })
-                .then((assetRegistry) => {
-                    // Add the LandTitle asset to the asset registry.
-                    return assetRegistry.add(landTitle);
-                })
-                .then(() => {
-                    // Submit the transaction.
-                    return businessNetworkConnection.submitTransaction(transaction);
+            const personRegistry = await businessNetworkConnection.getParticipantRegistry('net.biz.digitalPropertyNetwork.Person');
+            await personRegistry.add(seller);
 
-                })
-                .then(() => {
-                    return businessNetworkConnection.getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle');
-                })
-                .then((assetRegistry) => {
-                    // Get the modified land title.
-                    return assetRegistry.get('TITLE_1');
-                })
-                .then((modifiedLandTitle) => {
-                    // Ensure the LandTitle has been modified correctly.
-                    modifiedLandTitle.forSale.should.be.true;
-                });
+            // Add the LandTitle asset to the asset registry.
+            const assetRegistry = await businessNetworkConnection.getAssetRegistry('net.biz.digitalPropertyNetwork.LandTitle');
+            await assetRegistry.add(landTitle);
+
+            // Submit the transaction.
+            await businessNetworkConnection.submitTransaction(transaction);
+
+            // Get the modified land title.
+            const modifiedLandTitle = await assetRegistry.get('TITLE_1');
+
+            // Ensure the LandTitle has been modified correctly.
+            modifiedLandTitle.forSale.should.be.true;
         });
     });
 });
