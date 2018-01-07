@@ -12,22 +12,24 @@
  * limitations under the License.
  */
 
+/* global getAssetRegistry getParticipantRegistry */
+
 /**
  * Close the bidding for a vehicle listing and choose the
  * highest bid that is over the asking price
  * @param {org.acme.vehicle.auction.CloseBidding} closeBidding - the closeBidding transaction
  * @transaction
  */
-function closeBidding(closeBidding) {
-    var listing = closeBidding.listing;
+async function closeBidding(closeBidding) {  // eslint-disable-line no-unused-vars
+    const listing = closeBidding.listing;
     if (listing.state !== 'FOR_SALE') {
         throw new Error('Listing is not FOR SALE');
     }
     // by default we mark the listing as RESERVE_NOT_MET
     listing.state = 'RESERVE_NOT_MET';
-    var highestOffer = null;
-    var buyer = null;
-    var seller = null;
+    let highestOffer = null;
+    let buyer = null;
+    let seller = null;
     if (listing.offers && listing.offers.length > 0) {
         // sort the bids by bidPrice
         listing.offers.sort(function(a, b) {
@@ -53,33 +55,22 @@ function closeBidding(closeBidding) {
             listing.offers = null;
         }
     }
-    return getAssetRegistry('org.acme.vehicle.auction.Vehicle')
-        .then(function(vehicleRegistry) {
-            // save the vehicle
-            if (highestOffer) {
-                return vehicleRegistry.update(listing.vehicle);
-            } else {
-                return true;
-            }
-        })
-        .then(function() {
-            return getAssetRegistry('org.acme.vehicle.auction.VehicleListing')
-        })
-        .then(function(vehicleListingRegistry) {
-            // save the vehicle listing
-            return vehicleListingRegistry.update(listing);
-        })
-        .then(function() {
-            return getParticipantRegistry('org.acme.vehicle.auction.Member')
-        })
-        .then(function(userRegistry) {
-            // save the buyer
-            if (listing.state == 'SOLD') {
-                return userRegistry.updateAll([buyer, seller]);
-            } else {
-                return true;
-            }
-        });
+
+    if (highestOffer) {
+        // save the vehicle
+        const vehicleRegistry = await getAssetRegistry('org.acme.vehicle.auction.Vehicle');
+        await vehicleRegistry.update(listing.vehicle);
+    }
+
+    // save the vehicle listing
+    const vehicleListingRegistry = await getAssetRegistry('org.acme.vehicle.auction.VehicleListing');
+    await vehicleListingRegistry.update(listing);
+
+    if (listing.state === 'SOLD') {
+        // save the buyer
+        const userRegistry = await getParticipantRegistry('org.acme.vehicle.auction.Member');
+        await userRegistry.updateAll([buyer, seller]);
+    }
 }
 
 /**
@@ -87,18 +78,17 @@ function closeBidding(closeBidding) {
  * @param {org.acme.vehicle.auction.Offer} offer - the offer
  * @transaction
  */
-function makeOffer(offer) {
-    var listing = offer.listing;
+async function makeOffer(offer) {  // eslint-disable-line no-unused-vars
+    let listing = offer.listing;
     if (listing.state !== 'FOR_SALE') {
         throw new Error('Listing is not FOR SALE');
     }
-    if (listing.offers == null) {
+    if (!listing.offers) {
         listing.offers = [];
     }
     listing.offers.push(offer);
-    return getAssetRegistry('org.acme.vehicle.auction.VehicleListing')
-        .then(function(vehicleListingRegistry) {
-            // save the vehicle listing
-            return vehicleListingRegistry.update(listing);
-        });
+
+    // save the vehicle listing
+    const vehicleListingRegistry = await getAssetRegistry('org.acme.vehicle.auction.VehicleListing');
+    await vehicleListingRegistry.update(listing);
 }
