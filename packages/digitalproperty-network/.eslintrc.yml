@@ -4,7 +4,7 @@ env:
     mocha: true
 extends: 'eslint:recommended'
 parserOptions:
-    ecmaVersion: 2015
+    ecmaVersion: 8
     sourceType:
         - script
 rules:
@@ -21,7 +21,7 @@ rules:
         - error
         - always
     no-unused-vars:
-        - off
+        - error
         - args: none
     no-console: off
     no-undefl: off
