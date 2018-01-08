@@ -31,7 +31,7 @@ describe('Commodity Trading', () => {
     let adminConnection;
     let businessNetworkConnection;
 
-    before(() => {
+    before(async () => {
         // Embedded connection used for local testing
         const connectionProfile = {
             name: 'embedded',
@@ -55,46 +55,42 @@ describe('Commodity Trading', () => {
         const deployerCardName = 'PeerAdmin';
         adminConnection = new AdminConnection({ cardStore: cardStore });
 
-        return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
-            return adminConnection.connect(deployerCardName);
-        });
+        await adminConnection.importCard(deployerCardName, deployerCard);
+        await adminConnection.connect(deployerCardName);
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
 
         const adminUserName = 'admin';
         let adminCardName;
-        let businessNetworkDefinition;
+        const  businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
-        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..')).then(definition => {
-            businessNetworkDefinition = definition;
-            // Install the Composer runtime for the new business network
-            return adminConnection.install(businessNetworkDefinition.getName());
-        }).then(() => {
-            // Start the business network and configure an network admin identity
-            const startOptions = {
-                networkAdmins: [
-                    {
-                        userName: adminUserName,
-                        enrollmentSecret: 'adminpw'
-                    }
-                ]
-            };
-            return adminConnection.start(businessNetworkDefinition, startOptions);
-        }).then(adminCards => {
-            // Import the network admin identity for us to use
-            adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
-            return adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
-        }).then(() => {
-            // Connect to the business network using the network admin identity
-            return businessNetworkConnection.connect(adminCardName);
-        });
+        // Install the Composer runtime for the new business network
+        await adminConnection.install(businessNetworkDefinition.getName());
+
+        // Start the business network and configure an network admin identity
+        const startOptions = {
+            networkAdmins: [
+                {
+                    userName: adminUserName,
+                    enrollmentSecret: 'adminpw'
+                }
+            ]
+        };
+        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+
+        // Import the network admin identity for us to use
+        adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
+        await adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
+
+        // Connect to the business network using the network admin identity
+        await businessNetworkConnection.connect(adminCardName);
     });
 
     describe('#tradeCommodity', () => {
 
-        it('should be able to trade a commodity', () => {
+        it('should be able to trade a commodity', async () => {
             const factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
             // create the traders
@@ -134,66 +130,47 @@ describe('Commodity Trading', () => {
             });
 
             // Get the asset registry.
-            return businessNetworkConnection.getAssetRegistry(namespace + '.Commodity')
-                .then((assetRegistry) => {
+            const assetRegistry = await businessNetworkConnection.getAssetRegistry(namespace + '.Commodity');
 
-                    // add the commodities to the asset registry.
-                    return assetRegistry.addAll([commodity,commodity2])
-                        .then(() => {
-                            return businessNetworkConnection.getParticipantRegistry(namespace + '.Trader');
-                        })
-                        .then((participantRegistry) => {
-                            // add the traders
-                            return participantRegistry.addAll([dan, simon]);
-                        })
-                        .then(() => {
-                            // submit the transaction
-                            return businessNetworkConnection.submitTransaction(trade);
-                        })
-                        .then(() => {
-                            return businessNetworkConnection.getAssetRegistry(namespace + '.Commodity');
-                        })
-                        .then((assetRegistry) => {
-                            // re-get the commodity
-                            return assetRegistry.get(commodity.$identifier);
-                        })
-                        .then((newCommodity) => {
-                            // the owner of the commodity should now be simon
-                            newCommodity.owner.$identifier.should.equal(simon.$identifier);
-                        })
-                        .then(() => {
-                            // use a query
-                            return businessNetworkConnection.query('selectCommoditiesByExchange', {exchange : 'Euronext'});
-                        })
-                        .then((results) => {
-                            // check results
-                            results.length.should.equal(1);
-                            results[0].getIdentifier().should.equal('EMA');
-                        })
-                        .then(() => {
-                            // use another query
-                            return businessNetworkConnection.query('selectCommoditiesByOwner', {owner : 'resource:' + simon.getFullyQualifiedIdentifier()});
-                        })
-                        .then((results) => {
-                            //  check results
-                            results.length.should.equal(1);
-                            results[0].getIdentifier().should.equal('EMA');
-                        })
-                        .then(() => {
-                            // submit the remove transaction
-                            const remove = factory.newTransaction(namespace, 'RemoveHighQuantityCommodities');
-                            return businessNetworkConnection.submitTransaction(remove);
-                        })
-                        .then(() => {
-                            // use a query
-                            return businessNetworkConnection.query('selectCommodities');
-                        })
-                        .then((results) => {
-                            // check results, should only have 1 commodity left
-                            results.length.should.equal(1);
-                            results[0].getIdentifier().should.equal('XYZ');
-                        });
-                });
+            // add the commodities to the asset registry.
+            await assetRegistry.addAll([commodity,commodity2]);
+
+            // add the traders
+            const participantRegistry = await businessNetworkConnection.getParticipantRegistry(namespace + '.Trader');
+            await participantRegistry.addAll([dan, simon]);
+
+            // submit the transaction
+            await businessNetworkConnection.submitTransaction(trade);
+
+            // re-get the commodity
+            const newCommodity = await assetRegistry.get(commodity.$identifier);
+            // the owner of the commodity should now be simon
+            newCommodity.owner.$identifier.should.equal(simon.$identifier);
+
+            // use a query
+            let results = await businessNetworkConnection.query('selectCommoditiesByExchange', {exchange : 'Euronext'});
+
+            // check results
+            results.length.should.equal(1);
+            results[0].getIdentifier().should.equal('EMA');
+
+            // use another query
+            results = await businessNetworkConnection.query('selectCommoditiesByOwner', {owner : 'resource:' + simon.getFullyQualifiedIdentifier()});
+
+            //  check results
+            results.length.should.equal(1);
+            results[0].getIdentifier().should.equal('EMA');
+
+            // submit the remove transaction
+            const remove = factory.newTransaction(namespace, 'RemoveHighQuantityCommodities');
+            await businessNetworkConnection.submitTransaction(remove);
+
+            // use a query
+            results = await businessNetworkConnection.query('selectCommodities');
+
+            // check results, should only have 1 commodity left
+            results.length.should.equal(1);
+            results[0].getIdentifier().should.equal('XYZ');
         });
     });
 });
