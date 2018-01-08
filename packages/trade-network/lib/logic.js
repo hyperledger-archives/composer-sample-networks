@@ -44,12 +44,12 @@ async function removeHighQuantityCommodities(remove) { // eslint-disable-line no
     const assetRegistry = await getAssetRegistry('org.acme.trading.Commodity');
     const results = await query('selectCommoditiesWithHighQuantity');
 
-    const promises = results.map(trade => {
+    // since all registry requests have to be serialized anyway, there is no benefit to calling Promise.all
+    // on an array of promises
+    results.forEach(async trade => {
         const removeNotification = getFactory().newEvent('org.acme.trading', 'RemoveNotification');
         removeNotification.commodity = trade;
         emit(removeNotification);
-        return assetRegistry.remove(trade);
+        await assetRegistry.remove(trade);
     });
-
-    await Promise.all(promises);
 }
