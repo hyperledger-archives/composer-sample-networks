@@ -7,11 +7,6 @@ parserOptions:
     ecmaVersion: 8
     sourceType:
         - script
-globals: 
-    getAssetRegistry: true
-    getFactory: true
-    getParticipantRegistry: true
-    getCurrentParticipant: true
 rules:
     indent:
         - error

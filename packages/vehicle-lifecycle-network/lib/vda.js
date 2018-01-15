@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-/* global emit query */
+/* global getFactory getAssetRegistry emit query */
 
 /**
  * Transfer a vehicle to another private owner

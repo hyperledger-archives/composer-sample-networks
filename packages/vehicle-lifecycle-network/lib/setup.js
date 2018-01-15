@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+/* global getFactory getParticipantRegistry getAssetRegistry */
+
 /**
  * Setup the demo
  * @param {org.acme.vehicle.lifecycle.SetupDemo} setupDemo - the SetupDemo transaction

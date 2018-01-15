@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-/* global emit */
+/* global getFactory getAssetRegistry emit */
 
 /**
  * Place an order for a vehicle
