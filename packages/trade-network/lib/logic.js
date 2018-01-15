@@ -12,26 +12,26 @@
  * limitations under the License.
  */
 
+/* global getAssetRegistry getFactory emit query */
+
 /**
  * Track the trade of a commodity from one trader to another
  * @param {org.acme.trading.Trade} trade - the trade to be processed
  * @transaction
  */
-function tradeCommodity(trade) {
+async function tradeCommodity(trade) { // eslint-disable-line no-unused-vars
 
     // set the new owner of the commodity
     trade.commodity.owner = trade.newOwner;
-    return getAssetRegistry('org.acme.trading.Commodity')
-        .then(function (assetRegistry) {
+    const assetRegistry = await getAssetRegistry('org.acme.trading.Commodity');
 
-            // emit a notification that a trade has occurred
-            var tradeNotification = getFactory().newEvent('org.acme.trading', 'TradeNotification');
-            tradeNotification.commodity = trade.commodity;
-            emit(tradeNotification);
+    // emit a notification that a trade has occurred
+    const tradeNotification = getFactory().newEvent('org.acme.trading', 'TradeNotification');
+    tradeNotification.commodity = trade.commodity;
+    emit(tradeNotification);
 
-            // persist the state of the commodity
-            return assetRegistry.update(trade.commodity);
-        });
+    // persist the state of the commodity
+    await assetRegistry.update(trade.commodity);
 }
 
 /**
@@ -39,29 +39,17 @@ function tradeCommodity(trade) {
  * @param {org.acme.trading.RemoveHighQuantityCommodities} remove - the remove to be processed
  * @transaction
  */
-function removeHighQuantityCommodities(remove) {
+async function removeHighQuantityCommodities(remove) { // eslint-disable-line no-unused-vars
 
-    return getAssetRegistry('org.acme.trading.Commodity')
-        .then(function (assetRegistry) {
-            return query('selectCommoditiesWithHighQuantity')
-                    .then(function (results) {
+    const assetRegistry = await getAssetRegistry('org.acme.trading.Commodity');
+    const results = await query('selectCommoditiesWithHighQuantity');
 
-                        var promises = [];
-
-                        for (var n = 0; n < results.length; n++) {
-                            var trade = results[n];
-
-                            // emit a notification that a trade was removed
-                            var removeNotification = getFactory().newEvent('org.acme.trading', 'RemoveNotification');
-                            removeNotification.commodity = trade;
-                            emit(removeNotification);
-
-                            // remove the commodity
-                            promises.push(assetRegistry.remove(trade));
-                        }
-
-                        // we have to return all the promises
-                        return Promise.all(promises);
-                    });
-        });
+    // since all registry requests have to be serialized anyway, there is no benefit to calling Promise.all
+    // on an array of promises
+    results.forEach(async trade => {
+        const removeNotification = getFactory().newEvent('org.acme.trading', 'RemoveNotification');
+        removeNotification.commodity = trade;
+        emit(removeNotification);
+        await assetRegistry.remove(trade);
+    });
 }
