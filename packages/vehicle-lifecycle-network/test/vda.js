@@ -19,101 +19,71 @@ const Util = require('./util');
 const should = require('chai').should();
 
 const NS = 'org.acme.vehicle.lifecycle';
-const NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
 const NS_D = 'org.vda';
 
-describe('VDA', function() {
+describe('VDA', () => {
     let businessNetworkConnection;
     let factory;
 
-    beforeEach(function() {
-        return Util.deployAndConnect()
-            .then(connection => {
-                businessNetworkConnection = connection;
-                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-                return Util.setup(businessNetworkConnection);
-            });
+    beforeEach(async () => {
+        businessNetworkConnection = await Util.deployAndConnect();
+        factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+        await Util.setup(businessNetworkConnection);
     });
 
-    describe('#privateVehicleTransfer', function() {
-        it('should be able to transfer a vehicle between two private owners', function() {
+    describe('#privateVehicleTransfer', () => {
+        it('should be able to transfer a vehicle between two private owners', async () => {
             const vehicleToTransfer = '123456789';
-            const owners = ['dan', 'simon'];
 
-            let vehicleRegistry;
-            let privateOwnerRegistry;
-            let vehicle;
+            const vehicleRegistry = await businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
+            const vehicle = await vehicleRegistry.get(vehicleToTransfer);
 
-            return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle')
-                .then(function(vr) {
-                    vehicleRegistry = vr;
-                    return vehicleRegistry.get(vehicleToTransfer);
-                })
-                .then(function(v) {
-                    vehicle = v;
-                    should.not.exist(vehicle.logEntries);
-                    vehicle.owner.getIdentifier().should.equal('dan');
-                })
-                .then(function() {
-                    const privateVehicleTransfer = factory.newTransaction(NS_D, 'PrivateVehicleTransfer');
-                    privateVehicleTransfer.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicle.getIdentifier());
-                    privateVehicleTransfer.seller = vehicle.owner;
-                    privateVehicleTransfer.buyer = factory.newRelationship(NS, 'PrivateOwner', 'simon');
+            should.not.exist(vehicle.logEntries);
+            vehicle.owner.getIdentifier().should.equal('dan');
 
-                    return businessNetworkConnection.submitTransaction(privateVehicleTransfer);
-                })
-                .then(function() {
-                    return vehicleRegistry.get(vehicle.getIdentifier());
-                })
-                .then(function(newVehicle) {
-                    newVehicle.owner.getIdentifier().should.equal('simon');
-                    should.exist(newVehicle.logEntries);
-                    newVehicle.logEntries.length.should.equal(1);
-                    newVehicle.logEntries[0].buyer.getIdentifier().should.equal('simon');
-                    newVehicle.logEntries[0].seller.getIdentifier().should.equal('dan');
-                    newVehicle.logEntries[0].vehicle.getIdentifier().should.equal(vehicleToTransfer);
-                });
+            const privateVehicleTransfer = factory.newTransaction(NS_D, 'PrivateVehicleTransfer');
+            privateVehicleTransfer.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicle.getIdentifier());
+            privateVehicleTransfer.seller = vehicle.owner;
+            privateVehicleTransfer.buyer = factory.newRelationship(NS, 'PrivateOwner', 'simon');
+            await businessNetworkConnection.submitTransaction(privateVehicleTransfer);
+
+            const newVehicle = await vehicleRegistry.get(vehicle.getIdentifier());
+            newVehicle.owner.getIdentifier().should.equal('simon');
+            should.exist(newVehicle.logEntries);
+            newVehicle.logEntries.length.should.equal(1);
+            newVehicle.logEntries[0].buyer.getIdentifier().should.equal('simon');
+            newVehicle.logEntries[0].seller.getIdentifier().should.equal('dan');
+            newVehicle.logEntries[0].vehicle.getIdentifier().should.equal(vehicleToTransfer);
         });
     });
 
-    describe('ScrapVehicle', function() {
-        it('should change a vehicles status to SCRAPPED', function() {
+    describe('ScrapVehicle', () => {
+        it('should change a vehicles status to SCRAPPED', async () => {
             const vehicleToScrap = '123456789';
 
             const scrapVehicle = factory.newTransaction(NS_D, 'ScrapVehicle');
             scrapVehicle.vehicle = factory.newRelationship(NS_D, 'Vehicle', vehicleToScrap);
 
-            return businessNetworkConnection.submitTransaction(scrapVehicle)
-                .then(function() {
-                    return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
-                })
-                .then(function(assetRegistry) {
-                    return assetRegistry.get(vehicleToScrap);
-                })
-                .then(function(vehicle) {
-                    vehicle.vehicleStatus.should.equal('SCRAPPED');
-                });
+            await businessNetworkConnection.submitTransaction(scrapVehicle);
+
+            const assetRegistry = await businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
+            const vehicle = await assetRegistry.get(vehicleToScrap);
+            vehicle.vehicleStatus.should.equal('SCRAPPED');
         });
     });
 
-    describe('ScrapAllVehiclesByColour', function() {
-        it('should select vehicles by colour and change vehicles status to SCRAPPED', function() {
+    describe('ScrapAllVehiclesByColour', () => {
+        it('should select vehicles by colour and change vehicles status to SCRAPPED', async () => {
             // Vehicle with beige colour and id 123456789 resides in reposritory
             const vehicleId = '123456789';
             const scrapVehicleTransaction = factory.newTransaction(NS_D, 'ScrapAllVehiclesByColour');
             scrapVehicleTransaction.colour = 'Beige';
-            return businessNetworkConnection.submitTransaction(scrapVehicleTransaction)
-                .then(function() {
-                    return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
-                })
-                .then(function(ar) {
-                    const assetRegistry = ar;
-                    return assetRegistry.get(vehicleId);
-                })
-                .then(function(vehicle) {
-                    vehicle.vehicleStatus.should.equal('SCRAPPED');
-                });
 
+            await businessNetworkConnection.submitTransaction(scrapVehicleTransaction);
+
+            const assetRegistry = await businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
+            const vehicle = await assetRegistry.get(vehicleId);
+            vehicle.vehicleStatus.should.equal('SCRAPPED');
         });
     });
 

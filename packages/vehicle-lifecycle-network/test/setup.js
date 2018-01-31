@@ -16,71 +16,52 @@
 
 const Util = require('./util');
 
-const should = require('chai').should();
-
 const NS = 'org.acme.vehicle.lifecycle';
 const NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
 const NS_D = 'org.vda';
 
-describe('Setup', function() {
+describe('Setup', () => {
     let businessNetworkConnection;
     let factory;
 
-    beforeEach(function() {
-        return Util.deployAndConnect()
-            .then(connection => {
-                businessNetworkConnection = connection;
-                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-            });
+    beforeEach(async () => {
+        businessNetworkConnection = await Util.deployAndConnect();
+        factory = businessNetworkConnection.getBusinessNetwork().getFactory();
     });
 
-    describe('Setup', function() {
-        describe('#setupDemo', function() {
+    describe('Setup', () => {
+        describe('#setupDemo', () => {
             /**
              *
              * @param {String} registry - name of a registry
              */
-            function getAllFromRegistry(type, registry) {
+            async function getAllFromRegistry(type, registry) {
                 const func = 'get' + type + 'Registry';
-                return businessNetworkConnection[func](registry)
-                    .then(function(registry) {
-                        return registry.getAll();
-                    });
+                const bnc = await businessNetworkConnection[func](registry);
+                return await bnc.getAll();
             }
 
-            it('should create a scenario', function() {
+            it('should create a scenario', async () => {
                 // submit the transaction
                 const setupDemo = factory.newTransaction(NS, 'SetupDemo');
 
-                return businessNetworkConnection.submitTransaction(setupDemo)
-                    .then(function() {
-                        // (participants) get regulator registry
-                        return getAllFromRegistry('Participant', NS + '.Regulator');
-                    })
-                    .then(function(regulators) {
-                        regulators.length.should.equal(1);
-                    })
-                    .then(function() {
-                        // (participants) get manufacturer registry
-                        return getAllFromRegistry('Participant', NS_M + '.Manufacturer');
-                    })
-                    .then(function(manufacturers) {
-                        manufacturers.length.should.be.above(1);
-                    })
-                    .then(function() {
-                        // (participants) get private owner registry
-                        return getAllFromRegistry('Participant', NS + '.PrivateOwner');
-                    })
-                    .then(function(privateOwners) {
-                        privateOwners.length.should.be.above(10);
-                    })
-                    .then(function() {
-                        // (assets) get vehicles registry
-                        return getAllFromRegistry('Asset', NS_D + '.Vehicle');
-                    })
-                    .then(function(vehicles) {
-                        vehicles.length.should.be.above(10);
-                    });
+                await businessNetworkConnection.submitTransaction(setupDemo);
+
+                // (participants) get regulator registry
+                const regulators = await getAllFromRegistry('Participant', NS + '.Regulator');
+                regulators.length.should.equal(1);
+
+                // (participants) get manufacturer registry
+                const manufacturers = await getAllFromRegistry('Participant', NS_M + '.Manufacturer');
+                manufacturers.length.should.be.above(1);
+
+                // (participants) get private owner registry
+                const privateOwners = await getAllFromRegistry('Participant', NS + '.PrivateOwner');
+                privateOwners.length.should.be.above(10);
+
+                // (assets) get vehicles registry
+                const vehicles = await getAllFromRegistry('Asset', NS_D + '.Vehicle');
+                vehicles.length.should.be.above(10);
             });
         });
 

@@ -32,7 +32,7 @@ describe('Acl checking', () => {
     // Embedded connection used for local testing
     const connectionProfile = {
         name: 'embedded',
-        type: 'embedded'
+        'x-type': 'embedded'
     };
 
     // Name of the business network card containing the administrative identity for the business network
@@ -54,7 +54,7 @@ describe('Acl checking', () => {
     let businessNetworkName;
     let factory;
 
-    before(() => {
+    before(async () => {
         // Embedded connection does not need real credentials
         const credentials = {
             certificate: 'FAKE CERTIFICATE',
@@ -73,18 +73,16 @@ describe('Acl checking', () => {
 
         adminConnection = new AdminConnection({ cardStore: cardStore });
 
-        return adminConnection.importCard(deployerCardName, deployerCard).then(() => {
-            return adminConnection.connect(deployerCardName);
-        });
+        await adminConnection.importCard(deployerCardName, deployerCard);
+        await adminConnection.connect(deployerCardName);
     });
 
     /**
      *
      * @param {String} cardName The card name to use for this identity
      * @param {Object} identity The identity details
-     * @returns {Promise} resolved when the card is imported
      */
-    function importCardForIdentity(cardName, identity) {
+    async function importCardForIdentity(cardName, identity) {
         const metadata = {
             userName: identity.userID,
             version: 1,
@@ -92,171 +90,128 @@ describe('Acl checking', () => {
             businessNetwork: businessNetworkName
         };
         const card = new IdCard(metadata, connectionProfile);
-        return adminConnection.importCard(cardName, card);
+        await adminConnection.importCard(cardName, card);
     }
 
     // This is called before each test is executed.
-    beforeEach(() => {
-        let businessNetworkDefinition;
-
+    beforeEach(async () => {
         // Generate a business network definition from the project directory.
-        return BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'))
-            .then(definition => {
-                businessNetworkDefinition = definition;
-                businessNetworkName = definition.getName();
-                return adminConnection.install(businessNetworkName);
-            })
-            .then(() => {
-                const startOptions = {
-                    networkAdmins: [
-                        {
-                            userName: 'admin',
-                            enrollmentSecret: 'adminpw'
-                        }
-                    ]
-                };
-                return adminConnection.start(businessNetworkDefinition, startOptions);
-            }).then(adminCards => {
-                return adminConnection.importCard(adminCardName, adminCards.get('admin'));
-            })
-            .then(() => {
-                // Create and establish a business network connection
-                businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
-                events = [];
-                businessNetworkConnection.on('event', event => {
-                    events.push(event);
-                });
-                return businessNetworkConnection.connect(adminCardName);
-            })
-            .then(() => {
-                // Get the factory for the business network.
-                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+        const businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
-                return businessNetworkConnection.getParticipantRegistry(namespace + '.Member');
-            })
-            .then(participantRegistry => {
-                // Create the participants.
-                const alice = factory.newResource(namespace, 'Member', 'alice@email.com');
-                alice.firstName = 'Alice';
-                alice.lastName = 'A';
+        businessNetworkName = businessNetworkDefinition.getName();
+        await adminConnection.install(businessNetworkName);
 
-                const bob = factory.newResource(namespace, 'Member', 'bob@email.com');
-                bob.firstName = 'Bob';
-                bob.lastName = 'B';
+        const startOptions = {
+            networkAdmins: [
+                {
+                    userName: 'admin',
+                    enrollmentSecret: 'adminpw'
+                }
+            ]
+        };
+        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+        await adminConnection.importCard(adminCardName, adminCards.get('admin'));
 
-                participantRegistry.addAll([alice, bob]);
-            })
-            .then(() => {
-                // Issue the identities.
-                return businessNetworkConnection.issueIdentity(namespace + '.Member#alice@email.com', 'alice1');
-            })
-            .then(identity => {
-                return importCardForIdentity(aliceCardName, identity);
-            }).then(() => {
-                return businessNetworkConnection.issueIdentity(namespace + '.Member#bob@email.com', 'bob1');
-            })
-            .then((identity) => {
-                return importCardForIdentity(bobCardName, identity);
-            });
+        // Create and establish a business network connection
+        businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
+        events = [];
+        businessNetworkConnection.on('event', event => {
+            events.push(event);
+        });
+        await businessNetworkConnection.connect(adminCardName);
+
+        // Get the factory for the business network.
+        factory = businessNetworkConnection.getBusinessNetwork().getFactory();
+
+        // Create the participants.
+        const alice = factory.newResource(namespace, 'Member', 'alice@email.com');
+        alice.firstName = 'Alice';
+        alice.lastName = 'A';
+
+        const bob = factory.newResource(namespace, 'Member', 'bob@email.com');
+        bob.firstName = 'Bob';
+        bob.lastName = 'B';
+
+        const participantRegistry = await businessNetworkConnection.getParticipantRegistry(namespace + '.Member');
+        participantRegistry.addAll([alice, bob]);
+
+        // Issue the identities.
+        const identityA = await businessNetworkConnection.issueIdentity(namespace + '.Member#alice@email.com', 'alice1');
+        await importCardForIdentity(aliceCardName, identityA);
+        const identityB = await businessNetworkConnection.issueIdentity(namespace + '.Member#bob@email.com', 'bob1');
+        await importCardForIdentity(bobCardName, identityB);
     });
 
     /**
      * Reconnect using a different identity.
      * @param {String} cardName The identity to use.
-     * @return {Promise} A promise that will be resolved when complete.
      */
-    function useIdentity(cardName) {
-        return businessNetworkConnection.disconnect()
-            .then(() => {
-                businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
-                events = [];
-                businessNetworkConnection.on('event', (event) => {
-                    events.push(event);
-                });
-                return businessNetworkConnection.connect(cardName);
-            });
+    async function useIdentity(cardName) {
+        await businessNetworkConnection.disconnect();
+
+        businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
+        events = [];
+        businessNetworkConnection.on('event', (event) => {
+            events.push(event);
+        });
+
+        await businessNetworkConnection.connect(cardName);
     }
 
     describe('#OwnRecordFullAccess', () => {
 
-        it('bob should be able to read own data only', () => {
-
-            return useIdentity(bobCardName)
-                .then(() => {
-                    // use a query, bob should only see his own data
-                    return businessNetworkConnection.query('selectMembers')
-                        .then((results) => {
-                            // check results
-                            results.length.should.equal(1);
-                            results[0].getIdentifier().should.equal('bob@email.com');
-                        });
-                });
+        it('bob should be able to read own data only', async () => {
+            await useIdentity(bobCardName);
+             // use a query, bob should only see his own data
+            const results = await businessNetworkConnection.query('selectMembers');
+            // check results
+            results.length.should.equal(1);
+            results[0].getIdentifier().should.equal('bob@email.com');
         });
 
-
-        it('alice should be able to read own data only', () => {
-
-            return useIdentity(aliceCardName)
-                .then(() => {
-                    // use a query, alice should only see her own data
-                    return businessNetworkConnection.query('selectMembers')
-                        .then((results) => {
-                            // check results
-                            results.length.should.equal(1);
-                            results[0].getIdentifier().should.equal('alice@email.com');
-                        });
-                });
+        it('alice should be able to read own data only', async () => {
+            await useIdentity(aliceCardName);
+            // use a query, alice should only see her own data
+            const results = await businessNetworkConnection.query('selectMembers');
+            // check results
+            results.length.should.equal(1);
+            results[0].getIdentifier().should.equal('alice@email.com');
         });
 
     });
 
     describe('#ForeignRecordConditionalAccess', () => {
 
-        it('bob should be able to read alice data IFF granted access', () => {
+        it('bob should be able to read alice data IFF granted access', async () => {
 
-            return useIdentity(aliceCardName)
-                .then(() => {
+            await useIdentity(aliceCardName);
 
-                    // alice grants access to her data to bob
-                    const authorize = factory.newTransaction('org.acme.pii', 'AuthorizeAccess');
-                    authorize.memberId = 'bob@email.com';
-                    return businessNetworkConnection.submitTransaction(authorize);
-                })
-                .then(() => {
-                    return useIdentity(bobCardName);
-                })
-                .then(() => {
+            // alice grants access to her data to bob
+            const authorize = factory.newTransaction('org.acme.pii', 'AuthorizeAccess');
+            authorize.memberId = 'bob@email.com';
+            await businessNetworkConnection.submitTransaction(authorize);
 
-                    // use a query, bob should be able to see his own and alice's data
-                    return businessNetworkConnection.query('selectMembers')
-                        .then((results) => {
-                            // check results
-                            results.length.should.equal(2);
-                        });
-                })
-                .then(() => {
-                    // switch back to alice
-                    return useIdentity(aliceCardName);
-                })
-                .then(() => {
+            await useIdentity(bobCardName);
 
-                    // alice revokes access to her data to bob
-                    const revoke = factory.newTransaction('org.acme.pii', 'RevokeAccess');
-                    revoke.memberId = 'bob@email.com';
-                    return businessNetworkConnection.submitTransaction(revoke);
-                })
-                .then(() => {
-                    return useIdentity(bobCardName);
-                })
-                .then(() => {
+            // use a query, bob should be able to see his own and alice's data
+            let results = await businessNetworkConnection.query('selectMembers');
+            // check results
+            results.length.should.equal(2);
 
-                    // use a query, bob should now only see his own data
-                    return businessNetworkConnection.query('selectMembers')
-                        .then((results) => {
-                            // check results
-                            results.length.should.equal(1);
-                        });
-                });
+            // switch back to alice
+            await useIdentity(aliceCardName);
+
+            // alice revokes access to her data to bob
+            const revoke = factory.newTransaction('org.acme.pii', 'RevokeAccess');
+            revoke.memberId = 'bob@email.com';
+            await businessNetworkConnection.submitTransaction(revoke);
+
+            await useIdentity(bobCardName);
+
+            // use a query, bob should now only see his own data
+            results = await businessNetworkConnection.query('selectMembers');
+            // check results
+            results.length.should.equal(1);
         });
     });
 });

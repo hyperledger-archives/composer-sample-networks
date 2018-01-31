@@ -22,25 +22,21 @@ const NS = 'org.acme.vehicle.lifecycle';
 const NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
 const NS_D = 'org.vda';
 
-describe('Manufacturer', function() {
+describe('Manufacturer', () => {
     let businessNetworkConnection;
     let factory;
 
-    beforeEach(function() {
-        return Util.deployAndConnect()
-            .then(connection => {
-                businessNetworkConnection = connection;
-                factory = businessNetworkConnection.getBusinessNetwork().getFactory();
-            });
+    beforeEach(async () => {
+        businessNetworkConnection = await Util.deployAndConnect();
+        factory = businessNetworkConnection.getBusinessNetwork().getFactory();
     });
 
     const orderId = '1000-1000-1000-1000';
 
     /**
      * Place a vehicle order.
-     * @returns {Promise} resolved when the transaction is complete.
      */
-    function placeOrder() {
+    async function placeOrder() {
         const placeOrder = factory.newTransaction(NS_M, 'PlaceOrder');
         placeOrder.manufacturer = factory.newRelationship(NS_M, 'Manufacturer', 'manufacturer');
         placeOrder.orderId = orderId;
@@ -51,97 +47,66 @@ describe('Manufacturer', function() {
         vehicleDetails.colour = 'Red';
         vehicleDetails.vin = '';
         placeOrder.vehicleDetails = vehicleDetails;
-        return businessNetworkConnection.submitTransaction(placeOrder);
+        await businessNetworkConnection.submitTransaction(placeOrder);
     }
 
     /**
      * Update a vehicle order.
      * @returns {Promise} resolved when the transaction is complete.
      */
-    function updateOrder() {
+    async function updateOrder() {
         const updateOrderStatus = factory.newTransaction(NS_M, 'UpdateOrderStatus');
         updateOrderStatus.orderStatus = 'VIN_ASSIGNED';
         updateOrderStatus.vin = 'VIN_NUMBER';
 
-        return businessNetworkConnection.getAssetRegistry(NS_M + '.Order')
-            .then(function(orderRegistry) {
-                return orderRegistry.getAll();
-            })
-            .then(function(orders) {
-                const order = orders[0];
-                updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
-                return businessNetworkConnection.submitTransaction(updateOrderStatus);
-            });
+        const orderRegistry = await businessNetworkConnection.getAssetRegistry(NS_M + '.Order');
+        const orders = await orderRegistry.getAll();
+        const order = orders[0];
+        updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
+        await businessNetworkConnection.submitTransaction(updateOrderStatus);
     }
 
-    describe('#placeOrder', function() {
-        it('should be able to place an order for a vehicle', function() {
-            return placeOrder()
-                .then(function() {
-                    return businessNetworkConnection.getAssetRegistry(NS_M + '.Order');
-                })
-                .then(function(orderRegistry) {
-                    return orderRegistry.get(orderId);
-                })
-                .then(function(order) {
-                    order.orderStatus.should.equal('PLACED');
-                });
+    describe('#placeOrder', () => {
+        it('should be able to place an order for a vehicle', async () => {
+            await placeOrder();
+            const orderRegistry = await businessNetworkConnection.getAssetRegistry(NS_M + '.Order');
+            const order = await orderRegistry.get(orderId);
+            order.orderStatus.should.equal('PLACED');
         });
     });
 
-    describe('#updateOrderStatus', function() {
-        it('should create a vehicle and assign it a VIN number', function() {
-            return placeOrder()
-                .then(function() {
-                    return updateOrder();
-                })
-                .then(function() {
-                    return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
-                })
-                .then(function(vehicleRegistry) {
-                    return vehicleRegistry.get('VIN_NUMBER');
-                })
-                .then(function(vehicle) {
-                    should.exist(vehicle);
-                    vehicle.vehicleStatus.should.equal('OFF_THE_ROAD');
-                    vehicle.vehicleDetails.vin.should.equal('VIN_NUMBER');
-                });
+    describe('#updateOrderStatus', () => {
+        it('should create a vehicle and assign it a VIN number', async () => {
+            await placeOrder();
+            await updateOrder();
+            const vehicleRegistry = await businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
+            const vehicle = await vehicleRegistry.get('VIN_NUMBER');
+            should.exist(vehicle);
+            vehicle.vehicleStatus.should.equal('OFF_THE_ROAD');
+            vehicle.vehicleDetails.vin.should.equal('VIN_NUMBER');
         });
 
-        it('should assign an owner to a vehicle and make it active', function() {
+        it('should assign an owner to a vehicle and make it active', async () => {
             const updateOrderStatus = factory.newTransaction(NS_M, 'UpdateOrderStatus');
             updateOrderStatus.orderStatus = 'OWNER_ASSIGNED';
             updateOrderStatus.vin = 'VIN_NUMBER';
             updateOrderStatus.numberPlate = 'NUMBER_PLATE';
             updateOrderStatus.v5c = 'V5C';
 
-            return placeOrder()
-                .then(function() {
-                    return updateOrder();
-                })
-                .then(function() {
-                    return businessNetworkConnection.getAssetRegistry(NS_M + '.Order');
-                })
-                .then(function(orderRegistry) {
-                    return orderRegistry.getAll();
-                })
-                .then(function(orders) {
-                    const order = orders[0];
-                    updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
-                    return businessNetworkConnection.submitTransaction(updateOrderStatus);
-                })
-                .then(function() {
-                    return businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
-                })
-                .then(function(vehicleRegistry) {
-                    return vehicleRegistry.get('VIN_NUMBER');
-                })
-                .then(function(vehicle) {
-                    should.exist(vehicle);
-                    vehicle.vehicleStatus.should.equal('ACTIVE');
-                    vehicle.vehicleDetails.vin.should.equal(updateOrderStatus.vin);
-                    vehicle.owner.getIdentifier().should.equal('dan');
-                });
+            await placeOrder();
+            await updateOrder();
+            const orderRegistry = await businessNetworkConnection.getAssetRegistry(NS_M + '.Order');
+            const orders = await orderRegistry.getAll();
+            const order = orders[0];
+            updateOrderStatus.order = factory.newRelationship(NS_M, 'Order', order.getIdentifier());
+            await businessNetworkConnection.submitTransaction(updateOrderStatus);
+
+            const vehicleRegistry = await businessNetworkConnection.getAssetRegistry(NS_D + '.Vehicle');
+            const vehicle = await vehicleRegistry.get('VIN_NUMBER');
+            should.exist(vehicle);
+            vehicle.vehicleStatus.should.equal('ACTIVE');
+            vehicle.vehicleDetails.vin.should.equal(updateOrderStatus.vin);
+            vehicle.owner.getIdentifier().should.equal('dan');
         });
     });
 
