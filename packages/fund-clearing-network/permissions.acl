@@ -1,0 +1,135 @@
+/**
+ * Fund clearing access control list.
+ */
+
+rule ParticipantsRestrictionOnTransferRequest {
+    description: "Only allow participants involved with an Asset to interact with it"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.TransferRequest"
+    condition: (PermissionsHelper.PartyWithinTransferRequest(r, p))
+    action: ALLOW
+}
+
+rule ParticipantsRestrictionOnTransferRequest2 {
+    description: "Only allow participants involved with an Asset to interact with it"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.TransferRequest"
+    condition: (!PermissionsHelper.PartyWithinTransferRequest(r, p))
+    action: DENY
+}
+
+rule ParticipantsRestrictionOnBatchTransferRequest {
+    description: "Allow participants involved with an Asset to interact with it"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.BatchTransferRequest"
+    condition: (PermissionsHelper.PartyWithinBatchTransferRequest(r, p))
+    action: ALLOW
+}
+
+rule ParticipantsRestrictionOnBatchTransferRequest2 {
+    description: "Prevent participants not involved with an Asset from interacting with it"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.BatchTransferRequest"
+    condition: (!PermissionsHelper.PartyWithinBatchTransferRequest(r, p))
+    action: DENY
+}
+
+rule ParticipantsCanSeeOtherParticipants {
+    description: "Allow all participants to see others"
+    participant: "org.clearing.BankingParticipant"
+    operation: READ
+    resource: "org.clearing.BankingParticipant"
+    action: ALLOW
+}
+
+rule EverybodyCanCreateBatches {
+    description: "Allow all participants to submit CreateBatch transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: CREATE
+    resource: "org.clearing.CreateBatch"
+    action: ALLOW
+}
+
+rule BatchMembersCanMarkPreProcessComplete {
+    description: "Only allow involved participants to submit MarkPreProcessComplete transactions"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.MarkPreProcessComplete"
+    condition: (PermissionsHelper.PartyWithinBatchReferencedTransferRequest(r, p))
+    action: ALLOW
+}
+
+rule OnlyBatchMembersCanMarkPreProcessComplete {
+    description: "Only allow involved participants to submit MarkPreProcessComplete transactions"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.MarkPreProcessComplete"
+    condition: (!PermissionsHelper.PartyWithinBatchReferencedTransferRequest(r, p))
+    action: DENY
+}
+
+rule BatchMembersCanCompleteSettlements {
+    description: "Only allow involved participants to submit CompleteSettlement transactions"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.CompleteSettlement"
+    condition: (PermissionsHelper.PartyWithinBatchReferencedTransferRequest(r, p))
+    action: ALLOW
+}
+
+rule ParticipantsCanUpdateFunds {
+    description: "Only allow involved participants to submit CompleteSettlement transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: UPDATE
+    resource: "org.clearing.BankingParticipant"
+    action: ALLOW
+}
+
+rule BatchMembersCanMarkPostProcessComplete {
+    description: "Only allow involved participants to submit MarkPreProcessComplete transactions"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.MarkPostProcessComplete"
+    condition: (PermissionsHelper.PartyWithinBatchReferencedTransferRequest(r, p))
+    action: ALLOW
+}
+/*
+rule EverybodyCanUpdateEverything {
+    description: "Allow all participants to update resources"
+    participant: "org.clearing.BankingParticipant"
+    operation: UPDATE
+    resource: "org.clearing.*"
+    action: ALLOW
+}
+*/
+/**
+ * Required System Rules
+ */
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
+
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
