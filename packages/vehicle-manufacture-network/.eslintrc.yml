@@ -1,0 +1,45 @@
+env:
+    es6: true
+    node: true
+    mocha: true
+extends: 'eslint:recommended'
+parserOptions:
+    ecmaVersion: 8
+    sourceType:
+        - script
+rules:
+    indent:
+        - error
+        - 4
+    linebreak-style:
+        - error
+        - unix
+    quotes:
+        - error
+        - single
+    semi:
+        - error
+        - always
+    no-unused-vars:
+        - error
+        - args: none
+    no-var: error
+    no-console: off
+    curly: error
+    eqeqeq: error
+    no-throw-literal: error
+    dot-notation: error
+    no-tabs: error
+    no-trailing-spaces: error
+    no-useless-call: error
+    no-with: error
+    operator-linebreak: error
+    require-jsdoc:
+        - error
+        - require:
+            ClassDeclaration: true
+            MethodDefinition: true
+            FunctionDeclaration: true
+    yoda: error
+    no-confusing-arrow: 2
+    no-constant-condition: 2

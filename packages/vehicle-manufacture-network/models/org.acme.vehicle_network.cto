@@ -1,0 +1,96 @@
+/**
+ * New model file
+ */
+
+namespace org.acme.vehicle_network
+
+// BASE DEFINTIONS
+
+concept VehicleDetails {
+  --> Manufacturer make
+  o String modelType
+  o String colour
+}
+
+abstract participant Company identified by companyId {
+  o String companyId
+  o String name
+}
+
+participant Person identified by username {
+  o String username
+  o String email optional
+}
+
+
+// MANUFACTURE DEFINITIONS
+participant Manufacturer extends Company { 
+}
+
+enum OrderStatus {
+  o PLACED
+  o SCHEDULED_FOR_MANUFACTURE
+  o VIN_ASSIGNED
+  o OWNER_ASSIGNED
+  o DELIVERED
+}
+
+concept Options {
+  o String trim
+  o String interior
+  o String[] extras
+}
+
+asset Order identified by orderId {
+  o String orderId
+  o VehicleDetails vehicleDetails
+  o OrderStatus orderStatus
+  o Options options
+  --> Person orderer
+}
+
+transaction PlaceOrder {
+  o String orderId
+  o VehicleDetails vehicleDetails
+  o Options options
+  --> Person orderer
+}
+
+event PlaceOrderEvent {
+  o String orderId
+  o VehicleDetails vehicleDetails
+  --> Person orderer
+}
+
+transaction UpdateOrderStatus {
+  o OrderStatus orderStatus
+  o String vin optional
+  --> Order order
+}
+
+event UpdateOrderStatusEvent {
+  o OrderStatus orderStatus
+  o Order order
+}
+
+
+// REGULATOR DEFINITIONS
+participant Regulator extends Company { 
+}
+
+enum VehicleStatus {
+  o ACTIVE
+  o OFF_THE_ROAD
+  o SCRAPPED
+}
+
+asset Vehicle identified by vin {
+  o String vin
+  o VehicleDetails vehicleDetails
+  o VehicleStatus vehicleStatus
+  --> Person owner optional
+}
+
+// DEMO SPECIFIC DEFINITIONS
+transaction SetupDemo {
+}
