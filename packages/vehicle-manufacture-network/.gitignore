@@ -59,5 +59,9 @@ out
 # Build generated files should be ignored by git, but not by npm.
 dist
 
+<<<<<<< 63a17405597cf654f887106caaa2e7c39fe72af0
 node_modules
 composer-logs
+=======
+node_modules
+>>>>>>> vehicle manufacture network initial (#146)
