@@ -16,9 +16,7 @@
 
 const AdminConnection = require('composer-admin').AdminConnection;
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
-const IdCard = require('composer-common').IdCard;
-const MemoryCardStore = require('composer-common').MemoryCardStore;
+const { BusinessNetworkDefinition, CertificateUtil, IdCard, MemoryCardStore } = require('composer-common');
 const path = require('path');
 
 const chai = require('chai');
@@ -57,11 +55,8 @@ describe('Sample', () => {
     let businessNetworkName;
 
     before(async () => {
-        // Embedded connection does not need real credentials
-        const credentials = {
-            certificate: 'FAKE CERTIFICATE',
-            privateKey: 'FAKE PRIVATE KEY'
-        };
+        // Generate certificates for use with the embedded connection
+        const credentials = CertificateUtil.generate({ commonName: 'admin' });
 
         // Identity used with the admin connection to deploy business networks
         const deployerMetadata = {
