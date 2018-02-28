@@ -16,10 +16,7 @@
 
 const AdminConnection = require('composer-admin').AdminConnection;
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
-const IdCard = require('composer-common').IdCard;
-const MemoryCardStore = require('composer-common').MemoryCardStore;
-
+const { BusinessNetworkDefinition, CertificateUtil, IdCard, MemoryCardStore } = require('composer-common');
 const path = require('path');
 
 const NS = 'org.acme.vehicle.lifecycle';
@@ -119,10 +116,7 @@ async function getAdminConnection() {
         name: 'embedded',
         'x-type': 'embedded'
     };
-    const credentials = {
-        certificate: 'FAKE CERTIFICATE',
-        privateKey: 'FAKE PRIVATE KEY'
-    };
+    const credentials = CertificateUtil.generate({ commonName: 'admin' });
 
     const deployerMetadata = {
         version: 1,

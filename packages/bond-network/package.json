@@ -1,6 +1,6 @@
 {
   "engines": {
-    "composer": "^0.17.0"
+    "composer": "^0.18.0"
   },
   "name": "bond-network",
   "version": "0.2.2",
@@ -33,11 +33,11 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "chai": "^3.5.0",
-    "composer-admin": "^0.17.0-0",
-    "composer-cli": "^0.17.0-0",
-    "composer-client": "^0.17.0-0",
-    "composer-common": "^0.17.0-0",
-    "composer-connector-embedded": "^0.17.0-0",
+    "composer-admin": "^0.18.0-0",
+    "composer-cli": "^0.18.0-0",
+    "composer-client": "^0.18.0-0",
+    "composer-common": "^0.18.0-0",
+    "composer-connector-embedded": "^0.18.0-0",
     "eslint": "^3.6.1",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.5.5",
