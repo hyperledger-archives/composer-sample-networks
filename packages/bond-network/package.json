@@ -3,7 +3,7 @@
     "composer": "^0.17.0"
   },
   "name": "bond-network",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Bond Reference Data Sharing Business Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/bond-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/bond-network/networkimageanimated.svg",

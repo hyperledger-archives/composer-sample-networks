@@ -3,7 +3,7 @@
     "composer": "^0.17.0"
   },
   "name": "animaltracking-network",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Animal Tracking network based on UK DEFRA regulations",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/animaltracking-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/animaltracking-network/networkimageanimated.svg",
