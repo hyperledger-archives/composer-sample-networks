@@ -16,14 +16,14 @@
 
 const AdminConnection = require('composer-admin').AdminConnection;
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-const { BusinessNetworkDefinition, CertificateUtil, IdCard, MemoryCardStore } = require('composer-common');
+const { BusinessNetworkDefinition, CertificateUtil, IdCard } = require('composer-common');
 const path = require('path');
 
 require('chai').should();
 
 describe('DigitalLandTitle', () => {
     // In-memory card store for testing so cards are not persisted to the file system
-    const cardStore = new MemoryCardStore();
+    const cardStore = require('composer-common').NetworkCardStoreManager.getCardStore( { type: 'composer-wallet-inmemory' } );
     let adminConnection;
     let businessNetworkConnection;
 

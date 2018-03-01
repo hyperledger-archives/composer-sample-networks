@@ -16,14 +16,14 @@
 
 const AdminConnection = require('composer-admin').AdminConnection;
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-const { BusinessNetworkDefinition, CertificateUtil, IdCard, MemoryCardStore } = require('composer-common');
+const { BusinessNetworkDefinition, CertificateUtil, IdCard } = require('composer-common');
 const path = require('path');
 
 const NS = 'org.acme.vehicle.lifecycle';
 const NS_M = 'org.acme.vehicle.lifecycle.manufacturer';
 const NS_D = 'org.vda';
 
-const cardStore = new MemoryCardStore();
+const cardStore = require('composer-common').NetworkCardStoreManager.getCardStore( { type: 'composer-wallet-inmemory' } );
 const adminCardName = 'admin';
 
 let adminConnection;

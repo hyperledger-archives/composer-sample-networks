@@ -16,7 +16,7 @@
 
 const AdminConnection = require('composer-admin').AdminConnection;
 const BusinessNetworkConnection = require('composer-client').BusinessNetworkConnection;
-const { BusinessNetworkDefinition, CertificateUtil, IdCard, MemoryCardStore } = require('composer-common');
+const { BusinessNetworkDefinition, CertificateUtil, IdCard } = require('composer-common');
 const path = require('path');
 
 const chai = require('chai');
@@ -28,7 +28,7 @@ const orderId = '1000-1000-1000-1000';
 const vin = '1a2b3c4d5e6f7g8h9';
 
 describe('Manufacture network', () => {
-    const cardStore = new MemoryCardStore();
+    const cardStore = require('composer-common').NetworkCardStoreManager.getCardStore( { type: 'composer-wallet-inmemory' } );
     let adminConnection;
     let businessNetworkConnection;
     let factory;
