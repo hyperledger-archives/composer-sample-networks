@@ -40,6 +40,7 @@ function placeOrder(orderRequest) {
       var placeOrderEvent = factory.newEvent(namespace, 'PlaceOrderEvent');
       placeOrderEvent.orderId = order.orderId;
       placeOrderEvent.vehicleDetails = order.vehicleDetails;
+      placeOrderEvent.options = order.options;
       placeOrderEvent.orderer = order.orderer;
       emit(placeOrderEvent);
     });
