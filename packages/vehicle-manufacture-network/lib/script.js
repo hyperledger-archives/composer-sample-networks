@@ -33,6 +33,7 @@ async function placeOrder(orderRequest) { // eslint-disable-line no-unused-vars
     order.options = orderRequest.options;
 
     // save the order
+<<<<<<< 6d95c9b5f675ba924e012f5192c520ecd2ca07a7
     const assetRegistry = await getAssetRegistry(order.getFullyQualifiedType());
     await assetRegistry.add(order);
 
@@ -43,6 +44,21 @@ async function placeOrder(orderRequest) { // eslint-disable-line no-unused-vars
     placeOrderEvent.options = order.options;
     placeOrderEvent.orderer = order.orderer;
     emit(placeOrderEvent);
+=======
+    return getAssetRegistry(order.getFullyQualifiedType())
+  	.then(function (assetRegistry) {
+    	return assetRegistry.add(order);
+    })
+  	.then(function () {
+      // emit the event
+      var placeOrderEvent = factory.newEvent(namespace, 'PlaceOrderEvent');
+      placeOrderEvent.orderId = order.orderId;
+      placeOrderEvent.vehicleDetails = order.vehicleDetails;
+      placeOrderEvent.options = order.options;
+      placeOrderEvent.orderer = order.orderer;
+      emit(placeOrderEvent);
+    });
+>>>>>>> added the options field to a PlaceOrderEvent (#149)
 }
 
 /**

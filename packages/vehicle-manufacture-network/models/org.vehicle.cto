@@ -69,6 +69,7 @@ transaction PlaceOrder {
 event PlaceOrderEvent {
   o String orderId
   o VehicleDetails vehicleDetails
+  o Options options
   --> Person orderer
 }
 
