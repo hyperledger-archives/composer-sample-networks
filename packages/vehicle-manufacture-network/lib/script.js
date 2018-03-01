@@ -40,6 +40,7 @@ async function placeOrder(orderRequest) { // eslint-disable-line no-unused-vars
     const placeOrderEvent = factory.newEvent(namespace, 'PlaceOrderEvent');
     placeOrderEvent.orderId = order.orderId;
     placeOrderEvent.vehicleDetails = order.vehicleDetails;
+    placeOrderEvent.options = order.options;
     placeOrderEvent.orderer = order.orderer;
     emit(placeOrderEvent);
 }
