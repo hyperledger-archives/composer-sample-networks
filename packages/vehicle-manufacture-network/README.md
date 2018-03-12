@@ -75,7 +75,7 @@ Simulate the manufacturer registering the vehicle with the regulator by submitti
   "$class": "org.acme.vehicle_network.UpdateOrderStatus",
   "orderStatus": "VIN_ASSIGNED",
   "order": "resource:org.acme.vehicle_network.Order#1234",
-  "vin": 'abc123'
+  "vin": "abc123"
 }
 ```
 
