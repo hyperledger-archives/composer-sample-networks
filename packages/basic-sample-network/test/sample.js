@@ -23,6 +23,12 @@ const chai = require('chai');
 chai.should();
 chai.use(require('chai-as-promised'));
 
+const namespace = 'org.acme.sample';
+const assetType = 'SampleAsset';
+const assetNS = namespace + '.' + assetType;
+const participantType = 'SampleParticipant';
+const participantNS = namespace + '.' + participantType;
+
 describe('Sample', () => {
     // In-memory card store for testing so cards are not persisted to the file system
     const cardStore = require('composer-common').NetworkCardStoreManager.getCardStore( { type: 'composer-wallet-inmemory' } );
@@ -118,34 +124,34 @@ describe('Sample', () => {
         // Get the factory for the business network.
         factory = businessNetworkConnection.getBusinessNetwork().getFactory();
 
-        const participantRegistry = await businessNetworkConnection.getParticipantRegistry('org.acme.sample.SampleParticipant');
+        const participantRegistry = await businessNetworkConnection.getParticipantRegistry(participantNS);
         // Create the participants.
-        const alice = factory.newResource('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+        const alice = factory.newResource(namespace, participantType, 'alice@email.com');
         alice.firstName = 'Alice';
         alice.lastName = 'A';
 
-        const bob = factory.newResource('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+        const bob = factory.newResource(namespace, participantType, 'bob@email.com');
         bob.firstName = 'Bob';
         bob.lastName = 'B';
 
         participantRegistry.addAll([alice, bob]);
 
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         // Create the assets.
-        const asset1 = factory.newResource('org.acme.sample', 'SampleAsset', '1');
-        asset1.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+        const asset1 = factory.newResource(namespace, assetType, '1');
+        asset1.owner = factory.newRelationship(namespace, participantType, 'alice@email.com');
         asset1.value = '10';
 
-        const asset2 = factory.newResource('org.acme.sample', 'SampleAsset', '2');
-        asset2.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+        const asset2 = factory.newResource(namespace, assetType, '2');
+        asset2.owner = factory.newRelationship(namespace, participantType, 'bob@email.com');
         asset2.value = '20';
 
         assetRegistry.addAll([asset1, asset2]);
 
         // Issue the identities.
-        let identity = await businessNetworkConnection.issueIdentity('org.acme.sample.SampleParticipant#alice@email.com', 'alice1');
+        let identity = await businessNetworkConnection.issueIdentity(participantNS + '#alice@email.com', 'alice1');
         await importCardForIdentity(aliceCardName, identity);
-        identity = await businessNetworkConnection.issueIdentity('org.acme.sample.SampleParticipant#bob@email.com', 'bob1');
+        identity = await businessNetworkConnection.issueIdentity(participantNS + '#bob@email.com', 'bob1');
         await importCardForIdentity(bobCardName, identity);
     });
 
@@ -167,32 +173,32 @@ describe('Sample', () => {
     it('Alice can read all of the assets', async () => {
         // Use the identity for Alice.
         await useIdentity(aliceCardName);
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         const assets = await assetRegistry.getAll();
 
         // Validate the assets.
         assets.should.have.lengthOf(2);
         const asset1 = assets[0];
-        asset1.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+        asset1.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#alice@email.com');
         asset1.value.should.equal('10');
         const asset2 = assets[1];
-        asset2.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+        asset2.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#bob@email.com');
         asset2.value.should.equal('20');
     });
 
     it('Bob can read all of the assets', async () => {
         // Use the identity for Bob.
         await useIdentity(bobCardName);
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         const assets = await assetRegistry.getAll();
 
         // Validate the assets.
         assets.should.have.lengthOf(2);
         const asset1 = assets[0];
-        asset1.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+        asset1.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#alice@email.com');
         asset1.value.should.equal('10');
         const asset2 = assets[1];
-        asset2.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+        asset2.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#bob@email.com');
         asset2.value.should.equal('20');
     });
 
@@ -201,17 +207,17 @@ describe('Sample', () => {
         await useIdentity(aliceCardName);
 
         // Create the asset.
-        let asset3 = factory.newResource('org.acme.sample', 'SampleAsset', '3');
-        asset3.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+        let asset3 = factory.newResource(namespace, assetType, '3');
+        asset3.owner = factory.newRelationship(namespace, participantType, 'alice@email.com');
         asset3.value = '30';
 
         // Add the asset, then get the asset.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         await assetRegistry.add(asset3);
 
         // Validate the asset.
         asset3 = await assetRegistry.get('3');
-        asset3.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+        asset3.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#alice@email.com');
         asset3.value.should.equal('30');
     });
 
@@ -220,12 +226,12 @@ describe('Sample', () => {
         await useIdentity(aliceCardName);
 
         // Create the asset.
-        const asset3 = factory.newResource('org.acme.sample', 'SampleAsset', '3');
-        asset3.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+        const asset3 = factory.newResource(namespace, assetType, '3');
+        asset3.owner = factory.newRelationship(namespace, participantType, 'bob@email.com');
         asset3.value = '30';
 
         // Try to add the asset, should fail.
-        const assetRegistry = await  businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await  businessNetworkConnection.getAssetRegistry(assetNS);
         assetRegistry.add(asset3).should.be.rejectedWith(/does not have .* access to resource/);
     });
 
@@ -234,17 +240,17 @@ describe('Sample', () => {
         await useIdentity(bobCardName);
 
         // Create the asset.
-        let asset4 = factory.newResource('org.acme.sample', 'SampleAsset', '4');
-        asset4.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+        let asset4 = factory.newResource(namespace, assetType, '4');
+        asset4.owner = factory.newRelationship(namespace, participantType, 'bob@email.com');
         asset4.value = '40';
 
         // Add the asset, then get the asset.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         await assetRegistry.add(asset4);
 
         // Validate the asset.
         asset4 = await assetRegistry.get('4');
-        asset4.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+        asset4.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#bob@email.com');
         asset4.value.should.equal('40');
     });
 
@@ -253,12 +259,12 @@ describe('Sample', () => {
         await useIdentity(bobCardName);
 
         // Create the asset.
-        const asset4 = factory.newResource('org.acme.sample', 'SampleAsset', '4');
-        asset4.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+        const asset4 = factory.newResource(namespace, assetType, '4');
+        asset4.owner = factory.newRelationship(namespace, participantType, 'alice@email.com');
         asset4.value = '40';
 
         // Try to add the asset, should fail.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         assetRegistry.add(asset4).should.be.rejectedWith(/does not have .* access to resource/);
 
     });
@@ -268,17 +274,17 @@ describe('Sample', () => {
         await useIdentity(aliceCardName);
 
         // Create the asset.
-        let asset1 = factory.newResource('org.acme.sample', 'SampleAsset', '1');
-        asset1.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+        let asset1 = factory.newResource(namespace, assetType, '1');
+        asset1.owner = factory.newRelationship(namespace, participantType, 'alice@email.com');
         asset1.value = '50';
 
         // Update the asset, then get the asset.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         await assetRegistry.update(asset1);
 
         // Validate the asset.
         asset1 = await assetRegistry.get('1');
-        asset1.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+        asset1.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#alice@email.com');
         asset1.value.should.equal('50');
     });
 
@@ -287,12 +293,12 @@ describe('Sample', () => {
         await useIdentity(aliceCardName);
 
         // Create the asset.
-        const asset2 = factory.newResource('org.acme.sample', 'SampleAsset', '2');
-        asset2.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+        const asset2 = factory.newResource(namespace, assetType, '2');
+        asset2.owner = factory.newRelationship(namespace, participantType, 'bob@email.com');
         asset2.value = '50';
 
         // Try to update the asset, should fail.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         assetRegistry.update(asset2).should.be.rejectedWith(/does not have .* access to resource/);
     });
 
@@ -301,17 +307,17 @@ describe('Sample', () => {
         await useIdentity(bobCardName);
 
         // Create the asset.
-        let asset2 = factory.newResource('org.acme.sample', 'SampleAsset', '2');
-        asset2.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'bob@email.com');
+        let asset2 = factory.newResource(namespace, assetType, '2');
+        asset2.owner = factory.newRelationship(namespace, participantType, 'bob@email.com');
         asset2.value = '60';
 
         // Update the asset, then get the asset.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         await assetRegistry.update(asset2);
 
         // Validate the asset.
         asset2 = await assetRegistry.get('2');
-        asset2.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+        asset2.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#bob@email.com');
         asset2.value.should.equal('60');
     });
 
@@ -320,12 +326,12 @@ describe('Sample', () => {
         await useIdentity(bobCardName);
 
         // Create the asset.
-        const asset1 = factory.newResource('org.acme.sample', 'SampleAsset', '1');
-        asset1.owner = factory.newRelationship('org.acme.sample', 'SampleParticipant', 'alice@email.com');
+        const asset1 = factory.newResource(namespace, assetType, '1');
+        asset1.owner = factory.newRelationship(namespace, participantType, 'alice@email.com');
         asset1.value = '60';
 
         // Update the asset, then get the asset.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         assetRegistry.update(asset1).should.be.rejectedWith(/does not have .* access to resource/);
 
     });
@@ -335,7 +341,7 @@ describe('Sample', () => {
         await useIdentity(aliceCardName);
 
         // Remove the asset, then test the asset exists.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         await assetRegistry.remove('1');
         const exists = await assetRegistry.exists('1');
         exists.should.be.false;
@@ -346,7 +352,7 @@ describe('Sample', () => {
         await useIdentity(aliceCardName);
 
         // Remove the asset, then test the asset exists.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         assetRegistry.remove('2').should.be.rejectedWith(/does not have .* access to resource/);
     });
 
@@ -355,7 +361,7 @@ describe('Sample', () => {
         await useIdentity(bobCardName);
 
         // Remove the asset, then test the asset exists.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         await assetRegistry.remove('2');
         const exists = await assetRegistry.exists('2');
         exists.should.be.false;
@@ -366,7 +372,7 @@ describe('Sample', () => {
         await useIdentity(bobCardName);
 
         // Remove the asset, then test the asset exists.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         assetRegistry.remove('1').should.be.rejectedWith(/does not have .* access to resource/);
     });
 
@@ -375,17 +381,17 @@ describe('Sample', () => {
         await useIdentity(aliceCardName);
 
         // Submit the transaction.
-        const transaction = factory.newTransaction('org.acme.sample', 'SampleTransaction');
-        transaction.asset = factory.newRelationship('org.acme.sample', 'SampleAsset', '1');
+        const transaction = factory.newTransaction(namespace, 'SampleTransaction');
+        transaction.asset = factory.newRelationship(namespace, assetType, '1');
         transaction.newValue = '50';
         await businessNetworkConnection.submitTransaction(transaction);
 
         // Get the asset.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         const asset1 = await assetRegistry.get('1');
 
         // Validate the asset.
-        asset1.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#alice@email.com');
+        asset1.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#alice@email.com');
         asset1.value.should.equal('50');
 
         // Validate the events.
@@ -403,8 +409,8 @@ describe('Sample', () => {
         await useIdentity(aliceCardName);
 
         // Submit the transaction.
-        const transaction = factory.newTransaction('org.acme.sample', 'SampleTransaction');
-        transaction.asset = factory.newRelationship('org.acme.sample', 'SampleAsset', '2');
+        const transaction = factory.newTransaction(namespace, 'SampleTransaction');
+        transaction.asset = factory.newRelationship(namespace, assetType, '2');
         transaction.newValue = '50';
         businessNetworkConnection.submitTransaction(transaction).should.be.rejectedWith(/does not have .* access to resource/);
     });
@@ -414,17 +420,17 @@ describe('Sample', () => {
         await useIdentity(bobCardName);
 
         // Submit the transaction.
-        const transaction = factory.newTransaction('org.acme.sample', 'SampleTransaction');
-        transaction.asset = factory.newRelationship('org.acme.sample', 'SampleAsset', '2');
+        const transaction = factory.newTransaction(namespace, 'SampleTransaction');
+        transaction.asset = factory.newRelationship(namespace, assetType, '2');
         transaction.newValue = '60';
         await businessNetworkConnection.submitTransaction(transaction);
 
         // Get the asset.
-        const assetRegistry = await businessNetworkConnection.getAssetRegistry('org.acme.sample.SampleAsset');
+        const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         const asset2 = await assetRegistry.get('2');
 
         // Validate the asset.
-        asset2.owner.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleParticipant#bob@email.com');
+        asset2.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#bob@email.com');
         asset2.value.should.equal('60');
 
         // Validate the events.
@@ -442,8 +448,8 @@ describe('Sample', () => {
         await useIdentity(bobCardName);
 
         // Submit the transaction.
-        const transaction = factory.newTransaction('org.acme.sample', 'SampleTransaction');
-        transaction.asset = factory.newRelationship('org.acme.sample', 'SampleAsset', '1');
+        const transaction = factory.newTransaction(namespace, 'SampleTransaction');
+        transaction.asset = factory.newRelationship(namespace, assetType, '1');
         transaction.newValue = '60';
         businessNetworkConnection.submitTransaction(transaction).should.be.rejectedWith(/does not have .* access to resource/);
     });
