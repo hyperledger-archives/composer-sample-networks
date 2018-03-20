@@ -86,7 +86,7 @@ module.exports.deployAndConnect = async () => {
     const adminConnection = await getAdminConnection();
     const businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
-    await adminConnection.install(businessNetworkDefinition.getName());
+    await adminConnection.install(businessNetworkDefinition);
     const startOptions = {
         networkAdmins: [
             {
@@ -95,7 +95,7 @@ module.exports.deployAndConnect = async () => {
             }
         ]
     };
-    const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+    const adminCards = await adminConnection.start(businessNetworkDefinition.getName(), businessNetworkDefinition.getVersion(), startOptions);
     await adminConnection.importCard(adminCardName, adminCards.get('admin'));
 
     const businessNetworkConnection = new BusinessNetworkConnection({ cardStore: cardStore });
