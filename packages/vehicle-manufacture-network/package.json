@@ -1,6 +1,6 @@
 {
 	"engines": {
-		"composer": "^0.18.0"
+		"composer": "^0.19.0"
 	},
 	"name": "vehicle-manufacture-network",
 	"description": "Vehicle manufacture network",
@@ -33,10 +33,10 @@
 		"browserfs": "^1.2.0",
 		"chai": "^3.5.0",
 		"chai-as-promised": "^6.0.0",
-		"composer-admin": "^0.18.0-0",
-		"composer-cli": "^0.18.0-0",
-		"composer-client": "^0.18.0-0",
-		"composer-connector-embedded": "^0.18.0-0",
+		"composer-admin": "^0.19.0-0",
+		"composer-cli": "^0.19.0-0",
+		"composer-client": "^0.19.0-0",
+		"composer-connector-embedded": "^0.19.0-0",
 		"eslint": "^3.6.1",
 		"istanbul": "^0.4.5",
 		"jsdoc": "^3.4.1",
