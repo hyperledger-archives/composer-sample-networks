@@ -13,7 +13,7 @@
     "test": "mocha -t 0 --recursive",
     "lint": "eslint .",
     "postlint": "npm run licchk",
-    "licchk": "license-check",
+    "licchk": "license-check-and-add",
     "postlicchk": "npm run doc",
     "doc": "jsdoc --pedantic --recurse -c jsdoc.json",
     "pkgstamp": "node ./scripts/pkgstamp.js"
@@ -42,22 +42,36 @@
     "composer-connector-embedded": "^0.19.0-0",
     "eslint": "^3.6.1",
     "jsdoc": "^3.5.5",
-    "license-check": "^1.1.5",
+    "license-check-and-add": "~2.0.6",
     "mkdirp": "^0.5.1",
     "mocha": "^3.2.0"
   },
-  "license-check-config": {
-    "src": [
-      "**/*.js",
-      "!./coverage/**/*",
-      "!./node_modules/**/*",
-      "!./out/**/*",
-      "!./scripts/**/*"
+  "license-check-and-add-config": {
+    "folder": ".",
+    "license": "LICENSE.txt",
+    "exact_paths_method": "EXCLUDE",
+    "exact_paths": [
+      "composer-logs",
+      "dist",
+      "node_modules",
+      "out",
+      ".git"
     ],
-    "path": "header.txt",
-    "blocking": true,
-    "logInfo": false,
-    "logError": true
+    "file_type_method": "EXCLUDE",
+    "file_types": [
+      ".md",
+      ".yml"
+    ],
+    "insert_license": false,
+    "license_formats": {
+      "js|cto|acl": {
+        "prepend": "/*",
+        "append": " */",
+        "eachLine": {
+          "prepend": " * "
+        }
+      }
+    }
   },
   "dependencies": {
     "animaltracking-model": "^0.2.0"

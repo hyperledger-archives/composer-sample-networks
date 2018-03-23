@@ -2,6 +2,7 @@
   "devDependencies": {
     "colors": "^1.1.2",
     "lerna": "^2.5.1",
+    "license-check-and-add": "~2.0.6",
     "moment": "^2.17.1",
     "semver": "^5.3.0",
     "sleep-promise": "^2.0.0"
@@ -12,10 +13,10 @@
   "main": "index.js",
   "private": true,
   "scripts": {
+    "licchk": "license-check-and-add",
     "postinstall": "npm run pkgcheck && npm run bootstrap",
     "bootstrap": "lerna bootstrap",
-    "test": "lerna run test",
-    "scanlicenses": "./scripts/scan-all-licenses.sh",
+    "test": "npm run licchk & lerna run test",
     "pkgcheck": "node ./scripts/pkgcheck.js",
     "pkgstamp": "node ./scripts/pkgstamp.js",
     "pkgbump": "node ./scripts/pkgbump.js && node ./scripts/pkgcheck.js --fix"
@@ -30,5 +31,32 @@
     "solutions"
   ],
   "author": "Hyperledger Composer",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "license-check-and-add-config": {
+    "folder": ".",
+    "license": "LICENSE.txt",
+    "exact_paths_method": "EXCLUDE",
+    "exact_paths": [
+      ".git",
+      "packages",
+      "node_modules"
+    ],
+    "file_type_method": "EXCLUDE",
+    "file_types": [
+      ".enc",
+      ".md",
+      ".yml",
+      ".log"
+    ],
+    "insert_license": false,
+    "license_formats": {
+      "js": {
+        "prepend": "#!/usr/bin/env node\n/*",
+        "append": " */",
+        "eachLine": {
+          "prepend": " * "
+        }
+      }
+    }
+  }
 }
