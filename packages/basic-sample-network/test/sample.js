@@ -101,7 +101,7 @@ describe('Sample', () => {
         // Generate a business network definition from the project directory.
         let businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
         businessNetworkName = businessNetworkDefinition.getName();
-        await adminConnection.install(businessNetworkName);
+        await adminConnection.install(businessNetworkDefinition);
         const startOptions = {
             networkAdmins: [
                 {
@@ -110,7 +110,7 @@ describe('Sample', () => {
                 }
             ]
         };
-        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+        const adminCards = await adminConnection.start(businessNetworkName, businessNetworkDefinition.getVersion(), startOptions);
         await adminConnection.importCard(adminCardName, adminCards.get('admin'));
 
         // Create and establish a business network connection

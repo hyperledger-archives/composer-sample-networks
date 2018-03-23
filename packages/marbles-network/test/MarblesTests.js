@@ -62,7 +62,7 @@ describe('Marbles', () => {
         let businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
         // Install the Composer runtime for the new business network
-        await adminConnection.install(businessNetworkDefinition.getName());
+        await adminConnection.install(businessNetworkDefinition);
 
         // Start the business network and configure an network admin identity
         const startOptions = {
@@ -75,7 +75,7 @@ describe('Marbles', () => {
         };
 
         // Import the network admin identity for us to use
-        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+        const adminCards = await adminConnection.start(businessNetworkDefinition.getName(), businessNetworkDefinition.getVersion(), startOptions);
         adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
         await adminConnection.importCard(adminCardName, adminCards.get(adminUserName));
 
