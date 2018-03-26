@@ -94,7 +94,7 @@ describe('Acl checking', () => {
         const businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
         businessNetworkName = businessNetworkDefinition.getName();
-        await adminConnection.install(businessNetworkName);
+        await adminConnection.install(businessNetworkDefinition);
 
         const startOptions = {
             networkAdmins: [
@@ -104,7 +104,7 @@ describe('Acl checking', () => {
                 }
             ]
         };
-        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+        const adminCards = await adminConnection.start(businessNetworkName, businessNetworkDefinition.getVersion(), startOptions);
         await adminConnection.importCard(adminCardName, adminCards.get('admin'));
 
         // Create and establish a business network connection
@@ -128,7 +128,7 @@ describe('Acl checking', () => {
         bob.lastName = 'B';
 
         const participantRegistry = await businessNetworkConnection.getParticipantRegistry(namespace + '.Member');
-        participantRegistry.addAll([alice, bob]);
+        await participantRegistry.addAll([alice, bob]);
 
         // Issue the identities.
         const identityA = await businessNetworkConnection.issueIdentity(namespace + '.Member#alice@email.com', 'alice1');

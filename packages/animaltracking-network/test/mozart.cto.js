@@ -67,7 +67,7 @@ describe('Animal Tracking Network', function() {
         businessNetworkDefinition = await BusinessNetworkDefinition.fromDirectory(path.resolve(__dirname, '..'));
 
         // Install the Composer runtime for the new business network
-        await adminConnection.install(businessNetworkDefinition.getName());
+        await adminConnection.install(businessNetworkDefinition);
 
         // Start the business network and configure an network admin identity
         const startOptions = {
@@ -78,7 +78,7 @@ describe('Animal Tracking Network', function() {
                 }
             ]
         };
-        const adminCards = await adminConnection.start(businessNetworkDefinition, startOptions);
+        const adminCards = await adminConnection.start(businessNetworkDefinition.getName(), businessNetworkDefinition.getVersion(), startOptions);
 
         // Import the network admin identity for us to use
         adminCardName = `${adminUserName}@${businessNetworkDefinition.getName()}`;
