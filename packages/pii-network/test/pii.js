@@ -128,7 +128,7 @@ describe('Acl checking', () => {
         bob.lastName = 'B';
 
         const participantRegistry = await businessNetworkConnection.getParticipantRegistry(namespace + '.Member');
-        participantRegistry.addAll([alice, bob]);
+        await participantRegistry.addAll([alice, bob]);
 
         // Issue the identities.
         const identityA = await businessNetworkConnection.issueIdentity(namespace + '.Member#alice@email.com', 'alice1');
