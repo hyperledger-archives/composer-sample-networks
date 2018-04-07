@@ -3,7 +3,7 @@
     "composer": "^0.19.0"
   },
   "name": "perishable-network",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Shipping Perishable Goods Business Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/perishable-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/perishable-network/networkimageanimated.svg",

@@ -6,7 +6,7 @@
 	"description": "Vehicle manufacture network",
 	"networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/vehicle-manufacture-network/networkimage.svg",
 	"networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/vehicle-manufacture-network/networkimageanimated.svg",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"scripts": {
 		"prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/vehicle-manufacture-network.bna",
 		"pretest": "npm run lint",
