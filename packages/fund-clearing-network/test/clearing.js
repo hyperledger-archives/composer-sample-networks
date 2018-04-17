@@ -51,17 +51,17 @@ function createBankingParticipant(factory, bankId, currency) {
  * Utility function for creating transfer assets
  * @param {*} factory factory for generation of resources
  * @param {*} transferId identifier
- * @param {*} ammount ammount of transfer
+ * @param {*} amount amount of transfer
  * @param {*} currency transfer currency
  * @param {*} globalState state to place transfer into
  * @param {*} fromBank from bank (debtor bank)
  * @param {*} toBank to bank (creditor bank)
  * @return {*} transferAsset
  */
-function createTransferAsset(factory, transferId, ammount, currency, globalState, fromBank, toBank) {
+function createTransferAsset(factory, transferId, amount, currency, globalState, fromBank, toBank) {
     let asset = factory.newResource(namespace, 'TransferRequest', transferId);
     let transfer = factory.newConcept(namespace, 'Transfer');
-    transfer.ammount = ammount;
+    transfer.amount = amount;
     transfer.fromAccount = 1234567;
     transfer.toAccount = 789123;
     transfer.currency = currency;
@@ -183,7 +183,7 @@ describe('Fund Clearing Network', () => {
             const batchRegistry = await businessNetworkConnection.getAssetRegistry(namespace + '.BatchTransferRequest');
 
             // Create the Transfer assets in the registry
-            // createTransferAsset(factory, transferId, ammount, currency, globalState, fromBank, toBank)
+            // createTransferAsset(factory, transferId, amount, currency, globalState, fromBank, toBank)
             const asset0 = createTransferAsset(factory, '0', 100, 'EURO', 'PENDING', bank0, bank1);
             const asset1 = createTransferAsset(factory, '1', 100000, 'EURO', 'PROCESSING', bank0, bank1);
             const asset2 = createTransferAsset(factory, '2', 101, 'STERLING', 'PENDING', bank0, bank2);
@@ -197,7 +197,7 @@ describe('Fund Clearing Network', () => {
 
             const batch0 = factory.newResource(namespace, 'BatchTransferRequest', '0');
             const settlememnt0 = factory.newConcept(namespace, 'Settlement');
-            settlememnt0.ammount = 301;
+            settlememnt0.amount = 301;
             settlememnt0.currency = 'EURO';
             settlememnt0.creditorBank = factory.newRelationship(namespace, 'BankingParticipant', bank0);
             settlememnt0.debtorBank = factory.newRelationship(namespace, 'BankingParticipant', bank1);
@@ -208,7 +208,7 @@ describe('Fund Clearing Network', () => {
 
             const batch1 = factory.newResource(namespace, 'BatchTransferRequest', '1');
             const settlememnt1 = factory.newConcept(namespace, 'Settlement');
-            settlememnt1.ammount = 100;
+            settlememnt1.amount = 100;
             settlememnt1.currency = 'STERLING';
             settlememnt1.creditorBank = factory.newRelationship(namespace, 'BankingParticipant', bank2);
             settlememnt1.debtorBank = factory.newRelationship(namespace, 'BankingParticipant', bank1);
@@ -220,7 +220,7 @@ describe('Fund Clearing Network', () => {
             // Ready to settle batch
             const batch2 = factory.newResource(namespace, 'BatchTransferRequest', '2');
             const settlement2 = factory.newConcept(namespace, 'Settlement');
-            settlement2.ammount = 100;
+            settlement2.amount = 100;
             settlement2.currency = 'STERLING';
             settlement2.creditorBank = factory.newRelationship(namespace, 'BankingParticipant', bank2);
             settlement2.debtorBank = factory.newRelationship(namespace, 'BankingParticipant', bank1);

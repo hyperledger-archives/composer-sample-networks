@@ -23,7 +23,7 @@ asset TransferRequest identified by requestId {
 
 concept Transfer {
   o Currency currency
-  o Double ammount  
+  o Double amount  
   o Integer fromAccount
   o Integer toAccount
 }
@@ -37,7 +37,7 @@ asset BatchTransferRequest identified by batchId {
 }
 
 concept Settlement {  
-  o Double ammount
+  o Double amount
   o Currency currency
   --> BankingParticipant creditorBank
   --> BankingParticipant debtorBank

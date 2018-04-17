@@ -18,29 +18,29 @@ const namespace = 'org.clearing';
  * @param {TransferRequest[]} transferRequests array of TransferRequest objects
  * @param {participantId} participantId string participant identity
  * @param {rates[]} rates array of ExchangeRate objects
- * @return {Double} net ammount in USD
+ * @return {Double} net amount in USD
  */
 function netTransfers(transferRequests, participantId, rates) {
-    let ammount = 0;
-    // Determine ammount in USD
+    let amount = 0;
+    // Determine amount in USD
     for (let request of transferRequests) {
         if(request.tobank === 'resource:org.acme.fundclearing.BankingParticipant#' + participantId) {
             if (request.details.currency === 'USD') {
-                ammount += request.details.ammount;
+                amount += request.details.amount;
             } else {
                 let filteredRate = rates.filter( (rate) => { return rate.to === request.details.currency;});
-                ammount += request.details.ammount / filteredRate[0].rate;
+                amount += request.details.amount / filteredRate[0].rate;
             }
         } else {
             if (request.details.currency === 'USD') {
-                ammount -= request.details.ammount;
+                amount -= request.details.amount;
             } else {
                 let filteredRate = rates.filter( (rate) => { return rate.to === request.details.currency;});
-                ammount -= request.details.ammount / filteredRate[0].rate;
+                amount -= request.details.amount / filteredRate[0].rate;
             }
         }
     }
-    return ammount;
+    return amount;
 }
 
 /**
@@ -80,11 +80,11 @@ async function createBatch(tx) {  // eslint-disable-line no-unused-vars
                 // Create BatchTransferRequest(s) for each interaction pairing
                 let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.getIdentifier() + workingParticipant + i);
 
-                // Determine settlement ammount in USD, adjust to creditor currency later
-                let ammount = netTransfers(transferRequests, participants[workingParticipant].getIdentifier(), tx.usdRates);
+                // Determine settlement amount in USD, adjust to creditor currency later
+                let amount = netTransfers(transferRequests, participants[workingParticipant].getIdentifier(), tx.usdRates);
 
                 let settlement = factory.newConcept(namespace, 'Settlement');
-                if (ammount >= 0) {
+                if (amount >= 0) {
                     settlement.creditorBank = factory.newRelationship(namespace, 'BankingParticipant', participants[workingParticipant].getIdentifier());
                     settlement.debtorBank = factory.newRelationship(namespace, 'BankingParticipant', participants[i].getIdentifier());
                     settlement.currency = participants[workingParticipant].workingCurrency;
@@ -94,13 +94,13 @@ async function createBatch(tx) {  // eslint-disable-line no-unused-vars
                     settlement.currency = participants[i].workingCurrency;
                 }
 
-                // Adjust settlement to be in creditor currency (ammount is currently in USD)
+                // Adjust settlement to be in creditor currency (amount is currently in USD)
                 if(settlement.currency !== 'USD') {
                     let filteredRate = tx.usdRates.filter( (rate) => { return rate.to === settlement.currency; });
-                    ammount = ammount * filteredRate[0].rate;
+                    amount = amount * filteredRate[0].rate;
                 }
 
-                settlement.ammount = Math.abs(ammount);
+                settlement.amount = Math.abs(amount);
                 batch.settlement = settlement;
                 batch.parties = [
                     factory.newRelationship(namespace, 'BankingParticipant', participants[workingParticipant].getIdentifier()),
@@ -185,13 +185,13 @@ async function markPreProcessComplete(tx) {  // eslint-disable-line no-unused-va
 
 /**
  * Adjust the settlement between a banking pair, accounting for latest exchange rates
- * @param {Double} ammount to be settled
+ * @param {Double} amount to be settled
  * @param {ExchangeRate[]} rates arrays of ExchangeRate objects
  * @param {String} creditorCurrency currency of creditor
  * @param {String} debtorCurrency currency of debtor
- * @return {Double} net ammount to be paid by debtor
+ * @return {Double} net amount to be paid by debtor
  */
-function adjustSettlement(ammount, rates, creditorCurrency, debtorCurrency) {
+function adjustSettlement(amount, rates, creditorCurrency, debtorCurrency) {
     // If same currency, no need to adjust for exchange rate
     if (creditorCurrency !== debtorCurrency) {
         let fromRate = 1;
@@ -204,13 +204,13 @@ function adjustSettlement(ammount, rates, creditorCurrency, debtorCurrency) {
         if (debtorCurrency !== 'USD') {
             fromRate = rates.filter( (rate) => { return rate.to === debtorCurrency;})[0].rate;
         }
-        ammount = ammount * (toRate/fromRate);
+        amount = amount * (toRate/fromRate);
     }
-    return ammount;
+    return amount;
 }
 
 /**
- * Transaction to adjust Bank participant funds according to net settlement ammount in creditor currency
+ * Transaction to adjust Bank participant funds according to net settlement amount in creditor currency
  * @param {org.clearing.CompleteSettlement} tx passed transaction body
  * @transaction
  */
@@ -237,10 +237,10 @@ async function completeSettlement(tx) {  // eslint-disable-line no-unused-vars
 
     // Adjust funds, accounting for currency exchange rate
     // -use passed usdRate[] [usd -> other]
-    let debtorAmmount = adjustSettlement(settlement.ammount, tx.usdRates, creditor.workingCurrency, debtor.workingCurrency);
+    let debtoramount = adjustSettlement(settlement.amount, tx.usdRates, creditor.workingCurrency, debtor.workingCurrency);
 
-    creditor.fundBalance += settlement.ammount;
-    debtor.fundBalance -= debtorAmmount;
+    creditor.fundBalance += settlement.amount;
+    debtor.fundBalance -= debtoramount;
     await participantRegistry.update(creditor);
     await participantRegistry.update(debtor);
 

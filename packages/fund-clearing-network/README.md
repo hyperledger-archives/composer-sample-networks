@@ -33,7 +33,7 @@ Create a minimum of two `BankingParticipant` participants:
 
 ```
 {
-  "$class": "org.acme.fundclearing.BankingParticipant",
+  "$class": "org.clearing.BankingParticipant",
   "bankingId": "memberId:1",
   "bankingName": "bankingName1",
   "workingCurrency": "EURO",
@@ -43,7 +43,7 @@ Create a minimum of two `BankingParticipant` participants:
 
 ```
 {
-  "$class": "org.acme.fundclearing.BankingParticipant",
+  "$class": "org.clearing.BankingParticipant",
   "bankingId": "memberId:2",
   "bankingName": "bankingName2",
   "workingCurrency": "USD",
@@ -57,40 +57,40 @@ Create a series of `TransferRequest` assets, referencing the created `BankingPar
 
 ```
 {
-  "$class": "org.acme.fundclearing.TransferRequest",
+  "$class": "org.clearing.TransferRequest",
   "requestId": "1111",
   "details": {
-    "$class": "org.acme.fundclearing.Transfer",
+    "$class": "org.clearing.Transfer",
     "currency": "EURO",
-    "ammount": 150,
-    "fromAccount": 0987654321,
-    "toAccount": 1234567890
+    "amount": 150,
+    "fromAccount": "0987654321",
+    "toAccount": "1234567890"
   },
   "fromBankState": "PENDING",
   "toBankState": "PENDING",
   "state": "PENDING",
-  "fromBank": "resource:org.acme.fundclearing.BankingParticipant#memberId:1",
-  "toBank": "resource:org.acme.fundclearing.BankingParticipant#memberId:2"
+  "fromBank": "resource:org.clearing.BankingParticipant#memberId:1",
+  "toBank": "resource:org.clearing.BankingParticipant#memberId:2"
 }
 ```
 
 
 ```
 {
-  "$class": "org.acme.fundclearing.TransferRequest",
+  "$class": "org.clearing.TransferRequest",
   "requestId": "2222",
   "details": {
-    "$class": "org.acme.fundclearing.Transfer",
+    "$class": "org.clearing.Transfer",
     "currency": "USD",
-    "ammount": 75,
-    "fromAccount": 0987654321,
-    "toAccount": 1234567890
+    "amount": 75,
+    "fromAccount": "0987654321",
+    "toAccount": "1234567890"
   },
   "fromBankState": "PENDING",
   "toBankState": "PENDING",
   "state": "PENDING",
-  "fromBank": "resource:org.acme.fundclearing.BankingParticipant#memberId:2",
-  "toBank": "resource:org.acme.fundclearing.BankingParticipant#memberId:1"
+  "fromBank": "resource:org.clearing.BankingParticipant#memberId:2",
+  "toBank": "resource:org.clearing.BankingParticipant#memberId:1"
 }
 ```
 
@@ -98,9 +98,9 @@ Submit a `CreateBatch` transaction:
 
 ```
 {
-  "$class": "org.acme.fundclearing.CreateBatch",
-  "usdRates": [{"$class":"org.acme.fundclearing.ExchangeRate", "to":"EURO","rate":0.75},
-               {"$class":"org.acme.fundclearing.ExchangeRate", "to":"STERLING","rate":1.75}]
+  "$class": "org.clearing.CreateBatch",
+  "usdRates": [{"$class":"org.clearing.UsdExchangeRate", "to":"EURO","rate":0.75},
+               {"$class":"org.clearing.UsdExchangeRate", "to":"STERLING","rate":1.75}]
 }
 ```
 
@@ -119,7 +119,7 @@ Access the business network under an identity bound to a `BankingParticipant`. S
 
 ```
 {
-  "$class": "org.acme.fundclearing.MarkPreProcessTransferComplete",
+  "$class": "org.clearing.MarkPreProcessTransferComplete",
   "batchId": "batch-identifier"
 }
 ```
@@ -138,10 +138,10 @@ Access the business network under an identity bound to a `BankingParticipant`. S
 
 ```
 {
-  "$class": "org.acme.fundclearing.CompleteSettlement",
+  "$class": "org.clearing.CompleteSettlement",
   "batchId": "batch-identifier",
-  "usdRates": [{"$class":"org.acme.fundclearing.ExchangeRate", "to":"EURO","rate":0.75},
-               {"$class":"org.acme.fundclearing.ExchangeRate", "to":"STERLING","rate":1.75}]
+  "usdRates": [{"$class":"org.clearing.ExchangeRate", "to":"EURO","rate":0.75},
+               {"$class":"org.clearing.ExchangeRate", "to":"STERLING","rate":1.75}]
 }
 ```
 
@@ -157,7 +157,7 @@ Submit a `MarkPostProcessTransferComplete` transaction, passing details of the `
 
 ```
 {
-  "$class": "org.acme.fundclearing.MarkPostProcessTransferComplete",
+  "$class": "org.clearing.MarkPostProcessTransferComplete",
   "batchId": "batch-identifier"
 }
 ```
