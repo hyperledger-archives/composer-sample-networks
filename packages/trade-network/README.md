@@ -22,7 +22,7 @@ Create two `Trader` participants:
 
 ```
 {
-  "$class": "org.acme.trading.Trader",
+  "$class": "org.example.trading.Trader",
   "tradeId": "TRADER1",
   "firstName": "Jenny",
   "lastName": "Jones"
@@ -31,7 +31,7 @@ Create two `Trader` participants:
 
 ```
 {
-  "$class": "org.acme.trading.Trader",
+  "$class": "org.example.trading.Trader",
   "tradeId": "TRADER2",
   "firstName": "Amy",
   "lastName": "Williams"
@@ -42,12 +42,12 @@ Create a `Commodity` asset:
 
 ```
 {
-  "$class": "org.acme.trading.Commodity",
+  "$class": "org.example.trading.Commodity",
   "tradingSymbol": "ABC",
   "description": "Test commodity",
   "mainExchange": "Euronext",
   "quantity": 72.297,
-  "owner": "resource:org.acme.trading.Trader#TRADER1"
+  "owner": "resource:org.example.trading.Trader#TRADER1"
 }
 ```
 
@@ -55,9 +55,9 @@ Submit a `Trade` transaction:
 
 ```
 {
-  "$class": "org.acme.trading.Trade",
-  "commodity": "resource:org.acme.trading.Commodity#ABC",
-  "newOwner": "resource:org.acme.trading.Trader#TRADER2"
+  "$class": "org.example.trading.Trade",
+  "commodity": "resource:org.example.trading.Commodity#ABC",
+  "newOwner": "resource:org.example.trading.Trader#TRADER2"
 }
 ```
 

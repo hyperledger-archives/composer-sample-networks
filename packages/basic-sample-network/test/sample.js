@@ -23,7 +23,7 @@ const chai = require('chai');
 chai.should();
 chai.use(require('chai-as-promised'));
 
-const namespace = 'org.acme.sample';
+const namespace = 'org.example.basic';
 const assetType = 'SampleAsset';
 const assetNS = namespace + '.' + assetType;
 const participantType = 'SampleParticipant';
@@ -399,7 +399,7 @@ describe('Sample', () => {
         const event = events[0];
         event.eventId.should.be.a('string');
         event.timestamp.should.be.an.instanceOf(Date);
-        event.asset.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleAsset#1');
+        event.asset.getFullyQualifiedIdentifier().should.equal('org.example.basic.SampleAsset#1');
         event.oldValue.should.equal('10');
         event.newValue.should.equal('50');
     });
@@ -438,7 +438,7 @@ describe('Sample', () => {
         const event = events[0];
         event.eventId.should.be.a('string');
         event.timestamp.should.be.an.instanceOf(Date);
-        event.asset.getFullyQualifiedIdentifier().should.equal('org.acme.sample.SampleAsset#2');
+        event.asset.getFullyQualifiedIdentifier().should.equal('org.example.basic.SampleAsset#2');
         event.oldValue.should.equal('20');
         event.newValue.should.equal('60');
     });
