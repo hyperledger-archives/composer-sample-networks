@@ -24,18 +24,18 @@ function netTransfers(transferRequests, participantId, rates) {
     let amount = 0;
     // Determine amount in USD
     for (let request of transferRequests) {
-        if(request.tobank === 'resource:org.acme.fundclearing.BankingParticipant#' + participantId) {
+        if (request.tobank === 'resource:org.clearing.BankingParticipant#' + participantId) {
             if (request.details.currency === 'USD') {
                 amount += request.details.amount;
             } else {
-                let filteredRate = rates.filter( (rate) => { return rate.to === request.details.currency;});
+                let filteredRate = rates.filter((rate) => { return rate.to === request.details.currency; });
                 amount += request.details.amount / filteredRate[0].rate;
             }
         } else {
             if (request.details.currency === 'USD') {
                 amount -= request.details.amount;
             } else {
-                let filteredRate = rates.filter( (rate) => { return rate.to === request.details.currency;});
+                let filteredRate = rates.filter((rate) => { return rate.to === request.details.currency; });
                 amount -= request.details.amount / filteredRate[0].rate;
             }
         }
@@ -63,22 +63,23 @@ async function createBatch(tx) {  // eslint-disable-line no-unused-vars
     const participants = await participantRegistry.getAll();
 
     // Error if only one participant
-    if (participants.length <= 1){
+    if (participants.length <= 1) {
         throw new Error('Insufficient number of BankingParticipant(s) to proceed with batch creation');
     }
 
     // Run queries for all TransferRequests in the 'PENDING' state for each possible bank pairing
     let workingParticipant = 0;
-    while(workingParticipant < participants.length -1) {
-        for (let i = workingParticipant + 1; i<participants.length; i++ ) {
+    while (workingParticipant < participants.length - 1) {
+        for (let i = workingParticipant + 1; i < participants.length; i++) {
 
             // Query for pending transfer requests
-            const transferRequests = await query('TransferRequestsByBanksInState', {'bank1': 'resource:org.acme.fundclearing.BankingParticipant#'+participants[workingParticipant].getIdentifier(), 'bank2': 'resource:org.acme.fundclearing.BankingParticipant#'+participants[i].getIdentifier(), 'state': 'PENDING'}); // eslint-disable-line no-undef
+            const transferRequests = await query('TransferRequestsByBanksInState', { 'bank1': 'resource:org.clearing.BankingParticipant#' + participants[workingParticipant].getIdentifier(), 'bank2': 'resource:org.clearing.BankingParticipant#' + participants[i].getIdentifier(), 'state': 'PENDING' }); // eslint-disable-line no-undef
 
             // Conditionally process returned transfer requests
             if (transferRequests.length > 0) {
                 // Create BatchTransferRequest(s) for each interaction pairing
-                let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.getIdentifier() + workingParticipant + i);
+                //let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.getIdentifier() + workingParticipant + i);
+                let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.batchId + ":" + workingParticipant + i);
 
                 // Determine settlement amount in USD, adjust to creditor currency later
                 let amount = netTransfers(transferRequests, participants[workingParticipant].getIdentifier(), tx.usdRates);
@@ -95,8 +96,8 @@ async function createBatch(tx) {  // eslint-disable-line no-unused-vars
                 }
 
                 // Adjust settlement to be in creditor currency (amount is currently in USD)
-                if(settlement.currency !== 'USD') {
-                    let filteredRate = tx.usdRates.filter( (rate) => { return rate.to === settlement.currency; });
+                if (settlement.currency !== 'USD') {
+                    let filteredRate = tx.usdRates.filter((rate) => { return rate.to === settlement.currency; });
                     amount = amount * filteredRate[0].rate;
                 }
 
@@ -127,7 +128,7 @@ async function createBatch(tx) {  // eslint-disable-line no-unused-vars
 
                 // Emit BatchCreatedEvent event
                 let event = factory.newEvent(namespace, 'BatchCreatedEvent');
-                event.batchId = tx.getIdentifier();
+                event.batchId = batch.batchId;
                 emit(event); // eslint-disable-line no-undef
             }
         }
@@ -177,7 +178,7 @@ async function markPreProcessComplete(tx) {  // eslint-disable-line no-unused-va
     await transferAssetRegistry.updateAll(updateArray);
 
     // If all now marked, we can class the batch as READY_TO_SETTLE
-    if(readyToSettle) {
+    if (readyToSettle) {
         batch.state = 'READY_TO_SETTLE';
         await batchAssetRegistry.update(batch);
     }
@@ -198,13 +199,13 @@ function adjustSettlement(amount, rates, creditorCurrency, debtorCurrency) {
         let toRate = 1;
 
         if (creditorCurrency !== 'USD') {
-            toRate = rates.filter( (rate) => { return rate.to === creditorCurrency;})[0].rate;
+            toRate = rates.filter((rate) => { return rate.to === creditorCurrency; })[0].rate;
         }
 
         if (debtorCurrency !== 'USD') {
-            fromRate = rates.filter( (rate) => { return rate.to === debtorCurrency;})[0].rate;
+            fromRate = rates.filter((rate) => { return rate.to === debtorCurrency; })[0].rate;
         }
-        amount = amount * (toRate/fromRate);
+        amount = amount * (toRate / fromRate);
     }
     return amount;
 }
@@ -291,7 +292,7 @@ async function markPostProcessComplete(tx) {  // eslint-disable-line no-unused-v
     await transferAssetRegistry.updateAll(updateArray);
 
     // If all now marked, we can class the batch as COMPLETE
-    if(batchComplete) {
+    if (batchComplete) {
         batch.state = 'COMPLETE';
         await batchAssetRegistry.update(batch);
     }

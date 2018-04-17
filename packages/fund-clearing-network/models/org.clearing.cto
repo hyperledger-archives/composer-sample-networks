@@ -68,6 +68,7 @@ enum BatchState {
 }
 
 transaction CreateBatch {
+  o String batchId
   o UsdExchangeRate[] usdRates
 }
   
@@ -77,18 +78,18 @@ concept UsdExchangeRate {
 }
   
 transaction MarkPreProcessComplete {
-  --> BatchTransferRequest batch
+  o String batchId  
 }
   
 transaction CompleteSettlement {
-  --> BatchTransferRequest batch
+  o String batchId
   o UsdExchangeRate[] usdRates
 }
   
 transaction MarkPostProcessComplete {
-  --> BatchTransferRequest batch
+o String batchId
 }
   
 event BatchCreatedEvent {
-  --> BatchTransferRequest batch
+  o String batchId
 }

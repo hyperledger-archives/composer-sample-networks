@@ -99,12 +99,15 @@ Submit a `CreateBatch` transaction:
 ```
 {
   "$class": "org.clearing.CreateBatch",
+  "batchId": "batch1",
   "usdRates": [{"$class":"org.clearing.UsdExchangeRate", "to":"EURO","rate":0.75},
                {"$class":"org.clearing.UsdExchangeRate", "to":"STERLING","rate":1.75}]
 }
 ```
 
 The `CreateBatch` transaction will create a new `BatchTransferRequest` in the Asset Registry for each unique pairing of `BankingParticipant` participants that have pending `TransferRequest` assets. An event will be emitted for each `BatchTransferRequest` created.
+
+Note that the new `BatchTransferRequest` asset contains a `batchId` field that has additional "-NN" appended to the batchID that was submitted in the transaction, where each N represents the banks participating in the particular `BatchTransferRequest`.
 
 
 ## MarkPreProcessTransferComplete
@@ -120,7 +123,7 @@ Access the business network under an identity bound to a `BankingParticipant`. S
 ```
 {
   "$class": "org.clearing.MarkPreProcessTransferComplete",
-  "batchId": "batch-identifier"
+  "batchId": "batch1-NN"
 }
 ```
 
@@ -139,7 +142,7 @@ Access the business network under an identity bound to a `BankingParticipant`. S
 ```
 {
   "$class": "org.clearing.CompleteSettlement",
-  "batchId": "batch-identifier",
+  "batchId": "batch1-NN",
   "usdRates": [{"$class":"org.clearing.ExchangeRate", "to":"EURO","rate":0.75},
                {"$class":"org.clearing.ExchangeRate", "to":"STERLING","rate":1.75}]
 }
@@ -158,7 +161,7 @@ Submit a `MarkPostProcessTransferComplete` transaction, passing details of the `
 ```
 {
   "$class": "org.clearing.MarkPostProcessTransferComplete",
-  "batchId": "batch-identifier"
+  "batchId": "batch1-NN"
 }
 ```
 

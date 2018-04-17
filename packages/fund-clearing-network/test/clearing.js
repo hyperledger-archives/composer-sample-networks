@@ -114,7 +114,7 @@ describe('Fund Clearing Network', () => {
             const deployerMetadata = {
                 version: 1,
                 userName: 'PeerAdmin',
-                roles: [ 'PeerAdmin', 'ChannelAdmin' ]
+                roles: ['PeerAdmin', 'ChannelAdmin']
             };
             const deployerCard = new IdCard(deployerMetadata, connectionProfile);
             deployerCard.setCredentials(credentials);
@@ -435,6 +435,7 @@ describe('Fund Clearing Network', () => {
                 rate2.to = 'STERLING';
                 rate2.rate = 1.75;
                 txn.usdRates = [rate1, rate2];
+                txn.batchId = 'batch1';
 
                 // Use the identity for Bank3 (not involved with anything defined above)
                 await useIdentity(bank3);
