@@ -448,19 +448,21 @@ describe('Fund Clearing Network', () => {
                 await businessNetworkConnection.connect('admin');
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
                 const transaction = factory.newTransaction(namespace, 'MarkPreProcessComplete');
-                transaction.batch = factory.newRelationship(namespace, 'BatchTransferRequest', '0');
+                transaction.batchId = '0:01';
+                //transaction.batch = factory.newRelationship(namespace, 'BatchTransferRequest', '0');
 
                 // Use the identity for Bank0.
                 await useIdentity(bank0);
                 await businessNetworkConnection.submitTransaction(transaction);
             });
 
-            xit('should prevent a Participant not identified within the `parties` array from invoking a `MarkPreProcessComplete` transaction for a passed batch reference', async () => {
+            it('should prevent a Participant not identified within the `parties` array from invoking a `MarkPreProcessComplete` transaction for a passed batch reference', async () => {
                 // Get the factory for the business network.
                 await businessNetworkConnection.connect('admin');
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
                 const transaction = factory.newTransaction(namespace, 'MarkPreProcessComplete');
-                transaction.batch = factory.newRelationship(namespace, 'BatchTransferRequest', '0');
+                transaction.batchId = '0:01';
+                //transaction.batch = factory.newRelationship(namespace, 'BatchTransferRequest', '0');
 
                 // Use the identity for Bank3.
                 await useIdentity(bank3);
@@ -473,7 +475,8 @@ describe('Fund Clearing Network', () => {
                 await businessNetworkConnection.connect('admin');
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
                 const transaction = factory.newTransaction(namespace, 'CompleteSettlement');
-                transaction.batch = factory.newRelationship(namespace, 'BatchTransferRequest', '2');
+                //transaction.batch = factory.newRelationship(namespace, 'BatchTransferRequest', '2');
+                transaction.batchId = '2:12';
 
                 let rate1 = factory.newConcept(namespace, 'UsdExchangeRate');
                 rate1.to = 'EURO';
@@ -499,7 +502,8 @@ describe('Fund Clearing Network', () => {
                 await businessNetworkConnection.connect('admin');
                 factory = businessNetworkConnection.getBusinessNetwork().getFactory();
                 const transaction = factory.newTransaction(namespace, 'MarkPostProcessComplete');
-                transaction.batch = factory.newRelationship(namespace, 'BatchTransferRequest', '0');
+                //transaction.batch = factory.newRelationship(namespace, 'BatchTransferRequest', '0');
+                transaction.batchId = '0:01';
 
                 // Use the identity for Bank0.
                 await useIdentity(bank0);

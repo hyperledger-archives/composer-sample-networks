@@ -17,7 +17,7 @@ const namespace = 'org.clearing';
  * Determine the net transfer between a banking pair, accounting for exchange rates
  * @param {TransferRequest[]} transferRequests array of TransferRequest objects
  * @param {participantId} participantId string participant identity
- * @param {rates[]} rates array of ExchangeRate objects
+ * @param {rates[]} rates array of UsdExchangeRate objects
  * @return {Double} net amount in USD
  */
 function netTransfers(transferRequests, participantId, rates) {
@@ -148,8 +148,8 @@ async function markPreProcessComplete(tx) {  // eslint-disable-line no-unused-va
     const batchAssetRegistry = await getAssetRegistry(namespace + '.BatchTransferRequest'); // eslint-disable-line no-undef
     const transferAssetRegistry = await getAssetRegistry(namespace + '.TransferRequest'); // eslint-disable-line no-undef
 
-    // Use the referenced Batch
-    let batch = tx.batch;
+    // Get the batch asset
+    let batch = await batchAssetRegistry.get(tx.batchId);
 
     // Update all TransferRequests where currentParticipant is 'to/fromBank' member
     let updateArray = new Array();
@@ -187,7 +187,7 @@ async function markPreProcessComplete(tx) {  // eslint-disable-line no-unused-va
 /**
  * Adjust the settlement between a banking pair, accounting for latest exchange rates
  * @param {Double} amount to be settled
- * @param {ExchangeRate[]} rates arrays of ExchangeRate objects
+ * @param {UsdExchangeRate[]} rates arrays of UsdExchangeRate objects
  * @param {String} creditorCurrency currency of creditor
  * @param {String} debtorCurrency currency of debtor
  * @return {Double} net amount to be paid by debtor
@@ -222,7 +222,7 @@ async function completeSettlement(tx) {  // eslint-disable-line no-unused-vars
     const batchAssetRegistry = await getAssetRegistry(namespace + '.BatchTransferRequest'); // eslint-disable-line no-undef
 
     // Use the batch being completed
-    const batch = tx.batch;
+    let batch = await batchAssetRegistry.get(tx.batchId);
 
     // Can only complete if batch is in 'READY_TO_SETTLE' state
     if (batch.state !== 'READY_TO_SETTLE') {
@@ -262,7 +262,7 @@ async function markPostProcessComplete(tx) {  // eslint-disable-line no-unused-v
     const transferAssetRegistry = await getAssetRegistry(namespace + '.TransferRequest'); // eslint-disable-line no-undef
 
     // Use the referenced Batch
-    const batch = tx.batch;
+    let batch = await batchAssetRegistry.get(tx.batchId);
 
     // Update all TransferRequests where currentParticipant is 'to/fromBank' member
     let updateArray = new Array();
