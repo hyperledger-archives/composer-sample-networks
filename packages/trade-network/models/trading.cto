@@ -14,7 +14,7 @@
 /**
  * Commodity trading network
  */
-namespace org.acme.trading
+namespace org.example.trading
 
 asset Commodity identified by tradingSymbol {
   o String tradingSymbol

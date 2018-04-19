@@ -16,7 +16,7 @@
 
 /**
  * Sample transaction processor function.
- * @param {org.acme.sample.SampleTransaction} tx The sample transaction instance.
+ * @param {org.example.basic.SampleTransaction} tx The sample transaction instance.
  * @transaction
  */
 async function sampleTransaction(tx) {  // eslint-disable-line no-unused-vars
@@ -28,12 +28,12 @@ async function sampleTransaction(tx) {  // eslint-disable-line no-unused-vars
     tx.asset.value = tx.newValue;
 
     // Get the asset registry for the asset.
-    const assetRegistry = await getAssetRegistry('org.acme.sample.SampleAsset');
+    const assetRegistry = await getAssetRegistry('org.example.basic.SampleAsset');
     // Update the asset in the asset registry.
     await assetRegistry.update(tx.asset);
 
     // Emit an event for the modified asset.
-    let event = getFactory().newEvent('org.acme.sample', 'SampleEvent');
+    let event = getFactory().newEvent('org.example.basic', 'SampleEvent');
     event.asset = tx.asset;
     event.oldValue = oldValue;
     event.newValue = tx.newValue;
