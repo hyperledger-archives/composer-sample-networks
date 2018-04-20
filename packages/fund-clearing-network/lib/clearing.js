@@ -45,7 +45,8 @@ function netTransfers(transferRequests, participantId, rates) {
 
 /**
  * Creates a BatchTransaferRequest for each bank pairing from all current
- * TransferRequests that are in the 'PENDING' state
+ * TransferRequests that are in the 'PENDING' state and involve the Transaction
+ * invoking Participant
  * @param {org.clearing.CreateBatch} tx passed transaction body
  * @transaction
  */
@@ -59,6 +60,8 @@ async function createBatch(tx) {  // eslint-disable-line no-unused-vars
     // Use a factory for creation of assets
     const factory = getFactory(); // eslint-disable-line no-undef
 
+    // Invoking Participant
+    const invokeParticipant = getCurrentParticipant(); // eslint-disable-line no-undef
     // Retrieve participants
     const participants = await participantRegistry.getAll();
 
@@ -67,72 +70,70 @@ async function createBatch(tx) {  // eslint-disable-line no-unused-vars
         throw new Error('Insufficient number of BankingParticipant(s) to proceed with batch creation');
     }
 
-    // Run queries for all TransferRequests in the 'PENDING' state for each possible bank pairing
-    let workingParticipant = 0;
-    while (workingParticipant < participants.length - 1) {
-        for (let i = workingParticipant + 1; i < participants.length; i++) {
-
-            // Query for pending transfer requests
-            const transferRequests = await query('TransferRequestsByBanksInState', { 'bank1': 'resource:org.clearing.BankingParticipant#' + participants[workingParticipant].getIdentifier(), 'bank2': 'resource:org.clearing.BankingParticipant#' + participants[i].getIdentifier(), 'state': 'PENDING' }); // eslint-disable-line no-undef
-
-            // Conditionally process returned transfer requests
-            if (transferRequests.length > 0) {
-                // Create BatchTransferRequest(s) for each interaction pairing
-                //let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.getIdentifier() + workingParticipant + i);
-                let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.batchId + ":" + workingParticipant + i);
-
-                // Determine settlement amount in USD, adjust to creditor currency later
-                let amount = netTransfers(transferRequests, participants[workingParticipant].getIdentifier(), tx.usdRates);
-
-                let settlement = factory.newConcept(namespace, 'Settlement');
-                if (amount >= 0) {
-                    settlement.creditorBank = factory.newRelationship(namespace, 'BankingParticipant', participants[workingParticipant].getIdentifier());
-                    settlement.debtorBank = factory.newRelationship(namespace, 'BankingParticipant', participants[i].getIdentifier());
-                    settlement.currency = participants[workingParticipant].workingCurrency;
-                } else {
-                    settlement.creditorBank = factory.newRelationship(namespace, 'BankingParticipant', participants[i].getIdentifier());
-                    settlement.debtorBank = factory.newRelationship(namespace, 'BankingParticipant', participants[workingParticipant].getIdentifier());
-                    settlement.currency = participants[i].workingCurrency;
-                }
-
-                // Adjust settlement to be in creditor currency (amount is currently in USD)
-                if (settlement.currency !== 'USD') {
-                    let filteredRate = tx.usdRates.filter((rate) => { return rate.to === settlement.currency; });
-                    amount = amount * filteredRate[0].rate;
-                }
-
-                settlement.amount = Math.abs(amount);
-                batch.settlement = settlement;
-                batch.parties = [
-                    factory.newRelationship(namespace, 'BankingParticipant', participants[workingParticipant].getIdentifier()),
-                    factory.newRelationship(namespace, 'BankingParticipant', participants[i].getIdentifier())
-                ];
-                batch.state = 'PENDING_PRE_PROCESS';
-
-                // Add references to each TransferRequest in the batch
-                let requestsArray = new Array();
-                for (let transferRequest of transferRequests) {
-                    let transferRelationship = factory.newRelationship(namespace, 'TransferRequest', transferRequest.getIdentifier());
-                    requestsArray.push(transferRelationship);
-                }
-                batch.transferRequests = requestsArray;
-
-                // Add the batch to registry
-                await batchAssetRegistry.add(batch);
-
-                // Update all TransferRequest states
-                for (let transferRequest of transferRequests) {
-                    transferRequest.state = 'PROCESSING';
-                    await transferAssetRegistry.update(transferRequest);
-                }
-
-                // Emit BatchCreatedEvent event
-                let event = factory.newEvent(namespace, 'BatchCreatedEvent');
-                event.batchId = batch.batchId;
-                emit(event); // eslint-disable-line no-undef
-            }
+    // Run queries for all TransferRequests in the 'PENDING' state for each possible bank pairing with invoking Participant
+    for (let i = 0; i < participants.length; i++) {
+        // Don't consider self
+        if (participants[i].getIdentifier() === invokeParticipant.getIdentifier()) {
+            continue;
         }
-        workingParticipant++;
+        // Query for pending transfer requests
+        const transferRequests = await query('TransferRequestsByBanksInState', { 'bank1': 'resource:org.clearing.BankingParticipant#' + invokeParticipant.getIdentifier(), 'bank2': 'resource:org.clearing.BankingParticipant#' + participants[i].getIdentifier(), 'state': 'PENDING' }); // eslint-disable-line no-undef
+
+        // Conditionally process returned transfer requests
+        if (transferRequests.length > 0) {
+            // Create BatchTransferRequest(s) for each interaction pairing
+            let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.batchId + ':' + invokeParticipant.getIdentifier() + i);
+
+            // Determine settlement amount in USD, adjust to creditor currency later
+            let amount = netTransfers(transferRequests, invokeParticipant.getIdentifier(), tx.usdRates);
+
+            let settlement = factory.newConcept(namespace, 'Settlement');
+            if (amount >= 0) {
+                settlement.creditorBank = factory.newRelationship(namespace, 'BankingParticipant', invokeParticipant.getIdentifier());
+                settlement.debtorBank = factory.newRelationship(namespace, 'BankingParticipant', participants[i].getIdentifier());
+                settlement.currency = invokeParticipant.workingCurrency;
+            } else {
+                settlement.creditorBank = factory.newRelationship(namespace, 'BankingParticipant', participants[i].getIdentifier());
+                settlement.debtorBank = factory.newRelationship(namespace, 'BankingParticipant', invokeParticipant.getIdentifier());
+                settlement.currency = participants[i].workingCurrency;
+            }
+
+            // Adjust settlement to be in creditor currency (amount is currently in USD)
+            if (settlement.currency !== 'USD') {
+                let filteredRate = tx.usdRates.filter((rate) => { return rate.to === settlement.currency; });
+                amount = amount * filteredRate[0].rate;
+            }
+
+            settlement.amount = Math.abs(amount);
+            batch.settlement = settlement;
+            batch.parties = [
+                factory.newRelationship(namespace, 'BankingParticipant', invokeParticipant.getIdentifier()),
+                factory.newRelationship(namespace, 'BankingParticipant', participants[i].getIdentifier())
+            ];
+            batch.state = 'PENDING_PRE_PROCESS';
+
+            // Add references to each TransferRequest in the batch
+            let requestsArray = new Array();
+            for (let transferRequest of transferRequests) {
+                let transferRelationship = factory.newRelationship(namespace, 'TransferRequest', transferRequest.getIdentifier());
+                requestsArray.push(transferRelationship);
+            }
+            batch.transferRequests = requestsArray;
+
+            // Add the batch to registry
+            await batchAssetRegistry.add(batch);
+
+            // Update all TransferRequest states
+            for (let transferRequest of transferRequests) {
+                transferRequest.state = 'PROCESSING';
+                await transferAssetRegistry.update(transferRequest);
+            }
+
+            // Emit BatchCreatedEvent event
+            let event = factory.newEvent(namespace, 'BatchCreatedEvent');
+            event.batchId = batch.getIdentifier();
+            emit(event); // eslint-disable-line no-undef
+        }
     }
 }
 

@@ -13,7 +13,6 @@
  */
 
 'use strict';
-
 /**
  * Permissions helper for ACL rules
  */
@@ -38,7 +37,7 @@ class PermissionsHelper { // eslint-disable-line no-unused-vars
     static PartyWithinBatchTransferRequest(batchRequest, participant){
         let allParties = [];
         for (let i=0; i<batchRequest.parties.length ; i++){
-            let party = batchRequest.parties[i].getIdentifier();
+            let party = batchRequest.parties[i].getFullyQualifiedIdentifier();
             allParties.push(party);
         }
         return allParties.includes(participant.getFullyQualifiedIdentifier());

@@ -54,30 +54,19 @@ rule EverybodyCanCreateBatches {
     action: ALLOW
 }
 
-rule BatchMembersCanMarkPreProcessComplete {
-    description: "Only allow involved participants to submit MarkPreProcessComplete transactions"
-    participant(p): "org.clearing.BankingParticipant"
+rule EverybodyCanMarkPreProcessComplete {
+    description: "Everybody allowed to submit MarkPreProcessComplete transactions"
+    participant: "org.clearing.BankingParticipant"
     operation: ALL
-    resource(r): "org.clearing.MarkPreProcessComplete"
-    condition: (PermissionsHelper.PartyWithinBatchReferencedTransferRequest(r, p))
+    resource: "org.clearing.MarkPreProcessComplete"
     action: ALLOW
 }
 
-rule OnlyBatchMembersCanMarkPreProcessComplete {
-    description: "Only allow involved participants to submit MarkPreProcessComplete transactions"
-    participant(p): "org.clearing.BankingParticipant"
+rule EverybodyCanCompleteSettlements {
+    description: "Everybody allowed to submit CompleteSettlement transactions"
+    participant: "org.clearing.BankingParticipant"
     operation: ALL
-    resource(r): "org.clearing.MarkPreProcessComplete"
-    condition: (!PermissionsHelper.PartyWithinBatchReferencedTransferRequest(r, p))
-    action: DENY
-}
-
-rule BatchMembersCanCompleteSettlements {
-    description: "Only allow involved participants to submit CompleteSettlement transactions"
-    participant(p): "org.clearing.BankingParticipant"
-    operation: ALL
-    resource(r): "org.clearing.CompleteSettlement"
-    condition: (PermissionsHelper.PartyWithinBatchReferencedTransferRequest(r, p))
+    resource: "org.clearing.CompleteSettlement"
     action: ALLOW
 }
 
@@ -89,12 +78,11 @@ rule ParticipantsCanUpdateFunds {
     action: ALLOW
 }
 
-rule BatchMembersCanMarkPostProcessComplete {
-    description: "Only allow involved participants to submit MarkPreProcessComplete transactions"
-    participant(p): "org.clearing.BankingParticipant"
+rule EverybodyCanMarkPostProcessComplete {
+    description: "Everybody allowed to submit MarkPostProcessComplete transactions"
+    participant: "org.clearing.BankingParticipant"
     operation: ALL
-    resource(r): "org.clearing.MarkPostProcessComplete"
-    condition: (PermissionsHelper.PartyWithinBatchReferencedTransferRequest(r, p))
+    resource: "org.clearing.MarkPostProcessComplete"
     action: ALLOW
 }
 /*

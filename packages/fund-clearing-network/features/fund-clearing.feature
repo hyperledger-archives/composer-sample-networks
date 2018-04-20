@@ -38,9 +38,12 @@ Feature: Clearing Transactions
             "fromBankState":"PENDING","toBankState":"PENDING","state":"PENDING","fromBank":"bank3","toBank":"bank2"}
             ]
             """
+        And I have issued the participant org.clearing.BankingParticipant#bank1 with the identity bank1
+        And I have issued the participant org.clearing.BankingParticipant#bank2 with the identity bank2
 
     Scenario: When I submit a batch transfer requst transaction, a BatchTransferRequest is created for each unique paring of banks.
-        When I submit the following transaction
+        When I use the identity bank1
+        And I submit the following transaction
             """
             [
             {"$class":"org.clearing.CreateBatch",
@@ -51,27 +54,21 @@ Feature: Clearing Transactions
             """
         Then I should have received the following events of type org.clearing.BatchCreatedEvent
             | batchId   |
-            | batch1:01 |
-            | batch1:02 |
-            | batch1:12 |
+            | batch1:bank11 |
+            | batch1:bank12 |
         Then I should have the following assets
             """
             [
-            {"$class":"org.clearing.BatchTransferRequest","batchId":"batch1:01",
+            {"$class":"org.clearing.BatchTransferRequest","batchId":"batch1:bank11",
             "settlement":{"$class":"org.clearing.Settlement","amount":1749.9999999999998,"currency":"EURO","creditorBank":"org.clearing.BankingParticipant#bank2","debtorBank":"org.clearing.BankingParticipant#bank1"},
             "state":"PENDING_PRE_PROCESS",
             "parties":["org.clearing.BankingParticipant#bank1","org.clearing.BankingParticipant#bank2"],
             "transferRequests":["org.clearing.TransferRequest#reqid1","org.clearing.TransferRequest#reqid3"]},
-            {"$class":"org.clearing.BatchTransferRequest","batchId":"batch1:02",
+            {"$class":"org.clearing.BatchTransferRequest","batchId":"batch1:bank12",
             "settlement":{"$class":"org.clearing.Settlement","amount":1750,"currency":"STERLING","creditorBank":"org.clearing.BankingParticipant#bank3","debtorBank":"org.clearing.BankingParticipant#bank1"},
             "state":"PENDING_PRE_PROCESS",
             "parties":["org.clearing.BankingParticipant#bank1","org.clearing.BankingParticipant#bank3"],
-            "transferRequests":["org.clearing.TransferRequest#reqid2"]},
-            {"$class":"org.clearing.BatchTransferRequest","batchId":"batch1:12",
-            "settlement":{"$class":"org.clearing.Settlement","amount":1000,"currency":"STERLING","creditorBank":"org.clearing.BankingParticipant#bank3","debtorBank":"org.clearing.BankingParticipant#bank2"},
-            "state":"PENDING_PRE_PROCESS",
-            "parties":["org.clearing.BankingParticipant#bank2","org.clearing.BankingParticipant#bank3"],
-            "transferRequests":["org.clearing.TransferRequest#reqid4"]}
+            "transferRequests":["org.clearing.TransferRequest#reqid2"]}
             ]
             """
 
