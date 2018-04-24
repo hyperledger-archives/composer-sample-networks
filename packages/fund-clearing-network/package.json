@@ -15,9 +15,11 @@
     "licchk": "license-check",
     "postlicchk": "npm run doc",
     "doc": "jsdoc --pedantic --recurse -c jsdoc.json",
-    "test-inner": "mocha -t 0 --recursive && cucumber-js",
-    "test-cover": "nyc npm run test-inner",
-    "test": "npm run test-inner"
+    "test-mocha": "mocha -t 0 --recursive",
+    "test-cucumber": "cucumber-js",
+    "test-all": "mocha -t 0 --recursive && cucumber-js",
+    "test-cover": "nyc npm run test-all",
+    "test": "npm run test-all"
   },
   "repository": {
     "type": "git",
@@ -47,6 +49,7 @@
     "mocha": "^3.2.0",
     "moment": "^2.17.1",
     "nyc": "^11.0.2",
+    "rewire": "^4.0.0",
     "sinon": "2.3.8"
   },
   "license-check-config": {

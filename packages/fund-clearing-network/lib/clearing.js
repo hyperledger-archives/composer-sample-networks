@@ -14,6 +14,38 @@
 const namespace = 'org.clearing';
 
 /**
+ * Submit a TransferRequest
+ * @param {org.clearing.SubmitTransferRequest} tx passed transaction body
+ * @transaction
+ */
+async function submitTransferRequest(tx) { // eslint-disable-line no-unused-vars
+    // Required registries for this transaction
+    const participantRegistry = await getParticipantRegistry(namespace + '.BankingParticipant'); // eslint-disable-line no-undef
+    const transferAssetRegistry = await getAssetRegistry(namespace + '.TransferRequest'); // eslint-disable-line no-undef
+
+    // Use a factory for creation of asset
+    const factory = getFactory(); // eslint-disable-line no-undef
+    const transferRequest = factory.newResource(namespace, 'TransferRequest', tx.transferId);
+
+    // tx aspects
+    transferRequest.details = tx.details;
+    transferRequest.state = 'PENDING';
+
+    // Participant aspects
+    const fromBankRef = factory.newRelationship(namespace, 'BankingParticipant', getCurrentParticipant().getIdentifier()); // eslint-disable-line no-undef
+    transferRequest.fromBank = fromBankRef;
+    transferRequest.fromBankState = tx.state;
+
+    const toBank = await participantRegistry.get(tx.toBank);
+    const toBankRef = factory.newRelationship(namespace, 'BankingParticipant', toBank.getIdentifier());
+    transferRequest.toBank = toBankRef;
+    transferRequest.toBankState = 'PENDING';
+
+    // now add it
+    await transferAssetRegistry.add(transferRequest);
+}
+
+/**
  * Determine the net transfer between a banking pair, accounting for exchange rates
  * @param {TransferRequest[]} transferRequests array of TransferRequest objects
  * @param {participantId} participantId string participant identity
@@ -24,7 +56,7 @@ function netTransfers(transferRequests, participantId, rates) {
     let amount = 0;
     // Determine amount in USD
     for (let request of transferRequests) {
-        if (request.tobank === 'resource:org.clearing.BankingParticipant#' + participantId) {
+        if (request.toBank.getIdentifier() === participantId) {
             if (request.details.currency === 'USD') {
                 amount += request.details.amount;
             } else {
@@ -206,7 +238,7 @@ function adjustSettlement(amount, rates, creditorCurrency, debtorCurrency) {
         if (debtorCurrency !== 'USD') {
             fromRate = rates.filter((rate) => { return rate.to === debtorCurrency; })[0].rate;
         }
-        amount = amount * (toRate / fromRate);
+        amount = amount * (fromRate / toRate);
     }
     return amount;
 }
@@ -227,7 +259,7 @@ async function completeSettlement(tx) {  // eslint-disable-line no-unused-vars
 
     // Can only complete if batch is in 'READY_TO_SETTLE' state
     if (batch.state !== 'READY_TO_SETTLE') {
-        throw new Error('Unable to process transaction, BatchTransferRequest with id ' + tx.batchId + 'is in state ' + batch.state + ' but must be in state \'READY_TO_SETTLE\'');
+        throw new Error('Unable to process transaction, BatchTransferRequest with id ' + tx.batchId + ' is in state ' + batch.state + ' but must be in state \'READY_TO_SETTLE\'');
     }
 
     // Get the settlement
@@ -238,7 +270,6 @@ async function completeSettlement(tx) {  // eslint-disable-line no-unused-vars
     const debtor = await participantRegistry.get(settlement.debtorBank.getIdentifier());
 
     // Adjust funds, accounting for currency exchange rate
-    // -use passed usdRate[] [usd -> other]
     let debtoramount = adjustSettlement(settlement.amount, tx.usdRates, creditor.workingCurrency, debtor.workingCurrency);
 
     creditor.fundBalance += settlement.amount;
@@ -264,6 +295,11 @@ async function markPostProcessComplete(tx) {  // eslint-disable-line no-unused-v
 
     // Use the referenced Batch
     let batch = await batchAssetRegistry.get(tx.batchId);
+
+    // Should only operate on batches in PENDING_POST_PROCESS state
+    if (batch.state !== 'PENDING_POST_PROCESS') {
+        throw new Error('Unable to process transaction, BatchTransferRequest with id ' + tx.batchId + ' is in state ' + batch.state + ' but must be in state \'PENDING_POST_PROCESS\'');
+    }
 
     // Update all TransferRequests where currentParticipant is 'to/fromBank' member
     let updateArray = new Array();

@@ -67,6 +67,13 @@ enum BatchState {
  o COMPLETE
 }
 
+transaction SubmitTransferRequest {
+ o String transferId
+ o String toBank
+ o TransferRequestState state
+ o Transfer details
+}
+
 transaction CreateBatch {
   o String batchId
   o UsdExchangeRate[] usdRates

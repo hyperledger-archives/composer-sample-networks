@@ -48,8 +48,8 @@ Feature: Clearing Transactions
             [
             {"$class":"org.clearing.CreateBatch",
             "batchId":"batch1", "usdRates": [
-            {"$class":"org.clearing.UsdExchangeRate","to":"EURO","rate":0.75},
-            {"$class":"org.clearing.UsdExchangeRate","to":"STERLING","rate":1.75}]}
+            {"$class":"org.clearing.UsdExchangeRate","to":"EURO","rate":0.8},
+            {"$class":"org.clearing.UsdExchangeRate","to":"STERLING","rate":0.75}]}
             ]
             """
         Then I should have received the following events of type org.clearing.BatchCreatedEvent
@@ -60,12 +60,12 @@ Feature: Clearing Transactions
             """
             [
             {"$class":"org.clearing.BatchTransferRequest","batchId":"batch1:bank11",
-            "settlement":{"$class":"org.clearing.Settlement","amount":1749.9999999999998,"currency":"EURO","creditorBank":"org.clearing.BankingParticipant#bank2","debtorBank":"org.clearing.BankingParticipant#bank1"},
+            "settlement":{"$class":"org.clearing.Settlement","amount":250,"currency":"USD","creditorBank":"org.clearing.BankingParticipant#bank1","debtorBank":"org.clearing.BankingParticipant#bank2"},
             "state":"PENDING_PRE_PROCESS",
             "parties":["org.clearing.BankingParticipant#bank1","org.clearing.BankingParticipant#bank2"],
             "transferRequests":["org.clearing.TransferRequest#reqid1","org.clearing.TransferRequest#reqid3"]},
             {"$class":"org.clearing.BatchTransferRequest","batchId":"batch1:bank12",
-            "settlement":{"$class":"org.clearing.Settlement","amount":1750,"currency":"STERLING","creditorBank":"org.clearing.BankingParticipant#bank3","debtorBank":"org.clearing.BankingParticipant#bank1"},
+            "settlement":{"$class":"org.clearing.Settlement","amount":750,"currency":"STERLING","creditorBank":"org.clearing.BankingParticipant#bank3","debtorBank":"org.clearing.BankingParticipant#bank1"},
             "state":"PENDING_PRE_PROCESS",
             "parties":["org.clearing.BankingParticipant#bank1","org.clearing.BankingParticipant#bank3"],
             "transferRequests":["org.clearing.TransferRequest#reqid2"]}

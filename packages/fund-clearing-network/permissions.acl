@@ -7,7 +7,7 @@ rule ParticipantsRestrictionOnTransferRequest {
     participant(p): "org.clearing.BankingParticipant"
     operation: ALL
     resource(r): "org.clearing.TransferRequest"
-    condition: (PermissionsHelper.PartyWithinTransferRequest(r, p))
+    condition: (partyWithinTransferRequest(r, p))
     action: ALLOW
 }
 
@@ -16,7 +16,7 @@ rule ParticipantsRestrictionOnTransferRequest2 {
     participant(p): "org.clearing.BankingParticipant"
     operation: ALL
     resource(r): "org.clearing.TransferRequest"
-    condition: (!PermissionsHelper.PartyWithinTransferRequest(r, p))
+    condition: (!partyWithinTransferRequest(r, p))
     action: DENY
 }
 
@@ -25,7 +25,7 @@ rule ParticipantsRestrictionOnBatchTransferRequest {
     participant(p): "org.clearing.BankingParticipant"
     operation: ALL
     resource(r): "org.clearing.BatchTransferRequest"
-    condition: (PermissionsHelper.PartyWithinBatchTransferRequest(r, p))
+    condition: (partyWithinBatchTransferRequest(r, p))
     action: ALLOW
 }
 
@@ -34,7 +34,7 @@ rule ParticipantsRestrictionOnBatchTransferRequest2 {
     participant(p): "org.clearing.BankingParticipant"
     operation: ALL
     resource(r): "org.clearing.BatchTransferRequest"
-    condition: (!PermissionsHelper.PartyWithinBatchTransferRequest(r, p))
+    condition: (!partyWithinBatchTransferRequest(r, p))
     action: DENY
 }
 
@@ -51,6 +51,14 @@ rule EverybodyCanCreateBatches {
     participant: "org.clearing.BankingParticipant"
     operation: CREATE
     resource: "org.clearing.CreateBatch"
+    action: ALLOW
+}
+
+rule EverybodyCanSubmitTransferequests {
+    description: "Allow all participants to submit SubmitTransferRequest transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: CREATE
+    resource: "org.clearing.SubmitTransferRequest"
     action: ALLOW
 }
 
@@ -85,15 +93,7 @@ rule EverybodyCanMarkPostProcessComplete {
     resource: "org.clearing.MarkPostProcessComplete"
     action: ALLOW
 }
-/*
-rule EverybodyCanUpdateEverything {
-    description: "Allow all participants to update resources"
-    participant: "org.clearing.BankingParticipant"
-    operation: UPDATE
-    resource: "org.clearing.*"
-    action: ALLOW
-}
-*/
+
 /**
  * Required System Rules
  */

@@ -16,50 +16,28 @@
 /**
  * Permissions helper for ACL rules
  */
-class PermissionsHelper { // eslint-disable-line no-unused-vars
 
-    /**
-     * Check to see if participant is within the transfer request
-     * @param {*} request input request
-     * @param {*} participant the issuing participant
-     * @returns {boolean} boolean true/false
-     */
-    static PartyWithinTransferRequest(request, participant){
-        return (request.fromBank.getIdentifier() === participant.getIdentifier()) || (request.toBank.getIdentifier() === participant.getIdentifier());
+/**
+ * Check to see if participant is within the transfer request
+ * @param {*} transferRequest input TransferRequest
+ * @param {*} participant the issuing Participant
+ * @returns {boolean} boolean true/false
+ */
+function partyWithinTransferRequest(transferRequest, participant){ // eslint-disable-line no-unused-vars
+    return (transferRequest.fromBank.getIdentifier() === participant.getIdentifier()) || (transferRequest.toBank.getIdentifier() === participant.getIdentifier());
+}
+
+/**
+ * Check to see if participant is within the batch transfer request
+ * @param {*} batchRequest the BatchTransferRequest
+ * @param {*} participant the issuing Participant
+ * @returns {boolean} boolean true/false
+ */
+function partyWithinBatchTransferRequest(batchRequest, participant){// eslint-disable-line no-unused-vars
+    let allParties = [];
+    for (let i=0; i<batchRequest.parties.length ; i++){
+        let party = batchRequest.parties[i].getFullyQualifiedIdentifier();
+        allParties.push(party);
     }
-
-    /**
-     * Check to see if participant is within the batch transfer request
-     * @param {*} batchRequest the request
-     * @param {*} participant the issuing participant
-     * @returns {boolean} boolean true/false
-     */
-    static PartyWithinBatchTransferRequest(batchRequest, participant){
-        let allParties = [];
-        for (let i=0; i<batchRequest.parties.length ; i++){
-            let party = batchRequest.parties[i].getFullyQualifiedIdentifier();
-            allParties.push(party);
-        }
-        return allParties.includes(participant.getFullyQualifiedIdentifier());
-    }
-
-    /**
-     * Check to see if participant is within the batch transfer request
-     * @param {*} batchRequest the request
-     * @param {*} participant the issuing participant
-     * @returns {boolean} boolean true/false
-     */
-    static PartyWithinBatchReferencedTransferRequest(batchRequest, participant){
-        let allParties = [];
-        for (let i=0; i<batchRequest.batch.parties.length ; i++){
-            let party = batchRequest.batch.parties[i].getIdentifier();
-            allParties.push(party);
-        }
-        if (allParties.length === 0){
-            return false;
-        } else {
-            return allParties.includes(participant.getFullyQualifiedIdentifier());
-        }
-    }
-
+    return allParties.includes(participant.getFullyQualifiedIdentifier());
 }
