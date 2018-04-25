@@ -21,13 +21,6 @@ asset TransferRequest identified by requestId {
   --> BankingParticipant toBank
 }
 
-concept Transfer {
-  o Currency currency
-  o Double amount  
-  o Integer fromAccount
-  o Integer toAccount
-}
-
 asset BatchTransferRequest identified by batchId {
   o String batchId  
   o Settlement settlement
@@ -36,11 +29,52 @@ asset BatchTransferRequest identified by batchId {
   --> TransferRequest[] transferRequests
 }
 
+transaction SubmitTransferRequest {
+ o String transferId
+ o String toBank
+ o TransferRequestState state
+ o Transfer details
+}
+
+transaction CreateBatch {
+  o String batchId
+  o UsdExchangeRate[] usdRates
+}
+
+transaction MarkPreProcessComplete {
+  o String batchId  
+}
+  
+transaction CompleteSettlement {
+  o String batchId
+  o UsdExchangeRate[] usdRates
+}
+  
+transaction MarkPostProcessComplete {
+o String batchId
+}
+
+event BatchCreatedEvent {
+  o String batchId
+}
+
 concept Settlement {  
   o Double amount
   o Currency currency
   --> BankingParticipant creditorBank
   --> BankingParticipant debtorBank
+}
+
+concept UsdExchangeRate {
+  o String to
+  o Double rate
+}
+
+concept Transfer {
+  o Currency currency
+  o Double amount  
+  o Integer fromAccount
+  o Integer toAccount
 }
 
 enum Currency {
@@ -59,44 +93,10 @@ enum TransferRequestState {
  o COMPLETE
  o ERROR
 }
-  
+
 enum BatchState {
  o PENDING_PRE_PROCESS
  o READY_TO_SETTLE
  o PENDING_POST_PROCESS
  o COMPLETE
-}
-
-transaction SubmitTransferRequest {
- o String transferId
- o String toBank
- o TransferRequestState state
- o Transfer details
-}
-
-transaction CreateBatch {
-  o String batchId
-  o UsdExchangeRate[] usdRates
-}
-  
-concept UsdExchangeRate {
-  o String to
-  o Double rate
-}
-  
-transaction MarkPreProcessComplete {
-  o String batchId  
-}
-  
-transaction CompleteSettlement {
-  o String batchId
-  o UsdExchangeRate[] usdRates
-}
-  
-transaction MarkPostProcessComplete {
-o String batchId
-}
-  
-event BatchCreatedEvent {
-  o String batchId
 }

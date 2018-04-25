@@ -114,7 +114,8 @@ async function createBatch(tx) {  // eslint-disable-line no-unused-vars
         // Conditionally process returned transfer requests
         if (transferRequests.length > 0) {
             // Create BatchTransferRequest(s) for each interaction pairing
-            let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.batchId + ':' + invokeParticipant.getIdentifier() + i);
+            let batch = factory.newResource(namespace, 'BatchTransferRequest', tx.batchId + ':' +
+                invokeParticipant.getIdentifier() + '-' + participants[i].getIdentifier());
 
             // Determine settlement amount in USD, adjust to creditor currency later
             let amount = netTransfers(transferRequests, invokeParticipant.getIdentifier(), tx.usdRates);
