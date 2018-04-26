@@ -35,7 +35,7 @@ Feature: Sample
             | 2       | bob@email.com   | 20    |
 
     Scenario: Bob can read all of the assets
-        When I use the identity alice1
+        When I use the identity bob1
         Then I should have the following assets of type org.example.basic.SampleAsset
             | assetId | owner           | value |
             | 1       | alice@email.com | 10    |
