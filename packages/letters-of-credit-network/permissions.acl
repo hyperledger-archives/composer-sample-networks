@@ -1,0 +1,276 @@
+rule ParticipantsSeeSelves {
+  	description: "Let participants see themselves"
+  	participant(p): "org.hyperledger.composer.system.Participant"
+  	operation: ALL
+    resource(r): "org.hyperledger.composer.system.Participant"
+  	condition: (r.getIdentifier() == p.getIdentifier())
+  	action: ALLOW
+}
+
+rule SeeOtherCustomers {
+	  description: "Let Customers see other Customers"
+  	participant: "org.example.loc.Customer"
+  	operation: READ
+    resource: "org.example.loc.Customer"
+  	action: ALLOW
+}
+
+rule CustomerSeeBankEmployee {
+	  description: "Let Customers see their BankEmployees"
+  	participant(p): "org.example.loc.Customer"
+  	operation: READ
+    resource(r): "org.example.loc.BankEmployee"
+  	condition: (r.bank.getIdentifier() == p.bank.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeSeeCustomer {
+	  description: "Let BankEmployees see their Customers"
+  	participant(p): "org.example.loc.BankEmployee"
+  	operation: READ
+    resource(r): "org.example.loc.Customer"
+  	condition: (r.bank.getIdentifier() == p.bank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerMakeApplication {
+	  description: "All customers can submit an InitialApplication transaction"
+  	participant: "org.example.loc.Customer"
+  	operation: CREATE
+    resource: "org.example.loc.InitialApplication"
+  	action: ALLOW
+}
+
+rule CustomerCreateLOC {
+	  description: "All customers can create a LetterOfCredit asset"
+  	participant: "org.example.loc.Customer"
+  	operation: CREATE
+    resource: "org.example.loc.LetterOfCredit"
+  	transaction: "org.example.loc.InitialApplication"
+  	action: ALLOW
+}
+
+rule CustomerViewLetterOfCredit {
+	  description: "All customers can view letters of credit they are involved with"
+  	participant(p): "org.example.loc.Customer"
+  	operation: READ
+    resource(r): "org.example.loc.LetterOfCredit"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier() || p.getIdentifier() === r.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+
+rule BankEmployeeViewLetterOfCredit {
+	  description: "All bank employees can view letters of credit their bank is involved with"
+  	participant(p): "org.example.loc.BankEmployee"
+  	operation: READ
+    resource(r): "org.example.loc.LetterOfCredit"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerApproveApplication {
+	  description: "All customers can submit an Approve transaction for an LoC they are involved with"
+  	participant(p): "org.example.loc.Customer"
+  	operation: CREATE
+    resource(r): "org.example.loc.Approve"
+    condition: (p.getIdentifier() === r.loc.applicant.getIdentifier() || p.getIdentifier() === r.loc.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeApproveApplication {
+	  description: "All bank employees can submit an Approve transaction for an LoC their bank is involved with"
+  	participant(p): "org.example.loc.BankEmployee"
+  	operation: CREATE
+    resource(r): "org.example.loc.Approve"
+    condition: (p.bank.getIdentifier() === r.loc.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.loc.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerAddApproval {
+	  description: "All customers can add their approval to a Letter of Credit they are involved with"
+  	participant(p): "org.example.loc.Customer"
+  	operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+  	transaction(t): "org.example.loc.Approve"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier() || p.getIdentifier() === r.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeAddApproval {
+	  description: "All bank employee can add their approval to a Letter of Credit their bank is involved with"
+  	participant(p): "org.example.loc.BankEmployee"
+  	operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+  	transaction(t): "org.example.loc.Approve"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerSuggestChanges {
+	  description: "All customers can submit a SuggestChanges transaction to a Letter of Credit they are involved with"
+  	participant(p): "org.example.loc.Customer"
+  	operation: CREATE
+    resource(r): "org.example.loc.SuggestChanges"
+    condition: (p.getIdentifier() === r.loc.applicant.getIdentifier() || p.getIdentifier() === r.loc.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeSuggestChanges {
+	  description: "All bank employees can submit a SuggestChanges transaction to a Letter of Credit their bank is involved with"
+  	participant(p): "org.example.loc.Customer"
+  	operation: CREATE
+    resource(r): "org.example.loc.SuggestChanges"
+    condition: (p.bank.getIdentifier() === r.loc.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.loc.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerAddChanges {
+	  description: "All customers can update a LetterOfCredit with their suggested rules if they are involved in it"
+  	participant(p): "org.example.loc.Customer"
+  	operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+  	transaction(t): "org.example.loc.SuggestChanges"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier() || p.getIdentifier() === r.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeAddChanges {
+	  description: "All bank employees can update a LetterOfCredit with their suggested rules if their bank is involved in it"
+  	participant(p): "org.example.loc.Customer"
+  	operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+  	transaction(t): "org.example.loc.SuggestChanges"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerRejectApplication {
+	  description: "All customers can submit a Reject transaction for an LoC they are involved with"
+  	participant(p): "org.example.loc.Customer"
+  	operation: CREATE
+    resource(r): "org.example.loc.Reject"
+    condition: (p.getIdentifier() === r.loc.applicant.getIdentifier() || p.getIdentifier() === r.loc.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeRejectApplication {
+	  description: "All bank employees can submit a Reject transaction for an LoC their bank is involved with"
+  	participant(p): "org.example.loc.BankEmployee"
+  	operation: CREATE
+    resource(r): "org.example.loc.Reject"
+    condition: (p.bank.getIdentifier() === r.loc.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.loc.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerMarksAsRejected {
+	  description: "All customers can update a LetterOfCredit they are involved with with a REJECTED status"
+  	participant(p): "org.example.loc.Customer"
+  	operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+  	transaction(t): "org.example.loc.Reject"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier() || p.getIdentifier() === r.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeMarksAsRejected {
+	  description: "All bank employees can update a LetterOfCredit their bank is involved with with a REJECTED status"
+  	participant(p): "org.example.loc.BankEmployee"
+  	operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+  	transaction(t): "org.example.loc.Reject"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule BeneficiaryShipProduct {
+    description: "The beneficiary send a transaction to mark a letter of credit as relating to goods that have been shipped"
+    participant(p): "org.example.loc.Customer"
+    operation: CREATE
+    resource(r): "org.example.loc.ShipProduct"
+    condition: (p.getIdentifier() === r.loc.beneficiary.getIdentifier())
+    action: ALLOW
+}
+
+rule BeneficiaryMarkAsShippedProduct {
+    description: "The applicant can mark a letter of credit as relating to goods that have been shipped"
+    participant(p): "org.example.loc.Customer"
+    operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+    transaction(t): "org.example.loc.ShipProduct"
+    condition: (p.getIdentifier() === r.beneficiary.getIdentifier())
+    action: ALLOW
+}
+
+rule ApplicantReceiveProduct {
+    description: "The applicant send a transaction to mark a letter of credit as relating to goods that have been received"
+    participant(p): "org.example.loc.Customer"
+    operation: CREATE
+    resource(r): "org.example.loc.ReceiveProduct"
+    condition: (p.getIdentifier() === r.loc.applicant.getIdentifier())
+    action: ALLOW
+}
+
+rule ApplicantMarkAsReceivedProduct {
+    description: "The applicant can mark a letter of credit as relating to goods that have been received"
+    participant(p): "org.example.loc.Customer"
+    operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+    transaction(t): "org.example.loc.ReceiveProduct"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier())
+    action: ALLOW
+}
+
+rule IssuingBankReadyForPayment {
+    description: "The issuing bank employee can state the letter is ready for payment"
+    participant(p): "org.example.loc.BankEmployee"
+    operation: CREATE
+    resource(r): "org.example.loc.ReadyForPayment"
+    condition: (p.bank.getIdentifier() === r.loc.issuingBank.getIdentifier())
+    action: ALLOW
+}
+
+rule IssuingBankMarkReadyForPayment {
+    description: "The issuing bank employee can mark the letter as ready for payment"
+    participant(p): "org.example.loc.BankEmployee"
+    operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+    transaction(t): "org.example.loc.ReadyForPayment"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier())
+    action: ALLOW
+}
+
+rule ExportingBankCloseLetter {
+    description: "The exporting bank employee can close the letter"
+    participant(p): "org.example.loc.BankEmployee"
+    operation: CREATE
+    resource(r): "org.example.loc.Close"
+    condition: (p.bank.getIdentifier() === r.loc.exportingBank.getIdentifier())
+    action: ALLOW
+}
+
+rule ExportingBankMarkLetterClosed {
+    description: "The exporting bank employee can mark the letter as closed"
+    participant(p): "org.example.loc.BankEmployee"
+    operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+    transaction(t): "org.example.loc.Close"
+    condition: (p.bank.getIdentifier() === r.exportingBank.getIdentifier())
+    action: ALLOW
+}
+
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule System {
+    description: "Grant all full access to system resources"
+    participant: "org.**"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
