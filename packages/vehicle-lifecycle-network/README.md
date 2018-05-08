@@ -64,3 +64,6 @@ This `UpdateOrderStatus` transaction updates the order status of `orderId:1234` 
 Congratulations!
 
 This Business Network definition had been used to create demo applications for the `PrivateOwner`, `Manufacturer` and `Regulator`. Find more information here: https://github.com/hyperledger/composer-sample-applications/tree/master/packages/vehicle-lifecycle
+
+## License <a name="license"></a>
+Hyperledger Project source code files are made available under the Apache License, Version 2.0 (Apache-2.0), located in the LICENSE file. Hyperledger Project documentation files are made available under the Creative Commons Attribution 4.0 International License (CC-BY-4.0), available at http://creativecommons.org/licenses/by/4.0/.

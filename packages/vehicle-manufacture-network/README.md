@@ -129,4 +129,7 @@ Within this network permissions are outlines for the participants outlining what
 
 `PersonPlaceOrder` - Gives the person permission to CREATE and READ PlaceOrder transactions that refer to an order that they are specified as *orderer* in.
 
-`PersonReadOrder` - Gives the person permission to READ an Order asset that they are specified as the *orderer* in. 
+`PersonReadOrder` - Gives the person permission to READ an Order asset that they are specified as the *orderer* in.
+
+## License <a name="license"></a>
+Hyperledger Project source code files are made available under the Apache License, Version 2.0 (Apache-2.0), located in the LICENSE file. Hyperledger Project documentation files are made available under the Creative Commons Attribution 4.0 International License (CC-BY-4.0), available at http://creativecommons.org/licenses/by/4.0/.
