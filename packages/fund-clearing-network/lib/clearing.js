@@ -41,7 +41,7 @@ async function submitTransferRequest(tx) { // eslint-disable-line no-unused-vars
     transferRequest.toBank = toBankRef;
     transferRequest.toBankState = 'PENDING';
 
-    // now add it
+    // Add to asset registry
     await transferAssetRegistry.add(transferRequest);
 }
 
