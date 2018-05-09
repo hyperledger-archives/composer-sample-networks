@@ -117,3 +117,6 @@ If you check the state of the VehicleListing with `listingId:ABCD` is should be 
 If you click on the `Member` asset registry you can check the balance of each User. You should see that the balance of the buyer `memberB@acme.org` has been debited by `3500`, whilst the balance of the seller `memberA@acme.org` has been credited with `3500`.
 
 Congratulations!
+
+## License <a name="license"></a>
+Hyperledger Project source code files are made available under the Apache License, Version 2.0 (Apache-2.0), located in the LICENSE file. Hyperledger Project documentation files are made available under the Creative Commons Attribution 4.0 International License (CC-BY-4.0), available at http://creativecommons.org/licenses/by/4.0/.
