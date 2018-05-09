@@ -3,7 +3,7 @@
     "composer": "^0.19.0"
   },
   "name": "fund-clearing-network",
-  "version": "0.1.0",
+  "version": "0.2.4",
   "description": "Sample network to facilitate the transafer of funds between participants",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/basic-sample-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/basic-sample-network/networkimageanimated.svg",

@@ -29,10 +29,10 @@ chai.use(require('chai-as-promised'));
 const namespace = 'org.clearing';
 
 // These are the identities for test participants.
-const bank0 = 'CongaWonga';
-const bank1 = 'DogeDosh';
-const bank2 = 'PenguinPennies';
-const bank3 = 'GoatCoin';
+const bank0 = 'Bank0';
+const bank1 = 'Bank1';
+const bank2 = 'Bank2';
+const bank3 = 'Bank3';
 
 /**
  * Utility function for creating Participants
@@ -621,9 +621,9 @@ describe('Fund Clearing Network', () => {
             const allAssets = await assetRegistry.getAll();
 
             const expect1 = await assetRegistry.get('3');
-            expect1.toBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#CongaWonga');
+            expect1.toBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#Bank0');
             const expect5 = await assetRegistry.get('5');
-            expect5.toBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#CongaWonga');
+            expect5.toBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#Bank0');
 
             allAssets.should.contain(expect1);
             allAssets.should.contain(expect5);
@@ -638,11 +638,11 @@ describe('Fund Clearing Network', () => {
             const allAssets = await assetRegistry.getAll();
 
             const expect0 = await assetRegistry.get('0');
-            expect0.fromBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#CongaWonga');
+            expect0.fromBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#Bank0');
             const expect1 = await assetRegistry.get('1');
-            expect1.fromBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#CongaWonga');
+            expect1.fromBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#Bank0');
             const expect2 = await assetRegistry.get('2');
-            expect2.fromBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#CongaWonga');
+            expect2.fromBank.getFullyQualifiedIdentifier().should.equal(namespace + '.BankingParticipant#Bank0');
 
             allAssets.should.contain(expect0);
             allAssets.should.contain(expect1);
