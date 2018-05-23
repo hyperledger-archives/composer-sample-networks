@@ -1,0 +1,123 @@
+/**
+ * Fund clearing access control list.
+ */
+
+rule ParticipantsRestrictionOnTransferRequest {
+    description: "Only allow participants involved with an Asset to interact with it"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.TransferRequest"
+    condition: (partyWithinTransferRequest(r, p))
+    action: ALLOW
+}
+
+rule ParticipantsRestrictionOnTransferRequest2 {
+    description: "Only allow participants involved with an Asset to interact with it"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.TransferRequest"
+    condition: (!partyWithinTransferRequest(r, p))
+    action: DENY
+}
+
+rule ParticipantsRestrictionOnBatchTransferRequest {
+    description: "Allow participants involved with an Asset to interact with it"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.BatchTransferRequest"
+    condition: (partyWithinBatchTransferRequest(r, p))
+    action: ALLOW
+}
+
+rule ParticipantsRestrictionOnBatchTransferRequest2 {
+    description: "Prevent participants not involved with an Asset from interacting with it"
+    participant(p): "org.clearing.BankingParticipant"
+    operation: ALL
+    resource(r): "org.clearing.BatchTransferRequest"
+    condition: (!partyWithinBatchTransferRequest(r, p))
+    action: DENY
+}
+
+rule ParticipantsCanSeeOtherParticipants {
+    description: "Allow all participants to see others"
+    participant: "org.clearing.BankingParticipant"
+    operation: READ
+    resource: "org.clearing.BankingParticipant"
+    action: ALLOW
+}
+
+rule EverybodyCanCreateBatches {
+    description: "Allow all participants to submit CreateBatch transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: CREATE
+    resource: "org.clearing.CreateBatch"
+    action: ALLOW
+}
+
+rule EverybodyCanSubmitTransferequests {
+    description: "Allow all participants to submit SubmitTransferRequest transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: CREATE
+    resource: "org.clearing.SubmitTransferRequest"
+    action: ALLOW
+}
+
+rule EverybodyCanMarkPreProcessComplete {
+    description: "Everybody allowed to submit MarkPreProcessComplete transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: ALL
+    resource: "org.clearing.MarkPreProcessComplete"
+    action: ALLOW
+}
+
+rule EverybodyCanCompleteSettlements {
+    description: "Everybody allowed to submit CompleteSettlement transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: ALL
+    resource: "org.clearing.CompleteSettlement"
+    action: ALLOW
+}
+
+rule ParticipantsCanUpdateFunds {
+    description: "Only allow involved participants to submit CompleteSettlement transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: UPDATE
+    resource: "org.clearing.BankingParticipant"
+    action: ALLOW
+}
+
+rule EverybodyCanMarkPostProcessComplete {
+    description: "Everybody allowed to submit MarkPostProcessComplete transactions"
+    participant: "org.clearing.BankingParticipant"
+    operation: ALL
+    resource: "org.clearing.MarkPostProcessComplete"
+    action: ALLOW
+}
+
+/**
+ * Required System Rules
+ */
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
+
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}

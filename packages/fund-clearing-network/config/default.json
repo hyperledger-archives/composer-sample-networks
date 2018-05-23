@@ -1,0 +1,13 @@
+{
+    "composer": {
+        "log": {
+          "debug": "composer[none]:*",
+          "console": {
+            "maxLevel": "none"
+          },
+          "file": {
+            "filename" : "./log.txt"
+          }
+        }
+    }
+}

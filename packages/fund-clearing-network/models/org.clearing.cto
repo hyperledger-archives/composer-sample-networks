@@ -1,0 +1,102 @@
+/**
+ * Fund clearing business network definition.
+ */
+
+namespace org.clearing
+
+participant BankingParticipant identified by bankingId {
+  o String bankingId
+  o String bankingName
+  o Currency workingCurrency default = 'USD'
+  o Long fundBalance default = 5000000
+}
+
+asset TransferRequest identified by requestId {
+  o String requestId  
+  o Transfer details
+  o TransferRequestState fromBankState default = 'PRE_PROCESS_COMPLETE'
+  o TransferRequestState toBankState
+  o TransferRequestState state
+  --> BankingParticipant fromBank
+  --> BankingParticipant toBank
+}
+
+asset BatchTransferRequest identified by batchId {
+  o String batchId  
+  o Settlement settlement
+  o BatchState state
+  --> BankingParticipant[] parties
+  --> TransferRequest[] transferRequests
+}
+
+transaction SubmitTransferRequest {
+ o String transferId
+ o String toBank
+ o TransferRequestState state
+ o Transfer details
+}
+
+transaction CreateBatch {
+  o String batchId
+  o UsdExchangeRate[] usdRates
+}
+
+transaction MarkPreProcessComplete {
+  o String batchId  
+}
+  
+transaction CompleteSettlement {
+  o String batchId
+  o UsdExchangeRate[] usdRates
+}
+  
+transaction MarkPostProcessComplete {
+o String batchId
+}
+
+event BatchCreatedEvent {
+  o String batchId
+}
+
+concept Settlement {  
+  o Double amount
+  o Currency currency
+  --> BankingParticipant creditorBank
+  --> BankingParticipant debtorBank
+}
+
+concept UsdExchangeRate {
+  o String to
+  o Double rate
+}
+
+concept Transfer {
+  o Currency currency
+  o Double amount  
+  o Integer fromAccount
+  o Integer toAccount
+}
+
+enum Currency {
+  o EURO
+  o STERLING
+  o USD
+  o YEN
+  o CHF
+  o CAD
+}
+
+enum TransferRequestState {
+ o PENDING
+ o PROCESSING
+ o PRE_PROCESS_COMPLETE
+ o COMPLETE
+ o ERROR
+}
+
+enum BatchState {
+ o PENDING_PRE_PROCESS
+ o READY_TO_SETTLE
+ o PENDING_POST_PROCESS
+ o COMPLETE
+}

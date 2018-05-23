@@ -1,0 +1,38 @@
+/**
+ * Queries for Fund Clearing
+ */
+
+query TransferRequestsByBankInState {
+    description: "Select all TransferRequests for a participating bank in a given state"
+    statement:
+        SELECT org.clearing.TransferRequest
+            WHERE (fromBank == _$bank)
+}
+
+query TransferRequestsByBanksInState {
+    description: "Select all TransferRequests for a participating bank in a given state"
+    statement:
+        SELECT org.clearing.TransferRequest
+            WHERE ((fromBank == _$bank1 AND toBank == _$bank2 AND state == _$state) OR (fromBank == _$bank2 AND toBank == _$bank1 AND state == _$state))
+}
+
+query BatchTransferRequestById {
+    description: "Select a BatchTransferRequest by the UUID"
+    statement:
+        SELECT org.clearing.BatchTransferRequest
+            WHERE (_$batchId == batchId)
+}
+
+query BatchTransferRequestsByBankInState {
+    description: "Select all BatchTransferRequests in a given state for a participating bank"
+    statement:
+        SELECT org.clearing.BatchTransferRequest
+            WHERE ((parties CONTAINS _$party) AND (state == _$state))
+}
+
+query BatchTransferRequestForBanksInState {
+    description: "Select all BatchTransferRequests in a given state for two participating banks"
+    statement:
+        SELECT org.clearing.BatchTransferRequest
+            WHERE ((parties CONTAINS [_$bank1, _$bank2]) AND (state == _$state))
+}
