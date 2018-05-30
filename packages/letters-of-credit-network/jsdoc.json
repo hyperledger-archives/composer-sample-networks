@@ -17,7 +17,7 @@
       "dateFormat": "ddd MMM Do YYYY",
       "outputSourceFiles": true,
       "outputSourcePath": true,
-      "systemName": "Vehicle Lifecycle Network",
+      "systemName": "Perishable Goods Network",
       "footer": "",
       "copyright": "Released under the Apache License v2.0",
       "navType": "vertical",

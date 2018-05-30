@@ -1,0 +1,40 @@
+{
+	"engines": {
+		"composer": "^0.19.0"
+	},
+	"name": "letters-of-credit-network",
+	"description": "letters of credit network",
+	"networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/letters-of-credit-network/networkimage.svg",
+	"networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/letters-of-credit-network/networkimageanimated.svg",
+	"version": "0.2.4",
+	"scripts": {
+		"prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/letters-of-credit-network.bna",
+		"lint": "eslint .",
+		"test": "mocha -t 0 --recursive",
+		"test-cover": "nyc npm run test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/hyperledger/composer-sample-networks.git"
+	},
+	"author": "Hyperledger Composer",
+	"license": "Apache-2.0",
+	"devDependencies": {
+		"browserfs": "^1.2.0",
+		"chai": "^3.5.0",
+		"chai-as-promised": "^6.0.0",
+		"composer-admin": "^0.19.0-0",
+		"composer-cli": "^0.19.0-0",
+		"composer-client": "^0.19.0-0",
+		"composer-common": "^0.19.0-0",
+		"composer-connector-embedded": "^0.19.0-0",
+		"eslint": "^3.6.1",
+		"istanbul": "^0.4.5",
+		"jsdoc": "^3.5.5",
+		"license-check-and-add": "~2.3.1",
+		"mkdirp": "^0.5.1",
+		"mocha": "^3.2.0",
+		"moment": "^2.17.1",
+		"nyc": "^11.0.2"
+	}
+}

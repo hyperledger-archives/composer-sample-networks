@@ -1,0 +1,146 @@
+/**
+ * New model file
+ */
+
+namespace org.example.loc
+
+// ENUMS
+enum LetterStatus {
+  o AWAITING_APPROVAL
+  o APPROVED
+  o SHIPPED
+  o RECEIVED
+  o READY_FOR_PAYMENT
+  o CLOSED
+  o REJECTED
+}
+
+// ASSETS
+asset LetterOfCredit identified by letterId {
+  o String letterId
+  --> Customer applicant
+  --> Customer beneficiary
+  --> Bank issuingBank
+  --> Bank exportingBank
+  o Rule[] rules
+  o ProductDetails productDetails
+  o String [] evidence
+  --> Person [] approval
+  o LetterStatus status
+  o String closeReason optional
+}
+
+// PARTICIPANTS
+participant Bank identified by bankID {
+  o String bankID
+  o String name
+}
+
+abstract participant Person identified by personId {
+  o String personId
+  o String name
+  o String lastName optional
+  --> Bank bank
+}
+
+participant Customer extends Person {
+  o String companyName
+}
+
+participant BankEmployee extends Person {
+}
+
+// CONCEPTS
+concept Rule {
+  o String ruleId
+  o String ruleText
+}
+
+concept ProductDetails {
+  o String productType
+  o Integer quantity
+  o Double pricePerUnit
+}
+
+// TRANSACTIONS + EVENTS
+transaction InitialApplication {
+  o String letterId
+  --> Customer applicant
+  --> Customer beneficiary
+  o Rule[] rules
+  o ProductDetails productDetails
+}
+
+event InitialApplicationEvent {
+  --> LetterOfCredit loc
+}
+
+transaction Approve {
+  --> LetterOfCredit loc
+  --> Person approvingParty
+}
+
+event ApproveEvent {
+  --> LetterOfCredit loc
+  --> Person approvingParty
+}
+
+transaction Reject {
+  --> LetterOfCredit loc
+  o String closeReason
+}
+
+event RejectEvent {
+  --> LetterOfCredit loc
+  o String closeReason
+}
+
+transaction SuggestChanges {
+  --> LetterOfCredit loc
+  o Rule[] rules
+  --> Person suggestingParty
+}
+
+event SuggestChangesEvent {
+  --> LetterOfCredit loc
+  o Rule[] rules
+  --> Person suggestingParty
+}
+
+transaction ShipProduct {
+  --> LetterOfCredit loc
+  o String evidence
+}
+
+event ShipProductEvent {
+  --> LetterOfCredit loc
+}
+
+transaction ReceiveProduct {
+  --> LetterOfCredit loc
+}
+
+event ReceiveProductEvent {
+  --> LetterOfCredit loc
+}
+
+transaction ReadyForPayment {
+  --> LetterOfCredit loc
+}
+event ReadyForPaymentEvent {
+  --> LetterOfCredit loc
+}
+
+transaction Close {
+  --> LetterOfCredit loc
+  o String closeReason
+}
+
+event CloseEvent {
+  --> LetterOfCredit loc
+  o String closeReason
+}
+
+// TRANSACTIONS FOR SETUP
+transaction CreateDemoParticipants {
+}
