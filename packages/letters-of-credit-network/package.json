@@ -6,7 +6,7 @@
 	"description": "letters of credit network",
 	"networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/letters-of-credit-network/networkimage.svg",
 	"networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/letters-of-credit-network/networkimageanimated.svg",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"scripts": {
 		"prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/letters-of-credit-network.bna",
 		"lint": "eslint .",
