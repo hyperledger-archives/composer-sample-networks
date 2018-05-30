@@ -1,9 +1,31 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 rule ParticipantsSeeSelves {
   	description: "Let participants see themselves"
   	participant(p): "org.hyperledger.composer.system.Participant"
   	operation: ALL
     resource(r): "org.hyperledger.composer.system.Participant"
   	condition: (r.getIdentifier() == p.getIdentifier())
+  	action: ALLOW
+}
+
+rule ParticipantsSeeBanks {
+  	description: "Let participants see themselves"
+  	participant: "org.hyperledger.composer.system.Participant"
+  	operation: READ
+    resource: "org.example.loc.Bank"
   	action: ALLOW
 }
 
@@ -29,6 +51,15 @@ rule BankEmployeeSeeCustomer {
   	participant(p): "org.example.loc.BankEmployee"
   	operation: READ
     resource(r): "org.example.loc.Customer"
+  	condition: (r.bank.getIdentifier() == p.bank.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeSeeBankEmployee {
+	  description: "Let BankEmployees see their colleagues"
+  	participant(p): "org.example.loc.BankEmployee"
+  	operation: READ
+    resource(r): "org.example.loc.BankEmployee"
   	condition: (r.bank.getIdentifier() == p.bank.getIdentifier())
   	action: ALLOW
 }
@@ -107,7 +138,7 @@ rule BankEmployeeAddApproval {
   	action: ALLOW
 }
 
-rule CustomerSuggestChanges {
+rule CustomerSubmitSuggestChanges {
 	  description: "All customers can submit a SuggestChanges transaction to a Letter of Credit they are involved with"
   	participant(p): "org.example.loc.Customer"
   	operation: CREATE
@@ -116,12 +147,32 @@ rule CustomerSuggestChanges {
   	action: ALLOW
 }
 
-rule BankEmployeeSuggestChanges {
+rule BankEmployeeSubmitSuggestChanges {
 	  description: "All bank employees can submit a SuggestChanges transaction to a Letter of Credit their bank is involved with"
-  	participant(p): "org.example.loc.Customer"
+  	participant(p): "org.example.loc.BankEmployee"
   	operation: CREATE
     resource(r): "org.example.loc.SuggestChanges"
     condition: (p.bank.getIdentifier() === r.loc.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.loc.exportingBank.getIdentifier())
+  	action: ALLOW
+}
+
+rule CustomerSuggestChanges {
+	  description: "All customers can submit a SuggestChanges transaction to a Letter of Credit they are involved with"
+  	participant(p): "org.example.loc.Customer"
+  	operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+  	transaction(t): "org.example.loc.SuggestChanges"
+    condition: (p.getIdentifier() === r.applicant.getIdentifier() || p.getIdentifier() === r.beneficiary.getIdentifier())
+  	action: ALLOW
+}
+
+rule BankEmployeeSuggestChanges {
+	  description: "All bank employee can add their approval to a Letter of Credit their bank is involved with"
+  	participant(p): "org.example.loc.BankEmployee"
+  	operation: UPDATE
+    resource(r): "org.example.loc.LetterOfCredit"
+  	transaction(t): "org.example.loc.SuggestChanges"
+    condition: (p.bank.getIdentifier() === r.issuingBank.getIdentifier() || p.bank.getIdentifier() === r.exportingBank.getIdentifier())
   	action: ALLOW
 }
 

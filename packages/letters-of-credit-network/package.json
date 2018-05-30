@@ -10,9 +10,18 @@
 	"scripts": {
 		"prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/letters-of-credit-network.bna",
 		"lint": "eslint .",
+		"postlint": "npm run licchk",
+		"licchk": "license-check-and-add",
+		"pretest": "npm run lint",
 		"test": "mocha -t 0 --recursive",
 		"test-cover": "nyc npm run test"
 	},
+	"keywords": [
+		"letter",
+		"credit",
+		"composer",
+		"composer-network"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/hyperledger/composer-sample-networks.git"
@@ -31,10 +40,39 @@
 		"eslint": "^3.6.1",
 		"istanbul": "^0.4.5",
 		"jsdoc": "^3.5.5",
-		"license-check-and-add": "~2.3.1",
+		"license-check-and-add": "~2.3.0",
 		"mkdirp": "^0.5.1",
 		"mocha": "^3.2.0",
 		"moment": "^2.17.1",
 		"nyc": "^11.0.2"
+	},
+	"license-check-and-add-config": {
+		"folder": ".",
+		"license": "LICENSE.txt",
+		"exact_paths_method": "EXCLUDE",
+		"exact_paths": [
+			"composer-logs",
+			"dist",
+			"node_modules",
+			"out",
+			".git"
+		],
+		"file_type_method": "EXCLUDE",
+		"file_types": [
+			".yml"
+		],
+		"insert_license": false,
+		"license_formats": {
+			"js|cto|acl|qry": {
+				"prepend": "/*",
+				"append": " */",
+				"eachLine": {
+					"prepend": " * "
+				}
+			},
+			"md": {
+				"file": "../../markdown-license.txt"
+			}
+		}
 	}
 }

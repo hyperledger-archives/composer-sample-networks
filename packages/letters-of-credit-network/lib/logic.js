@@ -1,11 +1,27 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 'use strict';
+
+/* global getFactory getAssetRegistry getParticipantRegistry emit */
 
 /**
  * Create the LOC asset
  * @param {org.example.loc.InitialApplication} initalAppliation - the InitialApplication transaction
  * @transaction
  */
-async function initialApplication(application) {
+async function initialApplication(application) { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 
@@ -35,7 +51,7 @@ async function initialApplication(application) {
  * @param {org.example.loc.Approve} approve - the Approve transaction
  * @transaction
  */
-async function approve(approveRequest) {
+async function approve(approveRequest) { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 
@@ -49,7 +65,13 @@ async function approve(approveRequest) {
         throw new Error ('This person has already approved this letter of credit');
     } else if (approveRequest.approvingParty.getType() === 'BankEmployee') {
         letter.approval.forEach((approvingParty) => {
-            if (approvingParty.getType() === 'BankEmployee' && approvingParty.bank.getIdentifier() === approveRequest.approvingParty.bank.getIdentifier()) {
+            let bankApproved = false;
+            try {
+                bankApproved = approvingParty.getType() === 'BankEmployee' && approvingParty.bank.getIdentifier() === approveRequest.approvingParty.bank.getIdentifier();
+            } catch (err) {
+                // ignore error as they don't have rights to access that participant
+            }
+            if (bankApproved) {
                 throw new Error('Your bank has already approved of this request');
             }
         });
@@ -77,7 +99,7 @@ async function approve(approveRequest) {
  * @param {org.example.loc.Reject} reject - the Reject transaction
  * @transaction
  */
-async function reject(rejectRequest) {
+async function reject(rejectRequest) { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 
@@ -86,7 +108,7 @@ async function reject(rejectRequest) {
     if (letter.status === 'CLOSED' || letter.status === 'REJECTED') {
         throw new Error('This letter of credit has already been closed');
     } else if (letter.status === 'APPROVED') {
-      	throw new Error('This letter of credit has already been approved');
+        throw new Error('This letter of credit has already been approved');
     } else {
         letter.status = 'REJECTED';
         letter.closeReason = rejectRequest.closeReason;
@@ -108,7 +130,7 @@ async function reject(rejectRequest) {
  * @param {org.example.loc.SuggestChanges} suggestChanges - the SuggestChanges transaction
  * @transaction
  */
-async function suggestChanges(changeRequest) {
+async function suggestChanges(changeRequest) { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 
@@ -117,7 +139,7 @@ async function suggestChanges(changeRequest) {
     if (letter.status === 'CLOSED' || letter.status === 'REJECTED') {
         throw new Error ('This letter of credit has already been closed');
     } else if (letter.status === 'APPROVED') {
-      	throw new Error('This letter of credit has already been approved');
+        throw new Error('This letter of credit has already been approved');
     } else if (letter.status === 'SHIPPED' || letter.status === 'RECEIVED' || letter.status === 'READY_FOR_PAYMENT') {
         throw new Error ('The product has already been shipped');
     } else {
@@ -144,7 +166,7 @@ async function suggestChanges(changeRequest) {
  * @param {org.example.loc.ShipProduct} shipProduct - the ShipProduct transaction
  * @transaction
  */
-async function shipProduct(shipRequest) {
+async function shipProduct(shipRequest) { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 
@@ -176,7 +198,7 @@ async function shipProduct(shipRequest) {
  * @param {org.example.loc.ReceiveProduct} receiveProduct - the ReceiveProduct transaction
  * @transaction
  */
-async function receiveProduct(receiveRequest) {
+async function receiveProduct(receiveRequest) { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 
@@ -208,7 +230,7 @@ async function receiveProduct(receiveRequest) {
  * @param {org.example.loc.ReadyForPayment} readyForPayment - the ReadyForPayment transaction
  * @transaction
  */
-async function readyForPayment(paymentRequest) {
+async function readyForPayment(paymentRequest) { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 
@@ -239,7 +261,7 @@ async function readyForPayment(paymentRequest) {
  * @param {org.example.loc.Close} close - the Close transaction
  * @transaction
  */
-async function close(closeRequest) {
+async function close(closeRequest) { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 
@@ -270,7 +292,7 @@ async function close(closeRequest) {
  * @param {org.example.loc.CreateDemoParticipants} createDemoParticipants - the CreateDemoParticipants transaction
  * @transaction
  */
-async function createDemoParticipants() {
+async function createDemoParticipants() { // eslint-disable-line no-unused-vars
     const factory = getFactory();
     const namespace = 'org.example.loc';
 

@@ -44,17 +44,17 @@ Navigate to the **Test** tab and then submit a `CreateDemoParticipants` transact
 
 ```
 {
-  "$class": "org.acme.loc.CreateDemoParticipants"
+  "$class": "org.example.loc.CreateDemoParticipants"
 }
 ```
 
 Navigate to the ID registry and generate IDs for:
 
 ```
-org.acme.loc.Customer#alice
-org.acme.loc.Customer#bob
-org.acme.loc.BankEmployee#matias
-org.acme.loc.BankEmployee#ella
+org.example.loc.Customer#alice
+org.example.loc.Customer#bob
+org.example.loc.BankEmployee#matias
+org.example.loc.BankEmployee#ella
 ```
 
 Select to Alice to be your identity.
@@ -67,10 +67,10 @@ Navigate to the **Test** tab and then submit an `InitialApplication` transaction
 
 ```
 {
-  "$class": "org.acme.loc.InitialApplication",
+  "$class": "org.example.loc.InitialApplication",
   "letterId": "LETTER-REF-123",
-  "applicant": "resource:org.acme.loc.Customer#alice",
-  "beneficiary": "resource:org.acme.loc.Customer#bob",
+  "applicant": "resource:org.example.loc.Customer#alice",
+  "beneficiary": "resource:org.example.loc.Customer#bob",
   "rules": [
     {
       "ruleId": "LETTER-REF-123-RULE-1",
@@ -82,7 +82,7 @@ Navigate to the **Test** tab and then submit an `InitialApplication` transaction
     }
   ],
   "productDetails": {
-    "$class": "org.acme.loc.ProductDetails",
+    "$class": "org.example.loc.ProductDetails",
     "productType": "Computers",
     "quantity": 100,
     "pricePerUnit": 450
@@ -102,8 +102,8 @@ Submit a `SuggestChanges` transaction to change the rules:
 
 ```
 {
-  "$class": "org.acme.loc.SuggestChanges",
-  "loc": "resource:org.acme.loc.LetterOfCredit#4572",
+  "$class": "org.example.loc.SuggestChanges",
+  "loc": "resource:org.example.loc.LetterOfCredit#LETTER-REF-123",
   "rules": [
       {
       "ruleId": "LETTER-REF-123-RULE-1",
@@ -114,7 +114,7 @@ Submit a `SuggestChanges` transaction to change the rules:
       "ruleText": "The computers will be received within 15 days"
     }
   ],
-  "suggestingParty": "resource:org.acme.loc.BankEmployee#matias"
+  "suggestingParty": "resource:org.example.loc.BankEmployee#matias"
 }
 ```
 
@@ -126,13 +126,13 @@ Use the ID registry to select Alice to be your identity.
 
 Review the changes made to the letter of credit by selecting the `LetterOfCredit` asset. Alice agrees with the changes and decides she will approve.
 
-Approve the letter by submitting an `ApproveTransaction`:
+Approve the letter by submitting an `Approve` transaction:
 
 ```
 {
-  "$class": "org.acme.loc.Approve",
-  "loc": "resource:org.acme.loc.LetterOfCredit#LETTER-REF-123",
-  "approvingParty": "resource:org.acme.loc.Customer#alice"
+  "$class": "org.example.loc.Approve",
+  "loc": "resource:org.example.loc.LetterOfCredit#LETTER-REF-123",
+  "approvingParty": "resource:org.example.loc.Customer#alice"
 }
 ```
 
@@ -140,17 +140,19 @@ This transaction adds Alice to the array of parties in the `approval` field of t
 
 ---
 
-Use the ID registry to select Ella to be your identity.
+Use the ID registry to select Ella to be your identity. 
+
+**NOTE:** Alice doesn't have permission to see Ella and therefore you must switch via admin first.
 
 Ella works at Bob's bank. Review the letter of credit by selecting the `LetterOfCredit` asset. Ella decides that the letter of credit is acceptable to her bank and that she will approve the request.
 
-Approve the letter by submitting an `ApproveTransaction`: 
+Approve the letter by submitting an `Approve` transaction: 
 
 ```
 {
-  "$class": "org.acme.loc.Approve",
-  "loc": "resource:org.acme.loc.LetterOfCredit#LETTER-REF-123",
-  "approvingParty": "resource:org.acme.loc.BankEmployee#ella"
+  "$class": "org.example.loc.Approve",
+  "loc": "resource:org.example.loc.LetterOfCredit#LETTER-REF-123",
+  "approvingParty": "resource:org.example.loc.BankEmployee#ella"
 }
 ```
 
@@ -162,26 +164,26 @@ Use the ID registry to select Bob to be your identity.
 
 Bob reviews the letter of credit to ensure that it matches with his and Alice's agreement. He notices that the rules don't quite match the agreement however he still decides to accept the letter of credit and go through with the deal.
 
-Approve the letter by submitting an `ApproveTransaction`:
+Approve the letter by submitting an `Approve` transaction:
 
 ```
 {
-  "$class": "org.acme.loc.Approve",
-  "loc": "resource:org.acme.loc.LetterOfCredit#LETTER-REF-123",
-  "approvingParty": "resource:org.acme.loc.Customer#bob"
+  "$class": "org.example.loc.Approve",
+  "loc": "resource:org.example.loc.LetterOfCredit#LETTER-REF-123",
+  "approvingParty": "resource:org.example.loc.Customer#bob"
 }
 ```
 
 This transaction adds Bob to the array of parties in the `approval` field of the `LetterOfCredit` asset. As now all the parties have submitted their approval the `status` field is also updated to be `APPROVED`. At this point no participant may reject or suggest changes to the letter. Further participants (e.g. other bank employees) are also blocked from adding their approval.  
 
-Bob manufactures the computers and gives ships them. He updates the `LetterOfCredit` asset to add proof that he has shipped the goods.
+Bob manufactures the computers and ships them. He updates the `LetterOfCredit` asset to add proof that he has shipped the goods.
 
 Submit a `ShipProduct` transaction:
 
 ```
 {
-  "$class": "org.acme.loc.ShipProduct",
-  "loc": "resource:org.acme.loc.LetterOfCredit#LETTER-REF-123",
+  "$class": "org.example.loc.ShipProduct",
+  "loc": "resource:org.example.loc.LetterOfCredit#LETTER-REF-123",
   "evidence": "337478411cab754ce47fcaa72ec1d0f6"
 }
 ```
@@ -198,8 +200,8 @@ Submit a `ReceiveProduct` transaction:
 
 ```
 {
-  "$class": "org.acme.loc.ReceiveProduct",
-  "loc": "resource:org.acme.loc.LetterOfCredit#LETTER-REF-123"
+  "$class": "org.example.loc.ReceiveProduct",
+  "loc": "resource:org.example.loc.LetterOfCredit#LETTER-REF-123"
 }
 ```
 
@@ -215,8 +217,8 @@ Submit a `ReadyForPayment` transaction:
 
 ```
 {
-  "$class": "org.acme.loc.ReadyForPayment",
-  "loc": "resource:org.acme.loc.LetterOfCredit#LETTER-REF-123"
+  "$class": "org.example.loc.ReadyForPayment",
+  "loc": "resource:org.example.loc.LetterOfCredit#LETTER-REF-123"
 }
 ```
 
@@ -226,14 +228,16 @@ This transaction updates the `status` of the letter of credit to be `READY_FOR_P
 
 Use the ID registry to select Ella to be your identity.
 
+**NOTE:** Matias doesn't have permission to see Ella and therefore you must switch via admin first.
+
 Ella having received the funds from Alice's bank can close the letter of credit and deposit the funds in Bob's bank account. 
 
 Submit a `Close` transaction:
 
 ```
 {
-  "$class": "org.acme.loc.Close",
-  "loc": "resource:org.acme.loc.LetterOfCredit#LETTER-REF-123",
+  "$class": "org.example.loc.Close",
+  "loc": "resource:org.example.loc.LetterOfCredit#LETTER-REF-123",
   "closeReason": "Payment made"
 }
 ```
@@ -241,3 +245,6 @@ Submit a `Close` transaction:
 This transaction updates the `status` of the letter to be `CLOSED`. The letter is now complete and no further transactions can take place.
 
 This business network has been used to create demo application that simulate the scenario above. You can find more detail on these at https://github.com/hyperledger/composer-sample-applications/tree/master/packages/letters-of-credit
+
+## License <a name="license"></a>
+Hyperledger Project source code files are made available under the Apache License, Version 2.0 (Apache-2.0), located in the LICENSE file. Hyperledger Project documentation files are made available under the Creative Commons Attribution 4.0 International License (CC-BY-4.0), available at http://creativecommons.org/licenses/by/4.0/.
