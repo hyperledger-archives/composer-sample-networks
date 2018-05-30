@@ -5,8 +5,8 @@
   "name": "fund-clearing-network",
   "version": "0.2.4",
   "description": "Sample network to facilitate the transafer of funds between participants",
-  "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/basic-sample-network/networkimage.svg",
-  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/basic-sample-network/networkimageanimated.svg",
+  "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/fund-clearing-network/networkimage.svg",
+  "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/fund-clearing-network/networkimageanimated.svg",
   "scripts": {
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/fund-clearing-network.bna",
     "pretest": "npm run lint",
