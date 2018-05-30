@@ -3,7 +3,7 @@
     "composer": "^0.19.0"
   },
   "name": "vehicle-lifecycle-network",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Vehicle Lifecycle Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/vehicle-lifecycle-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/vehicle-lifecycle-network/networkimageanimated.svg",

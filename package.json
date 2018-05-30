@@ -9,7 +9,7 @@
   },
   "name": "sample-networks",
   "description": "You must install [Lerna](https://lernajs.io) to build this multi-package repository.",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "main": "index.js",
   "private": true,
   "scripts": {

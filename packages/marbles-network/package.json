@@ -3,7 +3,7 @@
     "composer": "^0.19.0"
   },
   "name": "marbles-network",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Marble Trading Network",
   "networkImage": "https://hyperledger.github.io/composer-sample-networks/packages/marbles-network/networkimage.svg",
   "networkImageanimated": "https://hyperledger.github.io/composer-sample-networks/packages/marbles-network/networkimageanimated.svg",
