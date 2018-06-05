@@ -1,0 +1,92 @@
+/**
+ * Write your model definitions here
+ */
+
+namespace org.acme.landregistry
+
+participant PrivateIndividual identified by id {
+  o String id
+  o String name
+  o String address
+  o Double balance default = 0.0
+}
+
+participant Bank identified by id {
+  o String id
+  o String name
+  o Double balance default = 0.0
+}
+
+participant InsuranceCompany identified by id {
+  o String id
+  o String name
+  o Double balance default = 0.0
+}
+  
+participant Notary identified by id {
+  o String id
+  o String name
+  o String address
+  o Double balance default = 0.0
+}
+  
+participant RealEstateAgent identified by id {
+  o String id
+  o String name
+  o Double balance default = 0.0
+  o Double feeRate
+}
+  
+asset RealEstate identified by id {
+  o String id
+  o String address
+  o Double squareMeters
+  o Double price
+  --> PrivateIndividual owner
+}
+
+asset Loan identified by id {
+   o String id
+   o Double amount
+   o Double interestRate
+   --> PrivateIndividual debtor
+  --> Bank bank
+  --> RealEstate realEstate
+   o Integer durationInMonths
+}
+  
+asset Insurance identified by id {
+  o String id
+  --> RealEstate realEstate
+  --> PrivateIndividual insured
+  --> InsuranceCompany insuranceCompany
+  o Double monthlyCost
+  o Integer durationInMonths
+}
+
+transaction BuyingRealEstate {
+  --> PrivateIndividual buyer
+  --> PrivateIndividual seller
+  --> RealEstate realEstate
+  --> Loan loan
+  --> RealEstateAgent realEstateAgent
+  --> Notary notary
+  --> Insurance insurance
+  o Boolean isNewOwnerMainResidence
+}
+  
+transaction ContractingInsurance {
+  --> PrivateIndividual insured
+  --> InsuranceCompany insuranceCompany
+  --> RealEstate realEstate
+  o Double monthlyCost
+  o Integer durationInMonths
+}
+  
+transaction ContractingLoan {
+  --> PrivateIndividual debtor
+  --> Bank bank
+  --> RealEstate realEstate
+  o Double interestRate
+  o Integer durationInMonths
+}

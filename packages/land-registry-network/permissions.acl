@@ -1,0 +1,150 @@
+
+rule PrivateIndividualCanOnlySeeTheirOwnLoans {
+  description: "Deny PrivateIndividual to interact with Loans they are not involved in"
+  participant(p): "org.acme.landregistry.PrivateIndividual"
+  operation: ALL
+  resource(r): "org.acme.landregistry.Loan"
+  condition: (p.getIdentifier() != r.debtor.getIdentifier())
+  action: DENY
+}
+
+rule PrivateIndividualCannotAddOrUpdateOrDeleteRealEstateTheyDontOwn {
+  description: "PrivateIndividual can only add/update/delete RealEstate assets if they own them"
+  participant(p): "org.acme.landregistry.PrivateIndividual"
+  operation: CREATE, UPDATE, DELETE
+  resource(r): "org.acme.landregistry.RealEstate"
+  condition: (p.getIdentifier() != r.owner.getIdentifier())
+  action: DENY
+}
+
+rule PrivateIndividualCanOnlySeeTheirInsurances {
+  description: "Deny PrivateIndividual to interact with Insurances they are not involved in"
+  participant(p): "org.acme.landregistry.PrivateIndividual"
+  operation: ALL
+  resource(r): "org.acme.landregistry.Insurance"
+  condition: (p.getIdentifier() != r.insured.getIdentifier())
+  action: DENY
+}
+
+rule PrivateIndividualCannotSubmitLoans {
+  description: "PrivateIndividual cannot submit Loans"
+  participant: "org.acme.landregistry.PrivateIndividual"
+  operation: CREATE
+  resource: "org.acme.landregistry.ContractingLoan"
+  action: DENY
+}
+
+rule PrivateIndividualCannotSubmitInsurances {
+  description: "PrivateIndividual cannot submit Insurances"
+  participant: "org.acme.landregistry.PrivateIndividual"
+  operation: CREATE
+  resource: "org.acme.landregistry.ContractingInsurance"
+  action: DENY
+}
+
+rule PrivateIndividualCanOnlyUpdateRealEstateIfOwner {
+  description: "Allow PrivateIndividual to update only their RealEstate asset"
+  participant(p): "org.acme.landregistry.PrivateIndividual"
+  operation: UPDATE, DELETE
+  resource(r): "org.acme.landregistry.RealEstate"
+  condition: (p.getIdentifier() != r.owner.getIdentifier())
+  action: DENY
+}
+
+rule BanksCanOnlyInteractWithTheirLoans {
+  description: "Banks cannot interacts with other banks' loans"
+  participant(p): "org.acme.landregistry.Bank"
+  operation: UPDATE, DELETE, READ
+  resource(r): "org.acme.landregistry.Loan"
+  condition: (p.getIdentifier() != r.bank.getIdentifier())
+  action: DENY
+}
+
+rule BanksCannotSeeInsurances {
+  description: "Banks cannot see Insurance assets"
+  participant: "org.acme.landregistry.Bank"
+  operation: ALL
+  resource: "org.acme.landregistry.Insurance"
+  action: DENY
+}
+
+rule NotaryCannotSubmitInsurances {
+  description: "Notaries can't submit Insurances"
+  participant: "org.acme.landregistry.Notary"
+  operation: CREATE
+  resource: "org.acme.landregistry.ContractingInsurance"
+  action: DENY
+}
+
+rule NotaryCannotSubmitLoans {
+  description: "Notaries can't submit Loans"
+  participant: "org.acme.landregistry.Notary"
+  operation: CREATE
+  resource: "org.acme.landregistry.ContractingLoan"
+  action: DENY
+}
+
+rule InsuranceCompaniesCanOnlyInteractWithTheirInsurances {
+  description: "Insurance companies can only interact with the insurances they created"
+  participant(p): "org.acme.landregistry.InsuranceCompany"
+  operation: UPDATE, DELETE, READ
+  resource(r): "org.acme.landregistry.Insurance"
+  condition: (p.getIdentifier() != r.insuranceCompany.getIdentifier())
+  action: DENY
+}
+
+rule InsurancesCompaniesCannotSeeLoans {
+  description: "Insurance Companies cannot see Loans"
+  participant: "org.acme.landregistry.InsuranceCompany"
+  operation: ALL
+  resource: "org.acme.landregistry.Loan"
+  action: DENY
+}
+
+rule RealEstateAgentsCannotSubmitLoans {
+  description: "Real Estate Agents can't submit a new Loan"
+  participant: "org.acme.landregistry.RealEstateAgent"
+  operation: ALL
+  resource: "org.acme.landregistry.ContractingLoan"
+  action: DENY
+}
+
+rule RealEstateAgentsCannotInteractWithLoans {
+  description: "Real Estate Agents can't do anything with Loans"
+  participant: "org.acme.landregistry.RealEstateAgent"
+  operation: ALL
+  resource: "org.acme.landregistry.Loan"
+  action: DENY
+}
+
+rule RealEstateAgentsCannotSubmitInsurances {
+  description: "Real Estate Agents can't submit a new Insurance"
+  participant: "org.acme.landregistry.RealEstateAgent"
+  operation: ALL
+  resource: "org.acme.landregistry.ContractingInsurance"
+  action: DENY
+}
+
+rule RealEstateAgentsCannotInteractWithInsurances {
+  description: "Real Estate Agents can't do anything with Insurances"
+  participant: "org.acme.landregistry.RealEstateAgent"
+  operation: ALL
+  resource: "org.acme.landregistry.Insurance"
+  action: DENY
+}
+
+rule Default {
+    description: "Allow all participants access to all resources"
+    participant: "ANY"
+    operation: ALL
+    resource: "org.acme.landregistry.*"
+    action: ALLOW
+}
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "ANY"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}

@@ -48,7 +48,6 @@ describe('Manufacture network', () => {
             userName: 'PeerAdmin',
             roles: [ 'PeerAdmin', 'ChannelAdmin' ]
         };
-
         const deployerCard = new IdCard(deployerMetadata, connectionProfile);
         deployerCard.setCredentials(credentials);
 
